@@ -1,28 +1,34 @@
 <!doctype html><html lang="en"><meta charset="utf-8">
 <title>Bee-counter — insight gallery</title>
 <style>
- body{font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
- header{padding:28px 32px;background:#161922;border-bottom:1px solid #2a2f3a}
- h1{margin:0 0 6px;font-size:24px} header p{margin:4px 0;color:#b8c0cc;max-width:60em}
- .key{margin-top:10px;font-size:14px;color:#9aa4b2}
- .caveat{margin-top:12px;padding:10px 14px;background:#1d2230;border-left:3px solid #ffb454;border-radius:4px;font-size:14px;color:#d7dde6;max-width:60em}
+ :root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309}
+ body{font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#fafafa;color:var(--ink)}
+ header{padding:28px 32px;background:#fff;border-bottom:1px solid var(--line)}
+ h1{margin:0 0 6px;font-size:24px;letter-spacing:-.01em} header p{margin:4px 0;color:var(--mut);max-width:60em}
+ .key{margin-top:10px;font-size:14px;color:var(--mut)}
+ .caveat{margin-top:12px;padding:10px 14px;background:#fff7ed;border-left:3px solid var(--accent);border-radius:4px;font-size:14px;color:var(--ink);max-width:60em}
  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px;padding:24px 32px}
- .card{margin:0;background:#161922;border:1px solid #2a2f3a;border-radius:10px;overflow:hidden}
- .card img{width:100%;display:block;background:#fff}
- .badge{padding:8px 14px;font-size:13px;font-weight:600;color:#ffb454;background:#1d2230}
+ .card{margin:0;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+ .card img{width:100%;display:block;background:#fff;border-bottom:1px solid var(--line)}
+ .badge{padding:8px 14px;font-size:13px;font-weight:600;color:var(--accent);background:#fff7ed}
  figcaption{padding:12px 16px 18px} figcaption h3{margin:0 0 6px;font-size:17px}
- .shows{margin:0 0 8px;color:#b8c0cc;font-size:14px} .why{margin:0;color:#9aa4b2;font-size:13.5px}
- .headline{margin:18px 0 4px;padding:18px 22px;background:linear-gradient(135deg,#1b2233,#161922);
-   border:1px solid #2a3550;border-radius:10px;max-width:60em}
- .headline h2{margin:0 0 6px;font-size:20px;color:#fff} .headline p{color:#cdd6e2;max-width:none}
- .headline .note{font-size:14px;color:#aeb8c6;margin-top:10px}
+ .shows{margin:0 0 8px;color:var(--mut);font-size:14px} .why{margin:0;color:var(--mut);font-size:13.5px}
+ .headline{margin:18px 0 4px;padding:18px 22px;background:#fff;
+   border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;max-width:60em}
+ .headline h2{margin:0 0 6px;font-size:20px;color:var(--ink)} .headline p{color:var(--ink);max-width:none}
+ .headline .note{font-size:14px;color:var(--mut);margin-top:10px}
  table.rank{border-collapse:collapse;margin:12px 0;font-size:15px;min-width:30em}
- table.rank th{text-align:left;color:#8b94a3;font-weight:600;padding:4px 16px 6px 0;border-bottom:1px solid #2a3550}
- table.rank td{padding:6px 16px 6px 0;border-bottom:1px solid #20283a}
- table.rank td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:#fff}
- table.rank td.dim{font-weight:400;color:#8b94a3} table.rank td.medal{white-space:nowrap}
+ table.rank th{text-align:left;color:var(--mut);font-weight:600;padding:4px 16px 6px 0;border-bottom:2px solid var(--line)}
+ table.rank td{padding:6px 16px 6px 0;border-bottom:1px solid var(--line)}
+ table.rank td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+ table.rank td.dim{font-weight:400;color:var(--mut)} table.rank td.medal{white-space:nowrap}
+
+.bc-topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid #e4e7ec;padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:50;font:15px/1 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif}
+.bc-topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:#1a1f29}
+.bc-topnav a{color:#1d4ed8;text-decoration:none}
+.bc-topnav a:hover{text-decoration:underline}
 </style>
-<header>
+<div class="bc-topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html" style="font-weight:700">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><header>
  <h1>Bee entries across four hives — insight gallery</h1>
  <p><b>Research question:</b> do the hives differ in how many bees enter, and what are the
  temporal patterns? Each camera is a different hive/orchard — C1 blueberry (אוכמניות),
@@ -45,7 +51,6 @@
  very different durations (C1/C2 hours, C3/C4 minutes), over overlapping-but-different time windows.
  So cross-hive claims use entries/min (#1–#3) and, for the cleanest comparison, the common-window
  cut (#3). Totals (#7) are context only.</div>
- <p class="key">Pick the ones to keep/refine for the final report. ★ = my recommendation.</p>
 </header>
 <div class="grid">
     <figure class="card">
