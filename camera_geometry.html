@@ -1,0 +1,118 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Camera geometry & valid-window review (2026-06-21) — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="camera-geometry-valid-window-review-2026-06-21">Camera geometry &amp; valid-window review (2026-06-21)</h1>
+<p>A manual quality-gate review of the full-dataset counts found that the founding
+assumption — <em>"the cameras are static, so one crop + entry-zone drawn on a reference
+clip transfers to every clip"</em> — is <strong>only partly true</strong>. The cameras moved over the
+4-hour session and the recording edges contain non-recording events. This doc records
+what we found, the fixes, and what must be re-run.</p>
+<h2 id="how-we-checked">How we checked</h2>
+<p>Visual review (not just metrics): the <strong>clip debugger</strong> (<code>/clipview</code>, opens mid-clip),
+<code>scripts/entrance_review.py</code> (first/mid/last per camera), <code>scripts/entrance_filmstrip.py</code>
+(dense strips), <code>scripts/find_valid_window.py</code> (first/last K clips with index+time), and
+overlay renders with the entry zone as a reference line. Automated drift detectors were
+built (<code>scripts/measure_drift.py</code> phase-correlation, <code>scripts/measure_zone_drift.py</code>
+darkest-band) but proved <strong>unreliable on this footage</strong> (see Lessons) — the human eye was
+the deciding gate.</p>
+<h2 id="findings-per-camera">Findings per camera</h2>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>Camera stability</th>
+<th>Edge clips to drop</th>
+<th>Geometry action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C1</strong></td>
+<td>Tilts down→frontal over the first ~30 min, then steady (drift ≤~20px, count impact −0.4%)</td>
+<td><code>IMAG0004</code> (install, tilted down)</td>
+<td>none — zone unchanged, drop the 1 install clip</td>
+</tr>
+<tr>
+<td><strong>C2</strong></td>
+<td><strong>One sharp jump at ~12:36</strong> (entrance ~157px lower before it) + grass occlusion grows through the day + final fall</td>
+<td><code>IMAG0004</code> (install), <code>hive1.mp4</code> (stray), <code>IMAG0012–0052</code> (pre-jump segment A), <code>IMAG1212</code> (fell to sky)</td>
+<td><strong>crop + zone re-drawn</strong> on a mid clip (IMAG0608); valid window IMAG0056–1208 is one geometry</td>
+</tr>
+<tr>
+<td><strong>C3</strong></td>
+<td>Stable; zone on the slot throughout</td>
+<td><code>IMAG0046</code> (4s removal/hand clip)</td>
+<td>none — drop the 1 removal clip</td>
+</tr>
+<tr>
+<td><strong>C4</strong></td>
+<td>Stable all session</td>
+<td>none</td>
+<td><strong>crop + zone re-drawn</strong> (improved hug of the slot); keep all clips</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c2-the-jump-detail">C2 — the jump (detail)</h3>
+<p>The box/entrance sits ~157px lower in the frame for IMAG0012–0052 (12:28–12:35), then
+<strong>jumps up between IMAG0052 (12:35:44) and IMAG0056 (12:36:32)</strong> — a single discrete
+shift, almost certainly the camera being knocked just after install. From IMAG0056 on,
+the framing is consistent and the re-drawn zone fits the whole remaining window. Because
+segment A's entrance also falls near the bottom edge of the (segment-B) crop, those 11
+clips would need their own crop+zone; they are dropped instead (negligible: 11 of ~300).</p>
+<h2 id="geometry-changes-applied">Geometry changes applied</h2>
+<ul>
+<li><code>configs/microscope.yaml</code> — C2 crop <code>[156,802,1024,1077] → [74,596,1048,1026]</code>,
+  C4 crop <code>[20,562,883,762] → [1,494,918,886]</code> (taller/repositioned).</li>
+<li><code>configs/entry_zones.yaml</code> + <code>configs/c{2,4}_absorption.yaml</code> <code>zone</code> — C2 entrance moved
+  up ~160px to the true slot; C4 re-hugged. C1/C3 unchanged.</li>
+<li><code>configs/valid_windows.yaml</code> — the exclusion lists above (single source of truth).</li>
+</ul>
+<h2 id="what-must-be-re-run-subset-only">What must be re-run (subset only)</h2>
+<ul>
+<li><strong>C2</strong> — re-detect the valid window (IMAG0056–1208, ~289 clips) on the new crop, recount.</li>
+<li><strong>C4</strong> — re-detect all 29 clips on the new crop, recount.</li>
+<li><strong>C1, C3</strong> — <strong>no re-detection</strong> (geometry unchanged); just exclude the dropped clip at aggregation.</li>
+<li>Then <strong>re-aggregate</strong> stats / timeline / plots / insights (Phase 6) from the corrected counts.</li>
+</ul>
+<p>Status (2026-06-21): geometry fixed + documented; <strong>re-runs pending user visual sanity
+sign-off</strong>, then C2/C4 re-detection → recount → regenerate stats &amp; plots.</p>
+<h2 id="lessons-learned-carry-forward">Lessons learned (carry forward)</h2>
+<ol>
+<li><strong>Cameras are not static over long sessions.</strong> Verify framing across the <em>whole</em>
+   timeline before assuming one crop/zone transfers — don't trust a single reference clip.</li>
+<li><strong>Draw geometry on a representative MID-session clip</strong>, not the first one (the early
+   clips can be an unsettled / install position).</li>
+<li><strong>Always drop install/removal edge clips</strong> (hands, sky, fall) — they produce garbage or
+   false counts (e.g. C2's fall gave 85 false entries).</li>
+<li><strong>Automated drift detection is unreliable here</strong> — phase-correlation <em>aliases</em> on the
+   repeating box slats (gave a false flat 128px), and darkest-band/template matching fails
+   under grass occlusion or sparse early bees. Treat auto-measurements as hints and
+   <strong>visually validate</strong> every correction; never trust a low-confidence shift.</li>
+<li><strong>Frame 0 is a bad inspection default</strong> (exposure/motion-blur transient) — view mid-clip.</li>
+<li><strong>The detection crop must contain the entrance for every clip in scope.</strong> If the camera
+   drifts the entrance out of the crop, detections miss those bees and no recount recovers
+   them — re-detection on a corrected crop is required.</li>
+<li><strong>Grass occlusion grows through the day</strong> on C2/C4 — a real recall limiter, not a
+   geometry bug; not fixable by moving the zone.</li>
+<li><strong>Bake a quality-gate review into the pipeline</strong>, not just metric checks — the counts
+   looked fine in aggregate while a camera was pointing at the sky.</li>
+</ol></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

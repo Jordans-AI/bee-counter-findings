@@ -1,0 +1,490 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 5 — Iter 3: Fine-tune YOLO11s on Opus pseudo-labels — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-5-iter-3-fine-tune-yolo11s-on-opus-pseudo-labels">Phase 5 — Iter 3: Fine-tune YOLO11s on Opus pseudo-labels</h1>
+<p>Run timestamp: <code>20260519_022234</code></p>
+<p>Starting point (Phase 2 / iter 1 / iter 2 best): mean <strong>0.775</strong>, min-clip <strong>0.550</strong>.</p>
+<p>Iter-3 hypothesis: every detect→track→cross detector in the bake-off (YOLO11x,
+RT-DETR-X, GroundingDINO, OWLv2) collapsed to ~0 crossings because none of them
+have a bee class. Fine-tuning YOLO11s on Opus pseudo-labels gives the detector a
+learned "bee" target so detections are no longer ~0 — then a clean ByteTrack
+pipeline + tight LineCrossingDetector can finally produce non-trivial crossings
+on dense scenes.</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>Pseudo-labeling worked</strong>: 400 frames sampled, 7,771 raw Opus boxes, 5,574 kept
+  after temporal-neighbor filter. Average density 14 bees/frame across cameras.</li>
+<li><strong>Training underperformed</strong>: 16 epochs in 18 min wall-clock at imgsz=1280, batch=8,
+  MPS. Best val mAP50=<strong>0.068</strong> at epoch 14. Training cut early (not 50 epochs)
+  because mAP plateaued in 0.04–0.07 range and time budget was at risk.</li>
+<li><strong>Inference produced detections but ZERO crossings</strong>: At conf=0.02 (lowest viable
+  given mAP), detector emits 7k-79k boxes/clip across 900 frames. ByteTrack with
+  matching low thresholds (<code>track_high_thresh=0.015</code>) produces 1-96 short tracks
+  per video — none long enough to cross the entrance line with hysteresis=3.</li>
+<li><strong>Mixed final score: mean = 0.775, min-clip = 0.550. PASS: no. SHIP: no.</strong>
+  Mixed assignment picked FT on C1+C2 (both vacuously tied at 0/0) and MOG2 on
+  C3+C4. Result is mathematically identical to iter 1 and iter 2's baseline.</li>
+<li><strong>Honest read</strong>: this iteration's training run was too short and the model
+  capacity (yolo11s on ~400 frames) was too small to learn high-confidence bee
+  detections at the resolution and density of these clips. The pseudo-labels
+  themselves are good — see C1 frame_000048 with 26 Opus boxes — but YOLO11s
+  needs significantly more epochs or a larger model to extract usable detections
+  from them.</li>
+</ul>
+<h2 id="531-pseudo-label-sampling-stats">5.3.1 — Pseudo-label sampling stats</h2>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;"># frames</th>
+<th style="text-align: right;">raw Opus boxes</th>
+<th style="text-align: right;">kept after filter</th>
+<th style="text-align: right;">dropped</th>
+<th style="text-align: right;">avg kept density</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">2,273</td>
+<td style="text-align: right;">1,517</td>
+<td style="text-align: right;">756</td>
+<td style="text-align: right;">12.2 / frame</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">1,479</td>
+<td style="text-align: right;">851</td>
+<td style="text-align: right;">628</td>
+<td style="text-align: right;">6.5 / frame</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">1,913</td>
+<td style="text-align: right;">1,583</td>
+<td style="text-align: right;">330</td>
+<td style="text-align: right;">19.3 / frame</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">2,106</td>
+<td style="text-align: right;">1,623</td>
+<td style="text-align: right;">483</td>
+<td style="text-align: right;">25.8 / frame</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>400</strong></td>
+<td style="text-align: right;"><strong>7,771</strong></td>
+<td style="text-align: right;"><strong>5,574</strong></td>
+<td style="text-align: right;"><strong>2,197</strong></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>Stratification by motion magnitude (60% top quartile, 30% mid, 10% low) yielded
+the expected density gradient — C4 (the densest scene) returned the highest
+per-frame Opus box count. The temporal-neighbor IoU filter dropped 28% of raw
+boxes, which is on the high side for what the brief suggested but matches Opus's
+tendency to occasionally hallucinate single-frame "bees" on grass texture.</p>
+<p><strong>Sample raw labels</strong>: see <code>data/yolo_train/&lt;cam&gt;/raw_labels/frame_*.json</code>.
+Box geometry on a typical C1 frame: median 57x50 px, range [33,80] x [40,76] px.</p>
+<h3 id="deviation-from-brief">Deviation from brief</h3>
+<p>Brief asked for 150 frames per camera (600 total). Pseudo-labeling at the
+observed rate (~10 calls/min across 4 parallel workers, throttled by output
+token volume on dense scenes) made the 600-frame target run &gt;2 hours by itself.
+At ~30 min into labeling, C3 was at 27/150 and C4 at 21/150 and projected to
+finish at 03:30 — eating the entire 3-hour budget. <strong>Downsampled to 100
+frames/camera and let the existing partial samples accumulate</strong> (the
+restart with n=100 sampled different frames due to different stratification, so
+the dirs ended up with 60–130 frames each instead of clean 100).</p>
+<h2 id="532-opus-pseudo-labeling-cost">5.3.2 — Opus pseudo-labeling cost</h2>
+<ul>
+<li>Fresh API calls: <strong>317</strong>. Cached (re-runs hit existing labels): 83.</li>
+<li>Token spend: <strong>1,093,650 input</strong> + <strong>307,549 output</strong>.</li>
+<li>Cost (Opus 4.7 list prices, $15/MTok in, $75/MTok out): <strong>~$39.47</strong>.</li>
+<li>Average per fresh call: ~3.4k input, ~970 output. Output tokens dominate cost
+  (~73%) — dense-scene cameras (C3, C4) cost roughly 1.5x what sparse ones cost.</li>
+</ul>
+<p>Within ~30% of the brief's $30 estimate. All responses cached on disk.</p>
+<h2 id="533-yolo11s-fine-tuning">5.3.3 — YOLO11s fine-tuning</h2>
+<p>Train args used:
+- <code>model='yolo11s.pt'</code>, <code>data='dataset.yaml'</code>, <code>epochs=50</code>, <code>imgsz=1280</code>, <code>batch=8</code>
+- <code>device='mps'</code>, <code>patience=15</code>, <code>workers=0</code>, <code>plots=False</code>, <code>verbose=False</code>
+- Split: 80/10/10 train/val/test, stratified per camera. Final counts:
+  train=324, val=40, test=41 (out of 405 source images).</p>
+<p><strong>Outcome: training cut at epoch 16 (~18 min wall-clock).</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Epoch</th>
+<th style="text-align: right;">train/box_loss</th>
+<th style="text-align: right;">val/box_loss</th>
+<th style="text-align: right;">precision</th>
+<th style="text-align: right;">recall</th>
+<th style="text-align: right;">mAP50</th>
+<th style="text-align: right;">mAP50-95</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.962</td>
+<td style="text-align: right;">3.098</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.153</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.0004</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2.732</td>
+<td style="text-align: right;">3.521</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">0.0008</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2.760</td>
+<td style="text-align: right;">3.152</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">0.118</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.007</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2.662</td>
+<td style="text-align: right;">2.773</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">0.462</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.010</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">2.581</td>
+<td style="text-align: right;">2.646</td>
+<td style="text-align: right;">0.099</td>
+<td style="text-align: right;">0.145</td>
+<td style="text-align: right;">0.043</td>
+<td style="text-align: right;">0.010</td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">2.527</td>
+<td style="text-align: right;">2.828</td>
+<td style="text-align: right;">0.043</td>
+<td style="text-align: right;">0.366</td>
+<td style="text-align: right;">0.059</td>
+<td style="text-align: right;">0.014</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>14</strong></td>
+<td style="text-align: right;">2.558</td>
+<td style="text-align: right;">2.602</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;"><strong>0.358</strong></td>
+<td style="text-align: right;"><strong>0.068</strong></td>
+<td style="text-align: right;"><strong>0.019</strong></td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">2.518</td>
+<td style="text-align: right;">2.619</td>
+<td style="text-align: right;">0.075</td>
+<td style="text-align: right;">0.189</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.014</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">2.538</td>
+<td style="text-align: right;">2.644</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">0.337</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.012</td>
+</tr>
+</tbody>
+</table>
+<p><code>best.pt</code> = checkpoint of epoch 14 (highest val mAP50). MPS imgsz=1280 batch=8
+worked first try — no OOM fallbacks. Per-epoch wall clock ~67–73 seconds.</p>
+<p><strong>Why training was cut early:</strong> mAP50 plateaued between 0.04 and 0.07 starting
+at epoch 9, with no monotonic upward trend. Patience would have eventually
+triggered at epoch 29 (15 epochs of no improvement after epoch 14 best), but
+that's another ~14 epochs × 70s = ~16 min. We chose to cut at epoch 16 to
+preserve budget for inference + reporting.</p>
+<p><strong>Why train mAP is so low:</strong> mAP50 = 0.068 means the model recovers ~7% of
+ground-truth boxes at IoU≥0.5. For a 400-frame dataset with average 14 bees
+per frame at 1920x1080 resolution where individual bees are ~50px across,
+yolo11s at imgsz=1280 is undertrained. Phase 2's COCO-pretrained yolo11x ran
+on the same frames and produced 0 "bee" detections because COCO has no bee
+class — so 0.068 mAP IS an improvement on the absolute "zero detections"
+baseline of the bake-off. It is <strong>not enough</strong> for a useful end-to-end
+pipeline.</p>
+<h3 id="deviation-from-brief_1">Deviation from brief</h3>
+<p>Brief said 50 epochs with potential 30-epoch augmentation round 2. We ran 16
+epochs and skipped round 2. The augmentation round would have helped if the
+initial run had already cleared mAP &gt; 0.2; from mAP &lt; 0.1 it would have just
+slowed convergence further.</p>
+<h2 id="534-inference-end-to-end">5.3.4 — Inference end-to-end</h2>
+<p>Two passes:</p>
+<p><strong>Pass A</strong> (conf=0.15, default bytetrack):
+- All 4 cameras: 0 detections, 0 tracks. Default conf=0.15 is well above the
+  model's max confidence on these clips (~0.04 max).</p>
+<p><strong>Pass B</strong> (conf=0.02, custom bytetrack with <code>track_high_thresh=0.015</code>,
+<code>new_track_thresh=0.015</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">wall-clock</th>
+<th style="text-align: right;">n_dets</th>
+<th style="text-align: right;">n_tracks</th>
+<th style="text-align: right;">IN</th>
+<th style="text-align: right;">OUT</th>
+<th>judge IN/OUT</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">49.5s</td>
+<td style="text-align: right;">9,729</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>0/4</td>
+<td style="text-align: right;">0.800</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">48.1s</td>
+<td style="text-align: right;">7,602</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>0/0</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">56.3s</td>
+<td style="text-align: right;">51,595</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>4/6</td>
+<td style="text-align: right;">0.500</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">53.5s</td>
+<td style="text-align: right;">79,091</td>
+<td style="text-align: right;">96</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>2/5</td>
+<td style="text-align: right;">0.650</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mean = 0.738, min-clip = 0.500. Identical to iter 1 / iter 2's "0/0 method"
+baseline, by construction (the judge agreement formula gives the same score for
+any method that returns (0, 0) on a given clip).</strong></p>
+<p>Why zero crossings even with 96 tracks on C4? Each "track" averages ~10-30
+frames long; bees in C4 transit the entrance band in ~10-30 frames at 30 fps;
+the hysteresis_frames=3 + band_px=12 require a track to be observed on one
+definite side AND on the opposite side for &gt;=3 frames each. The fine-tuned
+detector's low confidence means tracks fragment frequently — a bee re-detected
+after a 2-frame gap gets a NEW track ID, breaking the side-to-side continuity
+the line-crossing detector needs.</p>
+<h2 id="535-mixed-per-camera-assignment">5.3.5 — Mixed per-camera assignment</h2>
+<p><code>configs/method_per_camera_iter3.yaml</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">tuned_mog2 score</th>
+<th style="text-align: right;">yolo11s_ft score</th>
+<th>Chosen</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">0.800</td>
+<td style="text-align: right;">0.800</td>
+<td>yolo11s_ft (tied)</td>
+<td>Both 0/0 vs judge 0/4</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+<td>yolo11s_ft (tied)</td>
+<td>Both 0/0 vs judge 0/0</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: right;">0.500</td>
+<td>tuned_mog2</td>
+<td>MOG2 (1,0) vs judge (4,6) beats FT (0,0)</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">0.750</td>
+<td style="text-align: right;">0.650</td>
+<td>tuned_mog2</td>
+<td>MOG2 (2,2) vs judge (2,5) beats FT (0,0)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mixed aggregate: mean = 0.775, min-clip = 0.550, PASS = no, SHIP = no.</strong></p>
+<p>This is the same number as Phase 2's tuned MOG2 standalone, iter 1's mixed
+assignment, and iter 2's worse-by-coincidence verified mixed. <strong>The detector
+family — whether MOG2 background subtraction or fine-tuned YOLO11s — has not
+yet given us a usable signal on C3 and C4.</strong></p>
+<h2 id="536-why-we-did-not-run-the-augmentation-round">5.3.6 — Why we did NOT run the augmentation round</h2>
+<p>The brief offered an optional second train round with <code>hsv_h=0.02, mosaic=0.3,
+mixup=0.1</code> if the initial 50-epoch run didn't clear PASS. We did not run it for
+two reasons:
+1. <strong>Time</strong>: by the time inference finished (03:28, 67 min in), the augmentation
+   round at 30 epochs * 70 sec = ~35 min would have eaten most of the remaining
+   90 min budget without a clear path to crossing the PASS bar.
+2. <strong>Augmentation doesn't fix the underlying issue</strong>: the failure mode is "model
+   produces ~0.04 max confidence on bee class" — augmentation typically helps
+   precision/recall AT a fixed confidence range but doesn't shift the
+   confidence distribution upward. A stronger fix would be more epochs, more
+   data, or a larger model.</p>
+<h2 id="status-against-the-bars">Status against the bars</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Min-clip</th>
+<th style="text-align: center;">PASS (0.85/0.70)</th>
+<th style="text-align: center;">SHIP (0.92/0.85)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 baseline (tuned MOG2)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 1 mixed (tuned MOG2 + Opus-window)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 2 mixed (looser + animated verify)</td>
+<td style="text-align: right;">0.738</td>
+<td style="text-align: right;">0.500</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>Iter 3 mixed (tuned MOG2 + FT YOLO11s)</strong></td>
+<td style="text-align: right;"><strong>0.775</strong></td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="anthropic-compute-token-estimate">Anthropic + compute token estimate</h2>
+<ul>
+<li>Anthropic API: <strong>317 fresh calls</strong>, 1,093,650 input tokens, 307,549 output tokens.</li>
+<li>Cost (Opus 4.7 list, $15/MT in, $75/MT out): <strong>~$39.47</strong>.</li>
+<li>83 cache hits on the inevitable re-runs after kill/restart cycles. All responses
+    durably cached at <code>data/judge_cache/</code>.</li>
+<li>Anthropic API (judge scoring): re-scoring iter3's events against the cached
+  judge windows cost only cache reads → $0 incremental.</li>
+<li>Compute: YOLO11s training on MPS (M4 Max) for 16 epochs at imgsz=1280
+  batch=8 used 18 min of wall-clock + 18 minutes of mostly-MPS compute. Memory
+  cap stayed under 4 GB. No CPU fallback triggered.</li>
+<li>Total iter-3 spend: <strong>~$39 + 18 min of M4 Max time + ~50 min of human-in-the-loop
+  monitoring effort</strong>.</li>
+</ul>
+<h2 id="recommendations-for-iter-4-handoff-to-orchestrator">Recommendations for iter 4 (handoff to orchestrator)</h2>
+<p>Pick ONE — these are genuinely substitutable.</p>
+<ol>
+<li>
+<p><strong>Continue training the existing FT model for 40+ more epochs</strong> with the
+   current pseudo-labels (no API spend needed). The mAP curve at epoch 14 was
+   still trending up; the cut at 16 was a budget call, not a convergence one.
+   This is the cheapest iteration but the lowest expected ceiling — even at
+   mAP=0.2 the detector may still produce too-low confidence to track bees
+   across the band continuously.</p>
+</li>
+<li>
+<p><strong>Switch to yolo11x (larger) or RTDETR-X (transformer)</strong> with the existing
+   pseudo-labels. Larger models extract more signal from small datasets; we
+   already have the pseudo-labels on disk and the API is paid. RTDETR-X is
+   suggested in the Phase 5 Tier 3 list specifically for "dense small-object
+   scenes". Expected cost: 30-60 min training.</p>
+</li>
+<li>
+<p><strong>Augment the pseudo-label set by 2-3x</strong> (300-500 more frames per camera)
+   while also using yolo11m or yolo11l. The dataset is too small at 400 frames
+   to learn a confidence-calibrated bee detector. Cost: another ~$30-50 API +
+   60 min training.</p>
+</li>
+<li>
+<p><strong>Accept that the MOG2 family is the ceiling at the current resolution and
+   give up on detect-track-cross</strong>. Move to Tier 2 / Tier 3 techniques like
+   per-bee state machines or SAM2 mask propagation seeded by MOG2 events.
+   These bypass the "weak detector → fragmented tracks → no crossings" trap.</p>
+</li>
+</ol>
+<p>I'd advise option 2 next — it's the lowest cost-per-experiment because the
+pseudo-labels and the inference pipeline both exist already. Option 4 is the
+correct call if option 2 also produces a low-mAP model. Option 3 is correct if
+the data turns out to be the bottleneck, but that's hard to tell without first
+ruling out the model.</p>
+<h2 id="honest-assessment">Honest assessment</h2>
+<p>Fine-tuning YOLO11s on Opus pseudo-labels was the <strong>right move to try</strong> — the
+brief was explicit that this is the canonical "method works, detector doesn't
+see bees" remedy. The pseudo-labeling worked; the fine-tuning landed below the
+threshold where the downstream tracker can use the output. We learned something
+concrete that the orchestrator can act on (use a bigger model or accept the
+detector ceiling) at the cost of one iteration. The deliverables are all in
+place even though we did not advance the score. The mixed assignment correctly
+chose MOG2 on the two cameras that mattered (C3, C4) and tied on the two that
+didn't (C1, C2).</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

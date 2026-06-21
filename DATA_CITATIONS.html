@@ -1,0 +1,39 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Data citations — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="data-citations">Data citations</h1>
+<p>External datasets used in this project. <strong>Attribution is required</strong> by their
+licenses — cite these in any report, paper, or shipped artifact that relies on them.</p>
+<h2 id="bee-detection-training-dataset-yolo-fine-tuning-for-c1">Bee-detection training dataset (YOLO fine-tuning for C1)</h2>
+<blockquote>
+<p>Sledevic, Tomyslav (2024), "Labeled dataset for bee detection and direction
+estimation on beehive landing boards", Mendeley Data, V6,
+doi: <a href="https://doi.org/10.17632/8gb9r2yhfc.6">10.17632/8gb9r2yhfc.6</a></p>
+</blockquote>
+<ul>
+<li>Source: https://data.mendeley.com/datasets/8gb9r2yhfc/6</li>
+<li>License: <strong>CC BY 4.0</strong> (attribution required)</li>
+<li>Used for: fine-tuning the YOLO bee-instance detector applied to camera C1.</li>
+<li>Subset used: <code>detection/</code> — ~7,200 labeled hive-entrance frames (1920×1080),
+  YOLO format, single class <code>bee</code>.</li>
+<li>Local copy: <code>data/raw/sledevic_bee_dataset/</code> (gitignored, 7.3 GB; not redistributed).</li>
+</ul></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

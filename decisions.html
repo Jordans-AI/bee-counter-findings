@@ -1,0 +1,1091 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>C1 bee-entry counter — progress & decision log — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="c1-bee-entry-counter-progress-decision-log">C1 bee-entry counter — progress &amp; decision log</h1>
+<p>Living record of the approach, the forks we hit, what we chose, and why — so we
+can revisit decisions later. Newest context at the bottom.</p>
+<h2 id="goal">Goal</h2>
+<p>Count bees <strong>entering</strong> the C1 hive (entries only). Target: within ±20% of the
+manual ground truth (stretch ±10%).</p>
+<h2 id="ground-truth-with-a-known-caveat">Ground truth — with a known caveat</h2>
+<ul>
+<li><code>ground_truth_labels.jsonl</code>: <strong>51</strong> human-labeled IN events for C1.</li>
+<li>⚠️ <strong>GT is not perfect</strong> (labeler's own note, 2026-06-18). So treat the exact
+  count ratio and especially temporal F1 as <em>approximate</em>. Visual inspection of a
+  method is at least as trustworthy as a 0.05 F1 difference. Re-labeling or a second
+  labeler would tighten this.</li>
+</ul>
+<h2 id="methods-scoreboard-vs-gt51-15-frame-temporal-match">Methods scoreboard (vs GT=51, ±15-frame temporal match)</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>IN</th>
+<th>ratio</th>
+<th>F1</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motion "vanish-into-dark" (SHIPPED)</td>
+<td>52</td>
+<td>1.02</td>
+<td>0.76</td>
+<td>classical, no training; <code>configs/c1_entry.yaml</code></td>
+</tr>
+<tr>
+<td><strong>Absorption (FT-det terminations, trackless)</strong></td>
+<td>53</td>
+<td>1.04</td>
+<td><strong>0.79</strong></td>
+<td>detector-based, no global tracker; <code>configs/c1_absorption.yaml</code> — first to beat motion's F1</td>
+</tr>
+<tr>
+<td>YOLO-FT detector @ conf 0.10</td>
+<td>47</td>
+<td>0.92</td>
+<td>0.67</td>
+<td>trained on Sledevic; transfer-limited recall</td>
+</tr>
+<tr>
+<td>Hybrid motion∩YOLO</td>
+<td>44</td>
+<td>0.86</td>
+<td>0.72</td>
+<td>YOLO corroboration; drops 5 real entries YOLO can't see → worse than motion</td>
+</tr>
+<tr>
+<td><strong>C1-FT detector + ByteTrack + zone-entry</strong></td>
+<td>62</td>
+<td>1.22</td>
+<td>0.73</td>
+<td>recall up to <strong>0.94</strong> (catches the entries!); overcounts from track fragmentation</td>
+</tr>
+<tr>
+<td>(directional line-crossing — abandoned)</td>
+<td>52</td>
+<td>1.02</td>
+<td>0.66</td>
+<td>counted exits; superseded</td>
+</tr>
+</tbody>
+</table>
+<h2 id="finding-2026-06-18-c1-fine-tune-closed-the-detection-gap">Finding (2026-06-18): C1 fine-tune CLOSED the detection gap</h2>
+<p>User labeled 46 frames / 311 boxes (<code>c1_box_labels.json</code>, incl. the
+dark crawlers). Fine-tuned from the Sledevic weights (<code>scripts/finetune_c1.py</code>):
+val mAP50 0.18 → <strong>~0.73 peak</strong>; on C1 the detector now finds ~12 bees/frame and
+ByteTrack holds ~11 active tracks (vs <strong>1</strong> off-the-shelf). The detection gap is
+closed — <code>results/runs/c1_yolo_tracked.mp4</code>.</p>
+<ul>
+<li>Counter had to change: with a GOOD detector bees no longer "vanish" → the vanish
+  counter UNDER-counts. Switched to <strong>zone-entry on tracks</strong> (<code>count_c1_tracks.py</code>):
+  count a track crossing outside→inside the dark zone.</li>
+<li>Now recall is excellent (0.80–0.94) but it <strong>OVER-counts</strong> (62–104) because tracks
+  <strong>fragment</strong> (471 IDs for ~51 bees → one bee re-counted). De-dup pulls it toward
+  the band but past ~dedup_frames≈12 (the GT median gap) it merges <em>distinct</em> entries
+  (recall falls), so it can't honestly reach ±20% by de-dup alone.</li>
+<li><strong>Next lever (clear): reduce fragmentation</strong> — ByteTrack re-ID / longer track_buffer
+  / a small appearance embedding → one bee = one track = one count at the detector's
+  high recall. That is the path to beat the motion counter.</li>
+</ul>
+<h2 id="finding-2026-06-18-fragmentation-reduction-attempt-plateau">Finding (2026-06-18): fragmentation-reduction attempt — plateau</h2>
+<p>Tried to make the detector count beat motion by reducing fragmentation:
+- <strong>BoT-SORT</strong> (Kalman motion + long buffer + high new_track_thresh,
+  <code>configs/botsort_c1.yaml</code>) cut IDs 471 → 357 (modest; bees are small/fast/occluding,
+  and appearance-ReID is weak because bees look alike).
+- <strong>Motion-continuity stitching</strong> (<code>count_c1_tracks.py --stitch</code>) merged 357 → 226 but
+  didn't help the count (merging long tracks adds in/out wobble for the entry rule).
+- <strong>Counter matrix</strong> (BoT-SORT tracks): zone-entry dedup120/20 → 62 (F1 0.73);
+  ends_inside → 44 (F1 0.65); ends_inside+stitch → 36 (F1 0.55); vanish/Hungarian → 34
+  (F1 0.64). Recall reaches 0.94, but no tracker×counter combo beats motion's F1 0.76.</p>
+<p><strong>Verdict: the FT detector is a strong high-recall <em>component</em>, but robust entry
+<em>counting</em> from its tracks plateaus at F1 ~0.65–0.73.</strong> The blockers are (a) residual
+track fragmentation and (b) the genuine ambiguity of "entered" at a crowded entrance
+(loitering bees, in/out wobble). Beating motion would need a proper appearance/re-ID
+tracker or learned per-track entry classification — a larger effort, not quick tuning.
+<strong>Motion "vanish" counter (52/51, F1 0.76) remains the most robust shipped count.</strong></p>
+<h2 id="decision-forks">Decision forks</h2>
+<ol>
+<li><strong>Judge proxy was wrong.</strong> The overnight run scored vs a Claude-judge that said
+   C1 = 0 IN; the "0.775 structural cap" was agreement with a broken target.
+   → Switched to manual GT (51). [final.md]</li>
+<li><strong>Counting semantics.</strong> Up-line-crossing counted <em>exits</em> (matched the total only
+   because exits≈entries). → Direction-agnostic <strong>vanish-into-dark</strong> (a track that
+   ends inside the dark entrance, having started outside). F1 0.66 → 0.76.
+   [src/beecounter/count/vanish_entry.py]</li>
+<li><strong>Entrance geometry.</strong> cameras.yaml line sits above the real entrances; entrances
+   are the dark notch holes. Auto dark-mask zone (data-driven) used by default;
+   user can hand-draw polygon zones in the viewer (<code>configs/entry_zones.yaml</code>).</li>
+<li><strong>Viewer microscope.</strong> Brightened/upscaled crop + algo overlays (flow/diff/MOG2/
+   tracks/predicted) + re-selectable crop + polygon zones + arrow-key scrub.</li>
+<li><strong>Bee-instance detection.</strong> Chose YOLO fine-tune on real bee data over zero-shot.
+   Dataset: Sledevic 2024 Mendeley V6 (CC BY 4.0, see DATA_CITATIONS.md). Trained
+   YOLO11s → val mAP50 0.975 (dataset side excellent), but <strong>transfer to C1 is
+   recall-limited</strong> (~0.65): only detects the dark entrance crawlers at very low
+   conf. Matches the count (47) but does <strong>not</strong> beat the motion counter.</li>
+</ol>
+<h2 id="finding-2026-06-18-yolobytetrack-on-c1-detector-is-the-wall">Finding (2026-06-18): YOLO+ByteTrack on C1 — detector is the wall</h2>
+<ul>
+<li>Added ByteTrack (Kalman + high/low-score association) over the FT detector, and
+  tuned thresholds for C1's low confidences (<code>configs/bytetrack_c1.yaml</code>,
+  <code>scripts/track_bees_c1.py</code>).</li>
+<li>Result on a 300-frame segment: only ~4 active tracks vs ~10 visible bees, and
+  <strong>85 fragmented IDs in 300 frames</strong> (~9-frame avg track). Tracking can't fix the
+  detector's <strong>low recall on the dark entrance crawlers</strong> (the actual entries).</li>
+<li><strong>Verdict: the off-the-shelf detector is NOT good enough on C1 as-is.</strong> The
+  top-down→side-angle + dark-entrance domain gap is the bottleneck; no tracker
+  tuning closes it. Clean playback: <code>results/runs/c1_yolo_tracked.mp4</code>.</li>
+</ul>
+<h2 id="open-decision">Open decision</h2>
+<ul>
+<li><strong>(A) Fine-tune on C1</strong>: label ~30–50 C1 crop frames (viewer labeler) → fine-tune
+  the detector on C1's own bee appearance → stable detection+tracking → re-evaluate.
+  The path to make detection competitive; costs the labeler's time.</li>
+<li><strong>(B) Ship the motion counter</strong> (52/51, within ±10%) as the final C1 method; treat
+  YOLO as a validated-but-insufficient experiment. The count goal is already met.</li>
+<li>Note: motion's <em>count</em> (52 vs 51) is robust regardless of the GT-F1 caveat.</li>
+</ul>
+<h2 id="finding-2026-06-18-motion-blobs-are-messy-but-calibrated">Finding (2026-06-18): motion blobs are "messy but calibrated"</h2>
+<p>User (watching the microscope) noted motion's blobs are too small, one bee makes
+many blobs, track IDs are unstable, and the green IN markers don't sit exactly on
+the entering bee — all true. But sweeping the obvious fixes makes the COUNT worse:</p>
+<table>
+<thead>
+<tr>
+<th>min_area</th>
+<th>close_k</th>
+<th>blobs</th>
+<th>IN</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14</td>
+<td>5 (shipped)</td>
+<td>11247</td>
+<td>52</td>
+<td><strong>0.76</strong></td>
+</tr>
+<tr>
+<td>30</td>
+<td>11</td>
+<td>6966</td>
+<td>30</td>
+<td>0.49</td>
+</tr>
+<tr>
+<td>60</td>
+<td>5</td>
+<td>6420</td>
+<td>36</td>
+<td>0.62</td>
+</tr>
+</tbody>
+</table>
+<p>Raising min_area / closing harder deletes the <strong>tiny last-motion sliver at the hole
+edge</strong> that <em>is</em> the vanish signal → recall collapses. So motion's small blobs are
+load-bearing; F1 0.76 is its ceiling and the messiness is intrinsic. It is a
+calibrated motion <em>statistic</em>, not a clean per-bee tracker. The FT detector is the
+clean per-bee alternative (one box/bee, recall 0.94) — its limit is track-ID
+stability. Net: clean detection vs clean counting is the open tension; stable
+per-bee tracking is the shared bottleneck.</p>
+<h2 id="finding-2026-06-18-overnight-c2-was-not-over-counting-incomplete-gt">Finding (2026-06-18, overnight): C2 was NOT over-counting — incomplete GT</h2>
+<p>The prior nightly session shipped C2 at <strong>68 IN</strong> flagged "UNVERIFIED, likely
+over-counts" because the only reference then (33 GT labels, mid-labeling) made it
+look ~2× high. This session caught the labeling <strong>in progress</strong>: the C2 GT count
+grew <strong>33 → 41 → 56 → 74</strong> over ~10 minutes while the user labeled (file mtime was
+seconds old throughout). Re-scoring the <em>unchanged</em> C2 run against GT at each
+snapshot, the ratio walked from 2.06 → 0.92 as labels were added.</p>
+<p><strong>Authoritative re-score (GT=74, the count at this writing):</strong>
+<code>predicted IN = 68, ratio = 0.92 — WITHIN ±10%</code>, temporal P=0.60 R=0.55 <strong>F1=0.58</strong>.
+So the current <code>configs/c2_entry.yaml</code> (C1's inherited motion params) already hits
+the count goal on C2; the "over-count" was an artifact of a half-finished GT.</p>
+<p><strong>Tuning is premature against a moving GT.</strong> A bounded 48-combo sweep
+(<code>scripts/sweep_c2_entry.py</code>: min_track_obs × dedup_frames × min_area × mog2_var)
+ran while GT=56 and found <em>no</em> config that jointly improves count-band and F1 —
+F1 caps at ~0.52–0.58 and degrades monotonically as the noise filters tighten the
+count down (same shape as C1: motion is a calibrated <em>statistic</em>, not a per-bee
+tracker, so temporal F1 has a low ceiling). The sweep's specific "winner" is stale
+the moment GT changes, so <strong>no config change was committed.</strong></p>
+<p><strong>Next session:</strong> once the user <em>commits</em> a final C2 GT, re-run
+<code>uv run --no-sync python scripts/sweep_c2_entry.py</code> (it reads GT live, no hardcoded
+count) to pick a config against the settled labels, then update <code>c2_entry.yaml</code>
+only if it beats the F1 0.58 / ratio 0.92 baseline. Do <strong>not</strong> retune before GT is
+final and committed.</p>
+<h2 id="finding-2026-06-18-overnight-c3-motion-counter-under-counts-by-25-structural-not-tunable">Finding (2026-06-18, overnight): C3 motion counter UNDER-counts by ~2.5× — structural, not tunable</h2>
+<p>C3 (the dense-crowd entrance) got its first manual GT this session, and it was
+being <strong>labeled live</strong>: the count grew <strong>12 (to frame 225) → 33 (to frame 417)</strong>
+during the run (same moving-GT situation as C2 last session). Per the partial-GT
+protocol, scored only the labeled window (frames ≤ max GT frame, computed live).</p>
+<p>The shipped <code>configs/c3_entry.yaml</code> (C1's inherited motion params) <strong>under-counts</strong>:
+6/12 in the first window (ratio 0.50, F1 0.44), 14/33 in the grown window
+(ratio 0.42, F1 0.34). A bounded <strong>36-combo recall sweep</strong>
+(<code>scripts/sweep_c3_entry.py</code>: min_track_obs × dedup_frames × dedup_px × min_area,
+all loosened toward higher recall, scored on the live GT window) found <strong>0/36
+combos in the ±20% band</strong> — best is ratio 0.42 / F1 0.34, identical to the
+baseline. Loosening dedup to effectively off (dd=3, px=30, obs=2) still only
+produces ~14 vanish events: the counter is <strong>detection/vanish-signal limited, not
+dedup limited</strong>. In a dense crowd, bees land on top of the cluster at the lip
+rather than descending into a visible dark hole, so the "vanish into the dark
+zone" signal never fires for ~two-thirds of the real entries. Recall is pinned at
+~0.24 regardless of every permissive knob.</p>
+<p><strong>Verdict: motion + vanish-counter has a hard ceiling on C3 well below the count
+band — same "calibrated statistic, not a per-bee tracker" shape as C1/C2, but the
+gap is far worse on the dense camera.</strong> No config change committed (a) because no
+combo reaches the band and (b) because C3 GT is still being actively labeled.
+Closing this gap needs a real per-bee detector/tracker on the C3 crop (the
+fine-tuned-YOLO path), not motion-param tuning. Committed the reusable
+<code>sweep_c3_entry.py</code> harness (live-GT, windowed) for re-running once C3 GT settles.</p>
+<h2 id="finding-2026-06-18-overnight-c4-motion-counter-under-counts-6-structural-worst-of-all-cameras">Finding (2026-06-18, overnight): C4 motion counter UNDER-counts ~6× — structural, worst of all cameras</h2>
+<p>C4 (heavy-grass / mixed crawl+fly) got its first manual GT this session — the user
+labeled all four cameras tonight in sequence (C1→C2→C3→C4) and C4 settled at <strong>42 IN
+through frame 166</strong> (an extremely dense ~5.5s window, ≈7.6 entries/sec; many GT
+frames repeat: frame 11 ×3, 136 ×3, 147 ×3). C4 had a crop + polygon but had never
+been brought up. Created <code>configs/c4_entry.yaml</code> (C1's inherited motion params, ROI
+from the microscope crop, <code>use_drawn_zones: true</code>).</p>
+<p>Scored on the labeled window (frames ≤ 166, partial-GT protocol): the counter
+produces <strong>7/42 IN — ratio 0.17, F1 0.29, precision 1.00, recall 0.17</strong>. Every fired
+event is real, but it misses 35 of 42. A bounded <strong>36-combo recall sweep</strong>
+(<code>scripts/sweep_c4_entry.py</code>, same four loosened levers as C3) found <strong>0/36 in the
+±20% band</strong> and — more telling — <strong>every combo produced 6 or 7 IN regardless of any
+knob</strong>: dedup/track/area have ZERO effect here. The counter only ever fires ~7 times
+in the window because the "vanish into a dark hole" signal never occurs for ~83% of
+C4 entries — bees crawl in through grass / cluster at the lip rather than descending
+into a visible dark notch.</p>
+<p><strong>Verdict: same structural ceiling as C2/C3 but the WORST case (recall 0.17 vs C3's
+~0.24, C2's ~0.55, C1's ~0.76).</strong> Ordering recall by entrance density/occlusion:
+C1 (visible dark notch) &gt; C2 &gt; C3 (dense crowd) &gt; C4 (grass + dense). Motion+vanish
+is a high-precision low-recall <em>statistic</em>, not a per-bee tracker; the gap widens
+monotonically as the entrance hides the descent. No config change committed (no
+combo reaches band; C4 GT is partial — only frame ≤166 labeled). Closing C3/C4 needs
+a per-bee detector/tracker on the crop (the fine-tuned-YOLO path), not motion tuning.
+Committed <code>configs/c4_entry.yaml</code> + the reusable <code>sweep_c4_entry.py</code> (live-GT, windowed).</p>
+<h2 id="finding-2026-06-18-overnight-trackless-absorption-counter-beats-motions-f1-on-c1">Finding (2026-06-18, overnight): trackless ABSORPTION counter beats motion's F1 on C1</h2>
+<p>Backlog task 2 ("per-hole occupancy / no tracking") — built and it WORKS. Idea: a bee
+that enters descends into a dark hole and is <strong>absorbed</strong>, so on the fine-tuned detector
+(recall ~0.94, one box/bee) its per-frame detection chain <strong>terminates inside the deep
+part of the entry zone and does not reappear</strong>. Build short greedy LOCAL nearest-neighbour
+tracks (gate 70px, bridge ≤5 dropped frames) purely to detect terminations; count the
+ones that die deep in the zone (lower 75% of the y-span), ≥6 frames long, deduped.</p>
+<p><strong>Result vs GT=51: 53 IN, ratio 1.04 (within ±10%), P=0.77 R=0.80 F1=0.79</strong> — the FIRST
+method to beat the shipped motion counter's F1 0.76, and with higher recall (0.80 vs
+motion's ~0.76). The winning region is a broad <strong>plateau</strong> (gate 60–85 × gap 5–6 ×
+min_len 6–10 all land F1 0.77–0.82), not a spike — robust, not overfit to exact GT frames.</p>
+<p><strong>Why this beats the earlier FT-detector counts</strong> (which plateaued at F1 0.65–0.73, see
+above): those used a GLOBAL ByteTrack/BoT-SORT track set and either the strict
+outside→inside zone-entry rule (overcounts from fragmentation: 471 IDs) or the vanish rule
+(undercounts: a good detector means bees don't "vanish" globally — 34). This counter never
+builds a global identity; it only needs a chain to <em>terminate locally inside the deep
+zone</em>, which is exactly the absorption event, so fragmentation elsewhere is irrelevant.</p>
+<p>Net: two independent C1 counters now agree on the count (motion 52, absorption 53, vs GT
+51) via completely different signals (MOG2 motion blobs vs detector terminations) — strong
+cross-method validation. Absorption is the better temporal method; motion needs no detector
+weights. Shipped both. The 12 FPs cluster on frames with detector dropouts that re-spawn a
+chain; the 10 FNs are entries onto the dense top-of-cluster where no descent is visible.
+Reproduce: <code>uv run python scripts/count_c1_absorption.py --config configs/c1_absorption.yaml --score</code>.
+Re-tune harness (sweeps the levers, scores vs live GT): <code>scripts/explore_c1_absorption.py</code>.</p>
+<h2 id="finding-2026-06-18-overnight-fusing-the-two-c1-counters-does-not-beat-absorption-negative-result">Finding (2026-06-18, overnight): FUSING the two C1 counters does NOT beat absorption — negative result</h2>
+<p>With two independent C1 counters that land near the count from unrelated signals (motion
+"vanish" 52, absorption "terminations" 53, vs GT 51), the obvious next idea is to fuse them
+for a higher F1. Built <code>scripts/explore_c1_fusion.py</code> (reads each method's events.jsonl,
+fuses by frame index, scores every fusion vs GT with the same greedy ±15f match) and swept
+three strategies × five dedup windows (8/10/12/15/20):</p>
+<table>
+<thead>
+<tr>
+<th>fusion</th>
+<th>best F1</th>
+<th>vs absorption 0.79</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>union (all events, collapse near-dups)</td>
+<td>0.75 (win=8, IN=53)</td>
+<td>worse</td>
+</tr>
+<tr>
+<td>intersection (both fire within win)</td>
+<td>0.65 (win=8, IN=29, <strong>P=0.90</strong>)</td>
+<td>worse count, high precision</td>
+</tr>
+<tr>
+<td>absorption + motion-only extras</td>
+<td>0.74 (win=10, IN=43)</td>
+<td>worse</td>
+</tr>
+</tbody>
+</table>
+<p><strong>No fusion beats absorption alone (F1 0.79).</strong> Mechanism: the two methods disagree on
+<em>which</em> events are real, so union either re-counts one bee twice (small win) or, at a larger
+dedup window, merges genuinely distinct entries (recall collapses 0.80→0.53); intersection
+throws away every entry only one method saw (recall 0.49). The methods' shared core is ~26
+entries at <strong>precision 0.90</strong> — that agreement is the <em>validation</em> payoff, not a better
+count. Verdict: ship absorption as the best single C1 counter; keep motion as the
+weight-free cross-check. Do not chase fusion further — the ceiling here is the GT ambiguity
+at a crowded entrance, not the combination rule. Reproduce:
+<code>uv run --no-sync python scripts/explore_c1_fusion.py</code>.</p>
+<h2 id="finding-2026-06-18-overnight-one-command-scoreboard-a-c2-scoring-correction">Finding (2026-06-18, overnight): one-command scoreboard + a C2 scoring CORRECTION</h2>
+<p>Built <code>scripts/scoreboard.py</code> — a single command that runs every shipped counting
+method on its camera, scores each <strong>inside that camera's labelled GT window</strong> (frames
+≤ last GT frame, computed live), and writes <code>scoreboard.md</code>. This is
+the project's "one command regenerates count + score per camera" deliverable
+(nightly_plan.md goal). It imports the existing cores (<code>run_c1_entry.run_entry_count</code>,
+<code>count_c1_absorption.*</code>, <code>compare_to_gt._greedy_match_frames</code>) — no counting code changed.</p>
+<p><strong>Why it matters — it corrected a wrong C2 number.</strong> The per-script <code>--score</code> calls
+<code>compare_to_gt.py</code> with NO <code>--max-frame</code>, so for the partial-GT cameras it compared
+<strong>full-video predictions</strong> against a GT that stops mid-clip. The prior "C2 = 68 IN,
+ratio 0.92, in ±10% band" verdict (logged above) was exactly this mismatch: C2 motion
+emits <strong>68 events over all 900 frames, but only 42 fall in the labelled window (≤544)</strong>,
+where GT = 74. Correctly windowed, <strong>C2 is 42/74 = ratio 0.57, F1 0.69 — OUT of band,
+under-counting</strong>, not in-band. So C2 is NOT an exception: it under-counts just like
+C3 (22/48, 0.46) and C4 (7/42, 0.17), confirming the single structural story across all
+non-C1 cameras (motion+vanish is high-precision/low-recall; recall falls as the entrance
+hides the descent: C1 0.76 &gt; C2 0.54 &gt; C3 0.31 &gt; C4 0.17).</p>
+<p>Authoritative windowed scoreboard (tol ±15f), <code>scripts/scoreboard.py</code>:
+| Cam | Method | Pred/GT | window ≤f | ratio | F1 |
+|---|---|---|---|---|---|
+| C1 | motion vanish | 52/51 | 880 | 1.02 | 0.76 |
+| C1 | absorption (FT-det) | 52/51 | 880 | 1.02 | 0.78 |
+| C2 | motion vanish | 42/74 | 544 | 0.57 | 0.69 |
+| C3 | motion vanish | 22/48 | 649 | 0.46 | 0.43 |
+| C4 | motion vanish | 7/42 | 166 | 0.17 | 0.29 |</p>
+<p>Note: C1 absorption reads 52/F1 0.78 here vs the standalone headline 53/F1 0.79 — the
+sole difference is windowing at the last C1 GT frame (880); one absorption event fires at
+frame &gt;880 (unlabelled) and is dropped. The counting code is unchanged; the standalone
+<code>count_c1_absorption.py --score</code> still reports 53/0.79. Windowing uniformly at the last GT
+frame is the correct partial-GT protocol, so the scoreboard uses 52/0.78.
+Reproduce: <code>uv run --no-sync python scripts/scoreboard.py</code>.</p>
+<h2 id="finding-2026-06-18-overnight-the-absorption-counter-transfers-to-c2c3c4-and-beats-motion-on-all-of-them-overturns-structural-under-count-needs-per-camera-fine-tune">Finding (2026-06-18, overnight): the ABSORPTION counter TRANSFERS to C2/C3/C4 and beats motion on ALL of them — overturns "structural under-count, needs per-camera fine-tune"</h2>
+<p>Every prior C2/C3/C4 verdict above ("motion+vanish under-counts, structural, needs a
+per-bee detector") was reached <strong>with only the motion counter</strong> — the trackless
+absorption method (C1's winner, F1 0.79) had never been pointed at the other cameras.
+This session ran the <strong>C1-fine-tuned YOLO detector</strong> (<code>results/runs/yolo_train/c1_finetune/
+weights/best.pt</code>, conf 0.1, preset bright) on the C2/C3/C4 crops (transfer — <strong>no
+per-camera fine-tune, no per-camera box labels</strong>), then ran the absorption counter
+(<code>scripts/count_c1_absorption.py</code>) with each camera's <code>entry_zones.yaml</code> polygon.</p>
+<p><strong>Windowed scores (≤ each camera's last GT frame, ±15f):</strong>
+| Cam | motion (prior) | absorption (now) | min_conf | verdict |
+|---|---|---|---|---|
+| C2 | 42/74 r0.57 F1 0.69 | <strong>54/74 r0.73 F1 0.73</strong> | 0.10 | improved; still under-counts |
+| C3 | 22/48 r0.46 F1 0.43 | <strong>49/48 r1.02 F1 0.72</strong> | 0.30 | <strong>IN BAND</strong> — first non-C1 camera to reach the count band |
+| C4 | 7/42 r0.17 F1 0.29 | <strong>21/42 r0.50 F1 0.67</strong> | 0.30 | ~2× better; grass still caps recall ~0.50 |
+| C1 | (ref) | 53/51 r1.04 F1 0.79 | 0.10 | unchanged (regression check) |</p>
+<p><strong>Why it works where motion failed:</strong> motion needs a bee to <em>descend into a visible
+dark hole</em> (the "vanish" signal), which the dense/crowded/grassy entrances of C2–C4 hide
+→ recall collapses. The absorption method only needs the detector to <em>see</em> the bee and
+its local chain to <em>terminate inside the entry zone</em>; the C1-FT detector, though
+out-of-domain, still detects most bees (22–64 boxes/frame). So the bottleneck was never
+"structural" — it was the <strong>motion signal</strong>, not the cameras.</p>
+<p><strong>The one general lever swept: detector confidence floor <code>min_conf</code></strong>
+(<code>scripts/explore_transfer_absorption.py</code>, joint over the three cameras, re-thresholds
+the cached detections — no re-detection). The out-of-domain detector over-fires duplicate
+low-score boxes; raising the floor trims spurious chains. C3 is <strong>robustly in-band across
+conf 0.15–0.40</strong> (ratio 1.19→0.94), so 0.30 is a plateau pick, not a GT overfit. C2 wants
+the <em>lowest</em> floor (its recall is the limiter, not FPs). C4 peaks at 0.30 but stays
+under-counted ~2× — grass/cluster entries genuinely show no descending chain (precision
+stays 1.00 throughout: every fired event is real, recall is the wall).</p>
+<p><strong>Remaining gap → the documented per-camera fine-tune path is now clearly worth it:</strong>
+C3 is in band with a <em>transfer</em> detector; per-camera box labels + fine-tune would lift
+C2/C4 recall the rest of the way (the detector is the limiter, and we now know absorption
+is the right counter on top of it).</p>
+<p>Configs: <code>configs/c{2,3,4}_absorption.yaml</code>. Reproduce (detections are gitignored; regen
+first): <code>uv run --no-sync python scripts/detect_bees_c1.py --weights results/runs/yolo_train/c1_finetune/weights/best.pt --camera C3 --conf 0.1 --preset bright --out results/runs/c3_yolo_detections_ft.json</code>
+then <code>uv run --no-sync python scripts/count_c1_absorption.py --config configs/c3_absorption.yaml</code>
+and score with <code>scripts/compare_to_gt.py --camera C3 --events &lt;out&gt;/events.jsonl --max-frame 649</code>.
+Joint conf sweep: <code>uv run --no-sync python scripts/explore_transfer_absorption.py</code>.</p>
+<h2 id="finding-2026-06-18-overnight-c2c4-under-count-was-gating-limited-not-structural-per-camera-recall-levers-fix-it">Finding (2026-06-18, overnight): C2/C4 under-count was GATING-limited, not structural — per-camera recall levers fix it</h2>
+<p>The transfer-absorption sweep (<code>explore_transfer_absorption.py</code>) only varied the detector
+confidence floor <code>min_conf</code>; every <em>structural</em> absorption lever (<code>deep_frac</code>, <code>min_len</code>,
+<code>dedup_frames</code>) was inherited unchanged from C1's config. C2 (54/74, ratio 0.73) and C4
+(21/42, ratio 0.50) under-counted with high precision headroom (P=0.87 / 1.00), so the open
+question was: are the missed entries detection-limited (the FT detector never sees the bee —
+no param can help) or gating-limited (the chain IS seen but terminates too shallow / too short
+/ is deduped away)? A bounded per-camera sweep over the recall levers
+(<code>scripts/explore_absorption_recall.py</code>, re-uses cached detections, scored in each window)
+answers: <strong>gating-limited.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>shipped (inherited C1)</th>
+<th>tuned</th>
+<th>change</th>
+<th>verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C2</td>
+<td>54/74 r0.73 F1 0.73 (OUT)</td>
+<td><strong>73/74 r0.99 F1 0.79</strong></td>
+<td>deep_frac 0.25→0.10, dedup_frames 15→8</td>
+<td><strong>IN ±10% BAND</strong> (2nd non-C1 camera, tighter than C3)</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>21/42 r0.50 F1 0.67 (OUT)</td>
+<td><strong>30/42 r0.71 F1 0.83 P=1.00</strong></td>
+<td>+ min_len 6→3</td>
+<td>big improvement; every recovered event is a TP</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why the C1 levers were wrong for C2/C4:</strong> <code>deep_frac=0.25</code> requires a termination in the
+lower 75% of the zone's y-span — sensible for C1 whose polygon includes an upper <em>lip</em>, but
+the user-drawn C2/C4 polygons hug the actual entrance, so the depth filter discarded real
+near-lip absorptions. <code>dedup_frames=15</code> (0.5 s) merged genuinely-distinct entries on C2's
+busier entrance. On C4, grass occlusion fragments the detection chains into shorter runs, so
+<code>min_len=6</code> discarded real short-but-terminating chains (recovered by <code>min_len=3</code>; precision
+stays 1.00, so these are true entries, not noise).</p>
+<p>C2's win is a <strong>broad plateau</strong>, not a spike: many neighbouring combos land ratio 0.9–1.1 with
+F1 ≥ 0.79 (e.g. conf0.20/deep0.10/mlen3/dd8 → 77, F1 0.85). C4 only <em>reaches</em> the ±20% band at
+the single most-permissive combo (conf0.10/deep0.0/mlen3/dd8 → 34, r0.81), so the robust pick
+keeps it at r0.71 — the densest/grassiest entrance is <strong>partly</strong> detection-limited, but it is
+NOT the ~6× structural wall first concluded with the motion counter. <strong>This overturns the
+"motion under-counts → structural → needs per-camera fine-tune to even reach the band" verdict
+for C2:</strong> C2 is now in the ±10% band with a <em>transfer</em> detector + the right gating. Per-camera
+box labels + fine-tune are still the path to close C4 the rest of the way, but are no longer a
+prerequisite for C2 to hit the count goal. C1 (absorption 52/51 F1 0.78, motion 52/51 F1 0.76)
+and C3 (49/48 F1 0.72) untouched. Reproduce:
+<code>uv run --no-sync python scripts/explore_absorption_recall.py</code> then
+<code>uv run --no-sync python scripts/scoreboard.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-spatial-validation-counters-land-at-the-right-place-and-absorption-localises-better-than-motion-on-the-hard-cameras">Finding (2026-06-19, overnight): SPATIAL validation — counters land at the right place, and absorption localises better than motion on the hard cameras</h2>
+<p>Every metric the project reports (scoreboard, bakeoff, final.md) matches predicted
+entries to GT on <strong>frame index only</strong> (±15f). That cannot distinguish a real match
+from a lucky frame coincidence at a busy entrance. The manual GT has carried a click
+<em>location</em> (<code>x_norm</code>/<code>y_norm</code>) per entry the whole time — never used. Built the first
+spatial check: pure space-time matcher <code>src/beecounter/count/spatial_match.py</code>
+(<code>match_temporal</code> paired frame matcher — parity-tested against
+<code>compare_to_gt._greedy_match_frames</code>; <code>greedy_match_spacetime</code> joint frame+space
+greedy matcher; <code>nearest_gt_distances</code> parameter-free diagnostic) + runner
+<code>scripts/spatial_validation.py</code> → <code>spatial_validation.md</code> + 11 unit
+tests. All coords are full-frame px (motion <code>centroid</code>, absorption <code>x</code>/<code>y</code>, GT
+<code>x_norm·1920</code>/<code>y_norm·1080</code> — verified aligned on C1). Touches <strong>no</strong> counting code,
+config, or the temporal scorer.</p>
+<p><strong>Localisation offset of temporal matches (px, scored in each camera's window):</strong>
+| Cam | method | matches | p25 | median | p75 |
+|---|---|---|---|---|---|
+| C1 | motion | 39 | 62 | 140 | 303 |
+| C1 | absorption | 40 | 76 | 134 | 259 |
+| C2 | motion | 40 | 117 | 157 | 293 |
+| C2 | absorption | 58 | 143 | 225 | 334 |
+| C3 | motion | 15 | 56 | 102 | 163 |
+| C3 | absorption | 35 | 56 | 89 | 167 |
+| C4 | motion | 7 | 89 | 295 | 391 |
+| C4 | absorption | 37 | 79 | 136 | 360 |</p>
+<p><strong>Joint space-time F1 (TP needs both ±15f AND ≤radius):</strong>
+| Cam | method | @60px | @100px | @150px |
+|---|---|---|---|---|
+| C1 | motion | 0.35 | 0.50 | 0.56 |
+| C1 | absorption | 0.35 | 0.47 | 0.58 |
+| C3 | motion | 0.20 | 0.29 | 0.40 |
+| C3 | absorption | 0.41 | 0.49 | 0.54 |
+| C4 | motion | 0.24 | 0.29 | 0.29 |
+| C4 | absorption | 0.45 | 0.65 | 0.75 |</p>
+<p><strong>Two honest findings.</strong> (1) Joint F1 sits well below temporal F1 (C1 0.76/0.78 →
+~0.50 @100px): a real fraction of temporal matches are spatially loose (right frame,
+~150px off). The temporal F1 is the <em>optimistic</em> bound; this is a calibrated lower
+bound the project never had. (2) <strong>Absorption localises markedly better than motion
+on the dense/grassy cameras</strong> — C3 @100px 0.49 vs 0.29, C4 @100px 0.65 vs 0.29, and
+tighter offsets (C4 median 136 vs 295px) — consistent with it being a per-bee detector
+vs motion's blob statistic. This is fresh evidence for shipping absorption beyond the
+count ratio: it both counts and <em>places</em> entries better where the entrance is hard.
+C2 absorption is the loosest (median 225px) — its higher recall (58 matches) admits
+some spatially-slack events; worth a look if C2 is ever re-tuned. No counting change;
+additive analysis only. Reproduce: <code>uv run --no-sync python scripts/spatial_validation.py</code>.</p>
+<h2 id="key-artifacts">Key artifacts</h2>
+<ul>
+<li>Whole-project scoreboard (one command, windowed GT): <code>scripts/scoreboard.py</code> -&gt; <code>scoreboard.md</code></li>
+<li>Shipped counter (motion): <code>scripts/run_c1_entry.py --config configs/c1_entry.yaml --score</code></li>
+<li>Absorption counter (detector, trackless): <code>scripts/count_c1_absorption.py --config configs/c1_absorption.yaml --score</code></li>
+<li>Per-camera entry configs (motion): <code>configs/c{1,2,3,4}_entry.yaml</code></li>
+<li>Per-camera absorption configs (detector, trackless — beats motion on all cameras): <code>configs/c{1,2,3,4}_absorption.yaml</code></li>
+<li>Transfer-absorption joint conf sweep (reusable, windowed): <code>scripts/explore_transfer_absorption.py</code></li>
+<li>C2/C3/C4 motion sweep harnesses (live-GT, windowed, reusable): <code>scripts/sweep_c{2,3,4}_entry.py</code></li>
+<li>Scorer: <code>scripts/compare_to_gt.py</code> · bakeoff rows in <code>bakeoff.md</code></li>
+<li>YOLO: <code>scripts/{train_bee_yolo,detect_bees_c1,count_c1_yolo}.py</code>, weights in
+  <code>results/runs/yolo_train/bee_yolo11s/weights/best.pt</code></li>
+<li>Viewer microscope: <code>/microscope/C1</code></li>
+</ul>
+<h2 id="finding-2026-06-18-overnight-absorption-cores-moved-into-the-beecounter-package-conventions-behavior-preserving">Finding (2026-06-18, overnight): absorption cores moved into the <code>beecounter</code> package (conventions; behavior-preserving)</h2>
+<p>The project's <strong>best</strong> counting method (trackless absorption, shipped on all four
+cameras) had its two pure cores — <code>find_terminations</code> (greedy local NN tracking) and
+<code>count_absorptions</code> (deep-zone termination gating + dedup) — living in
+<code>scripts/count_c1_absorption.py</code>, while the project conventions (CLAUDE.md, spec.md)
+say counting code belongs in <code>src/beecounter/count/</code> (one concern per module; pure
+functions for counting, I/O in narrow callers). The motion counter already lives there
+(<code>vanish_entry.py</code>); the better method did not. Six callers (<code>scoreboard.py</code>, the four
+<code>explore_*</code> sweeps, the tests) imported the cores via a <code>sys.path → scripts/</code> hack.</p>
+<p>Moved both pure cores into <strong><code>src/beecounter/count/absorption.py</code></strong> (matplotlib-<code>Path</code>
+polygon test only; no file/GPU/API I/O). <code>scripts/count_c1_absorption.py</code> now imports
+and re-exports them (<code>from beecounter.count.absorption import ...</code>), keeping its
+file-I/O <code>load_detections</code> and CLI. <strong>No caller needed editing</strong> — <code>count_c1_absorption.
+find_terminations</code> still resolves (to the same function object; asserted). The
+<code>test_absorption_counter.py</code> import was repointed at the package module (the canonical
+location) so the 12 core tests now exercise <code>beecounter.count.absorption</code> directly.</p>
+<p><strong>Behavior-preserving, verified by the scoreboard regression gate:</strong> <code>scripts/scoreboard.py</code>
+reproduces every committed number through the new import path <strong>exactly</strong> — C1 motion
+52/51 F1 0.76, C1 absorption 52/51 F1 0.78, C2 73/74 r0.99 F1 0.79, C3 49/48 r1.02 F1 0.72,
+C4 38/42 r0.90 F1 0.93 — all four cameras still in the ±10% band. <code>pytest</code> 95 passed,
+<code>ruff</code> clean. Pure refactor: zero metric change, the best method now lives where the
+conventions say it should and is importable as <code>from beecounter.count.absorption import
+count_absorptions, find_terminations</code>. (Considered but rejected this session: a
+density-adaptive <code>gate_px</code> to remove C4's lone 50-vs-70 deviation — only one of several
+genuinely-per-camera params differs, so it would not de-duplicate the configs and would
+risk regressing the three cameras verified best at 70. See the gate finding below.)</p>
+<h2 id="finding-2026-06-18-overnight-c4-reaches-the-10-band-the-absorption-local-tracker-gate-is-per-camera-density-dependent">Finding (2026-06-18, overnight): C4 reaches the ±10% band — the absorption local-tracker GATE is per-camera (density-dependent)</h2>
+<p>C4 was the <strong>last out-of-band camera</strong> (absorption 30/42, r0.71, F1 0.83, P=1.00 R=0.71)
+and had been written off as "partly detection-limited, needs per-camera box labels +
+fine-tune." That verdict was reached without ever sweeping the absorption counter's
+<strong>local-tracker</strong> levers: every prior sweep (<code>explore_transfer_absorption.py</code>,
+<code>explore_absorption_recall.py</code>) tuned the <em>gating</em> params (min_conf, deep_frac, min_len,
+dedup_frames) but left <code>gate_px</code> and <code>max_gap</code> at C1's inherited <strong>70 px / 5</strong>.</p>
+<p><code>gate_px</code> is the nearest-neighbour association radius the local tracker uses to decide
+whether a detection continues an existing chain or starts a new one. It decides whether a
+descending bee's chain TERMINATES (the absorption event we count) or gets re-associated to a
+neighbour and so never registers a termination. <strong>In a dense crowd a 70 px gate is too
+loose</strong> — a terminating chain is "stolen" by a nearby bee, suppressing recall.</p>
+<p>A bounded gate × gap sweep (<code>scripts/explore_absorption_gate.py</code>, cached detections, no GPU,
+windowed scoring) shows the right gate is a <strong>function of entrance density</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>density</th>
+<th>gate=40</th>
+<th>gate=50</th>
+<th>gate=70 (shipped before)</th>
+<th>best</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>low</td>
+<td>r1.51 F1 0.67</td>
+<td>r1.55 F1 0.66</td>
+<td><strong>r1.02 F1 0.78</strong></td>
+<td>70</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>med</td>
+<td>r1.23 F1 0.84</td>
+<td>r1.15 F1 0.79</td>
+<td><strong>r0.99 F1 0.79</strong></td>
+<td>70</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>dense</td>
+<td>r1.77 F1 0.65</td>
+<td>r1.33 F1 0.70</td>
+<td><strong>r1.02 F1 0.72</strong></td>
+<td>70</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>densest</td>
+<td>r1.10 F1 0.96</td>
+<td><strong>r0.90 F1 0.93</strong></td>
+<td>r0.71 F1 0.83 (OUT)</td>
+<td><strong>50</strong></td>
+</tr>
+</tbody>
+</table>
+<p>C1/C2/C3 are LESS dense and are verified <strong>best at 70</strong> — tightening fragments their chains
+and over-counts (C1 → r1.55, C3 → r1.77). <strong>Only C4</strong> (the densest/grassiest crowd, ~20–30
+bees in the 863×200 crop) wants the tighter gate. So <code>gate_px</code> is a genuine <strong>per-camera</strong>
+lever; only <code>configs/c4_absorption.yaml</code> changed (gate_px 70 → 50, max_gap unchanged at 5).</p>
+<p><strong>Authoritative result (scoreboard.py, windowed ≤166 vs GT=42, ±15f):
+C4 absorption 30/42 r0.71 F1 0.83 (OUT) → 38/42 r0.90 F1 0.925, P=0.97 R=0.88 — IN the ±10%
+band.</strong> The win is a <strong>broad plateau</strong> (gate 30–50 × gap 3–8 all land in the ±20% band; gate=50
+is the central, high-precision, single-lever pick that keeps the method's P≈1.0 character),
+not a single-combo spike. <strong>This overturns the "C4 is detection-limited / structural under-
+count, needs fine-tune to even reach the band" verdict:</strong> the limiter was the inherited-C1
+association gate being too loose for C4's density, not the detector. <strong>All four cameras are now
+in the ±10% count band with the absorption counter</strong> (C1 52/51, C2 73/74, C3 49/48, C4 38/42)
+— a transfer detector + per-camera gating, no per-camera fine-tune. C1 untouched (motion
+52/51 F1 0.76, absorption 52/51 F1 0.78). Reproduce:
+<code>uv run --no-sync python scripts/explore_absorption_gate.py</code> then <code>scripts/scoreboard.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-robustness-analysis-the-four-in-band-configs-are-centred-plateaus-not-knife-edge-gt-overfits-and-the-count-band-is-tolerance-independent">Finding (2026-06-19, overnight): ROBUSTNESS analysis — the four in-band configs are centred plateaus, not knife-edge GT overfits; and the count band is tolerance-independent</h2>
+<p>The project's headline ("all four cameras in the ±10/20% count band with the absorption
+counter") rests on four per-camera configs each tuned against an <em>approximate, partial</em>
+manual GT. The fair reviewer question — <strong>plateau or overfit?</strong> — was answered only
+qualitatively per camera ("broad plateau" notes scattered across this log). Built one
+quantitative artifact: <code>scripts/robustness_analysis.py</code> (+ <code>tests/test_robustness.py</code>,
+6 tests on the pure <code>neighbors</code> grid helper) → <code>robustness.md</code>. It reuses
+the cached FT detections (no GPU, no re-detection, no counting-code change), steps each
+shipped config one grid notch looser AND tighter on every interpretable lever (min_conf,
+gate_px, max_gap, min_len, deep_frac, dedup_frames) one at a time, and scores each through
+the same path as the scoreboard. A built-in regression gate asserts every baseline
+reproduces <code>scoreboard.md</code> (C1 52/0.78, C2 73/0.79, C3 49/0.72, C4 38/0.93).</p>
+<p><strong>Result — the configs sit near the CENTRE of a plateau, not on a spike:</strong>
+| Cam | baseline ratio/F1 | 1-off ratio range | 1-off F1 range | neighbours in ±20% band |
+|---|---|---|---|---|
+| C1 | 1.02 / 0.777 | 0.82–1.31 | 0.641–0.807 | 10/12 |
+| C2 | 0.99 / 0.789 | 0.84–1.19 | 0.759–0.826 | 11/11 |
+| C3 | 1.02 / 0.722 | 0.67–1.27 | 0.625–0.733 | 10/13 |
+| C4 | 0.90 / 0.925 | 0.76–1.10 | 0.865–0.955 | 8/11 |</p>
+<p>Three honest takeaways: (1) <strong>Centred, not knife-edge</strong> — every baseline ratio is 0.90–1.02
+(mid-band) and the 1-off F1 range is ≤0.17 wide; an exact-GT-frame overfit would show the
+baseline spiking far above its neighbours, which it does not. (2) <strong>The only out-of-band
+neighbours come from aggressive recall-<em>loosening</em></strong> (<code>min_len</code>↓, <code>gate_px</code>↓ on the less
+dense cameras → ratio 1.25–1.31, i.e. over-counting from fragmentation), exactly the failure
+mode predicted above; the shipped values back off one notch from that edge, so the configs
+are not picked at a cliff. (3) <strong>The count claim is tolerance-independent</strong> — sweeping the
+temporal tolerance 5→30f leaves the ratio identical (it never matches events) while F1
+climbs monotonically (≈0.55→0.87 on C1); so the ±15f tol is a conservative pick that affects
+only the <em>secondary</em> F1 number, not the headline count band. No counting code/config/GT
+touched — additive analysis only. Reproduce:
+<code>uv run --no-sync python scripts/robustness_analysis.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-ground-truth-characterization-the-density-ordering-is-real-and-measurable-and-same-frame-simultaneity-is-a-structural-recall-ceiling">Finding (2026-06-19, overnight): GROUND-TRUTH characterization — the density ordering is real and measurable, and same-frame simultaneity is a structural recall ceiling</h2>
+<p>Every structural verdict in this project rests on a <em>density ordering</em> of the four
+entrances ("C1 visible notch &lt; C2 &lt; C3 dense crowd &lt; C4 grass+dense") that had only ever
+been asserted from visual inspection, and the GT was repeatedly caveated as "approximate"
+without a single number describing it. Built <code>scripts/gt_characterization.py</code>
+(+ <code>tests/test_gt_characterization.py</code>, 16 tests on the pure helpers) →
+<code>gt_characterization.md</code>. It reads the label file <strong>read-only</strong> (no video,
+no detections, no GPU; never writes GT) and reports per camera: throughput (entry rate),
+same-frame simultaneity, inter-event gap distribution, and click footprint.</p>
+<p><strong>The density ordering is now quantified — simultaneity rises monotonically C1→C4:</strong>
+| Cam | entries | span(s) | rate(in/s) | multi-entry frames | simultaneity | median gap |
+|---|---|---|---|---|---|---|
+| C1 | 51 | 29.1 | 1.75 | 3 | 8% | 11.5 |
+| C2 | 74 | 17.0 | 4.36 | 7 | 11% | 7.0 |
+| C3 | 48 | 21.2 | 2.27 | 6 | 17% | 11.0 |
+| C4 | 42 | 5.3 | 7.88 | 9 | 29% | 4.0 |</p>
+<p>Two findings that tie the whole project together: (1) <strong>Simultaneity (fraction of entries
+sharing a frame with another) is a structural recall ceiling</strong> — both shipped counters dedup
+near-coincident events, so ~8/11/17/29% of entries are uncollapsible-by-construction. It
+orders exactly with the documented recall difficulty (C1 easiest → C4 hardest), giving the
+"densest entrance" claim a number for the first time and explaining why C4 needs per-bee
+separation (fine-tune), not more tuning. (2) <strong>The median inter-event gap explains the
+per-camera <code>dedup_frames</code> tuning</strong> that was found empirically: C2 (median 7) and C4 (median
+4) sit well below C1's inherited <code>dedup_frames=15</code>, which is exactly why C2 was lowered to 8
+and C4's chains needed <code>min_len=3</code> — the dedup window was merging genuinely-distinct entries
+whose true gap is ~half the window. No counting code/config/GT touched — additive analysis
+only. Reproduce: <code>uv run --no-sync python scripts/gt_characterization.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-c1c3-absorption-recall-levers-swept-at-last-shipped-configs-are-the-tight-band-plateau-pick-deep_frac-is-a-polygon-geometry-lever-not-an-f1-knob">Finding (2026-06-19, overnight): C1/C3 absorption recall levers swept at last — shipped configs are the tight-band plateau pick; deep_frac is a polygon-geometry lever, not an F1 knob</h2>
+<p>The recall sweep (<code>scripts/explore_absorption_recall.py</code>, deep_frac × min_len × min_conf ×
+dedup_frames over cached detections) had <strong>only ever been run on C2/C4</strong> (the cameras that
+under-counted) — C1 and C3 still carried C1's <em>inherited</em> recall levers (deep_frac=0.25,
+min_len=6, dedup_frames=15), tuned only for gate_px (explore_absorption_gate) and min_conf
+(explore_transfer_absorption), never for the structural recall levers individually. Closed
+that audit gap: generalized the harness to accept any camera id
+(<code>explore_absorption_recall.py C1 C3</code>; default stays C2/C4, output unchanged) and swept both.</p>
+<p><strong>Result — no config change; the shipped C1/C3 configs are correct.</strong> Within the ±10% count
+band (the project's primary metric), <strong>no combo beats the shipped F1</strong> on either camera
+(C1 0.777 @ r1.02; C3 0.722 @ r1.02 — both already the in-band optimum). Higher-F1 neighbours
+exist but all leave the ±10% band by over-counting: C1's best F1 is <strong>0.807 at conf0.10
+deep0.10 mlen6 dedup15 → 58 IN, r1.14</strong> (recovers near-lip terminations → +recall but +count);
+C3 tops at 0.743 only at r1.19. Taking them would trade a dead-centre count (r1.02) for +0.03
+F1 against an <em>approximate</em> GT — exactly the "don't chase F1 against noisy labels" the nightly
+guardrails forbid. The harness's own robust selector (closest ratio→1 with F1≥shipped) returns
+the shipped config verbatim for both.</p>
+<p><strong>The research payoff is the quantified asymmetry that validates the per-camera <code>deep_frac</code>.</strong>
+The <em>same</em> <code>deep_frac</code> 0.25→0.10 loosening moves the count in <strong>opposite</strong> directions by camera:
+C1 52→58 (r1.02→1.14, over) and C3 49→55 (r1.02→1.15, over), but C2 54→73 and C4 21→30
+(under→in-band). This confirms with numbers the configs' stated polygon-geometry rationale:
+C1/C3's polygons include an upper <strong>lip</strong>, so the depth filter correctly rejects shallow
+lip-terminations as <em>false</em> absorptions (lowering it inflates the count); the user-drawn C2/C4
+polygons <strong>hug</strong> the entrance, so the same filter was discarding <em>real</em> near-lip absorptions
+(lowering it recovered them). <code>deep_frac</code> is therefore a genuine geometry-tied per-camera lever,
+not a free F1 knob — and C1/C3 are right to keep 0.25 while C2/C4 are right at 0.10. No counting
+code/config/GT touched — only the harness gained a camera argument. Reproduce:
+<code>uv run --no-sync python scripts/explore_absorption_recall.py C1 C3</code>.</p>
+<h2 id="finding-2026-06-19-overnight-the-published-headline-metrics-now-have-an-end-to-end-regression-lock-no-gpuvideo-needed">Finding (2026-06-19, overnight): the published headline metrics now have an end-to-end regression lock (no GPU/video needed)</h2>
+<p>Repo-health gap that every prior session left open: the project's headline numbers
+(<code>scoreboard.md</code>: C1 motion 52/F1 0.76, C1 absorption 52/0.78, C2 73/0.79, C3 49/0.72,
+C4 38/0.93, ...) are produced by <code>scoreboard.py</code> from the <strong>gitignored</strong> detection caches +
+source videos + GPU weights. So on a fresh checkout <strong>nothing committed reproduces or guards
+the published metrics</strong> — the scorer had 20 synthetic unit tests (<code>test_compare_to_gt.py</code>)
+and the CLI command was pinned (<code>test_cli.py</code>), but the actual reported numbers were locked
+to no runnable test, and <code>bee run</code>/<code>scoreboard.py</code> simply skip every absorption row when the
+caches are absent.</p>
+<p>Closed it with a <strong>golden-metrics fixture</strong>: <code>scripts/gen_golden_metrics.py</code> freezes each
+shipped method's predicted IN frame list (the small, committable <em>input</em> to the scorer) into
+<code>tests/fixtures/scoreboard_golden.json</code> (8 methods, 11.6 KB); <code>tests/test_scoreboard_golden.py</code>
+(8 tests) re-scores those frozen frames against the committed GT through the <strong>exact production
+scoring path</strong> (<code>scoreboard.gt_windows</code> + <code>scoreboard.score</code>) and asserts the published count,
+band, ratio, P, R, F1 for every method. It also asserts the GT-window integrity (C1 51/≤880,
+C2 74/≤544, C3 48/≤649, C4 42/≤166) — locking the committed GT against silent corruption — and
+pins the partial-GT windowing (C1 absorption fires 53 raw events, one past frame 880; windowing
+must drop it → 52). Catches scorer drift, windowing/band-threshold regressions, and GT
+corruption with no video, no weights, no GPU. The frozen frame lists decouple it from the
+detector; regenerate the fixture (review the diff) when a config/method legitimately changes the
+canonical outputs. No counting code/config/GT touched. Reproduce the lock:
+<code>uv run --no-sync pytest tests/test_scoreboard_golden.py -q</code>; regenerate the fixture:
+<code>uv run --no-sync python scripts/gen_golden_metrics.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-temporal-error-characterization-the-recall-gap-on-dense-entrances-is-the-simultaneity-ceiling-and-fps-are-re-spawns-both-quantified">Finding (2026-06-19, overnight): TEMPORAL ERROR characterization — the recall gap on dense entrances IS the simultaneity ceiling, and FPs are re-spawns (both quantified)</h2>
+<p>Every published metric is a P/R/F1 <em>score</em>, and <code>spatial_validation.md</code> characterizes where the
+<em>matches</em> land — but nothing had ever dissected the <strong>errors</strong> themselves. The project had two
+structural hypotheses argued only anecdotally: (a) the dense-camera recall gap is the
+<em>uncollapsible</em> near-coincident entries (the simultaneity ceiling from <code>gt_characterization.md</code>,
+since both counters dedup), and (b) the C1 FPs "cluster on frames with detector dropouts that
+re-spawn a chain" (a one-line decisions.md note). Built <code>scripts/error_analysis.py</code>
+(+ <code>tests/test_error_analysis.py</code>, 16 tests on the pure helpers) → <code>error_analysis.md</code>,
+<strong>entirely from committed data</strong> — the frozen golden frames (<code>tests/fixtures/scoreboard_golden.json</code>)
++ manual GT — so no video/GPU/detection-caches, reproduces on a fresh checkout. The FP/FN split uses
+the exact production matcher; a <strong>built-in regression gate</strong> asserts each method's recomputed P/R/F1
+reproduces the golden scoreboard (so these are the errors behind the headline numbers).</p>
+<p><strong>(1) The simultaneity ceiling is real and scales with density.</strong> <code>density</code> = mean # of <em>other</em> GT
+entries within ±15f of an entry. FN density vs TP density (ratio FN/TP):</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>method</th>
+<th>TP</th>
+<th>FP</th>
+<th>FN</th>
+<th>FN dens</th>
+<th>TP dens</th>
+<th>FN/TP</th>
+<th>FP clustered (≤10f)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>motion</td>
+<td>39</td>
+<td>13</td>
+<td>12</td>
+<td>1.75</td>
+<td>1.72</td>
+<td>1.02</td>
+<td>0.69</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>absorption</td>
+<td>40</td>
+<td>12</td>
+<td>11</td>
+<td>1.45</td>
+<td>1.80</td>
+<td>0.81</td>
+<td>0.58</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>motion</td>
+<td>40</td>
+<td>2</td>
+<td>34</td>
+<td>4.44</td>
+<td>3.48</td>
+<td>1.28</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>absorption</td>
+<td>58</td>
+<td>15</td>
+<td>16</td>
+<td>4.62</td>
+<td>3.72</td>
+<td>1.24</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>motion</td>
+<td>15</td>
+<td>7</td>
+<td>33</td>
+<td>3.00</td>
+<td>1.40</td>
+<td><strong>2.14</strong></td>
+<td>0.86</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>absorption</td>
+<td>35</td>
+<td>14</td>
+<td>13</td>
+<td>4.00</td>
+<td>1.94</td>
+<td><strong>2.06</strong></td>
+<td>0.86</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>motion</td>
+<td>7</td>
+<td>0</td>
+<td>35</td>
+<td>6.97</td>
+<td>6.57</td>
+<td>1.06</td>
+<td>—</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>absorption</td>
+<td>37</td>
+<td>1</td>
+<td>5</td>
+<td>7.60</td>
+<td>6.81</td>
+<td>1.12</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<p>Missed entries are markedly more temporally crowded than caught entries on the dense cameras
+(FN/TP &gt; 1 on C2/C3/C4) but <strong>not</strong> on the sparse C1 (~1.0 / 0.81 — C1's errors are signal-visibility,
+not crowding). The effect is <strong>sharpest on C3</strong> (2.1×) — the dense crowd — exactly where
+<code>gt_characterization.md</code> measured the highest same-frame simultaneity. First direct evidence that the
+dense-camera recall gap is the uncollapsible near-coincident entries, not a tunable threshold.
+<strong>(2) FPs are predominantly re-spawns</strong> — most methods place the majority of FPs within 10f of
+<em>another</em> prediction (one physical event firing twice), which is exactly why tightening dedup trades
+the count band for precision: the FPs are duplicates of real events, so removing them risks merging
+genuinely-distinct nearby entries. Neither finding motivates a config change (count already centred
+in-band; errors are structural) — the value is a quantified error model for the research-paper
+limitations section. No counting code/config/GT touched. Reproduce:
+<code>uv run --no-sync python scripts/error_analysis.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-metric-uncertainty-bootstrap-95-cis-put-the-f1-noise-band-at-010-so-sub-005-sweep-gains-are-unresolvable-method-choice-is-significant-only-on-the-dense-cameras">Finding (2026-06-19, overnight): METRIC UNCERTAINTY — bootstrap 95% CIs put the F1 noise band at ±~0.10, so sub-0.05 sweep gains are unresolvable; method choice is significant only on the dense cameras</h2>
+<p>Every headline number is a <em>point estimate</em> against a GT the reports repeatedly caveat as
+<strong>approximate</strong>, yet nothing had ever attached an <em>uncertainty</em> to it — even though the nightly
+guardrails keep making the same call by hand ("no combo beats the shipped F1 by more than a few
+hundredths; chasing that against noisy labels is overfitting") with no number for how big a gap
+would even be meaningful. Built <code>scripts/metric_uncertainty.py</code> (+ <code>tests/test_metric_uncertainty.py</code>,
+18 tests on the pure helpers) → <code>metric_uncertainty.md</code>, <strong>entirely from committed
+data</strong> (frozen golden frames + manual GT — no video/GPU/caches, reproduces on a fresh checkout). The
+resample is at the <strong>event</strong> level: the production matcher labels each prediction TP/FP and each GT
+entry TP/FN, then predictions are resampled with replacement for precision and GT entries for recall,
+2000× under a fixed seed (deterministic). A built-in gate asserts each method's point F1 reproduces
+the golden scoreboard before its CI is reported.</p>
+<p><strong>(1) The F1 95% CIs are wide — 0.12–0.31, roughly ±0.10:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>method</th>
+<th>F1</th>
+<th>F1 95% CI</th>
+<th>width</th>
+<th>P 95% CI</th>
+<th>R 95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>motion</td>
+<td>0.76</td>
+<td>[0.67, 0.84]</td>
+<td>0.17</td>
+<td>[0.63, 0.87]</td>
+<td>[0.65, 0.88]</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>absorption</td>
+<td>0.78</td>
+<td>[0.69, 0.85]</td>
+<td>0.16</td>
+<td>[0.65, 0.88]</td>
+<td>[0.67, 0.90]</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>motion</td>
+<td>0.69</td>
+<td>[0.59, 0.78]</td>
+<td>0.19</td>
+<td>[0.88, 1.00]</td>
+<td>[0.43, 0.65]</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>absorption</td>
+<td>0.79</td>
+<td>[0.72, 0.85]</td>
+<td>0.13</td>
+<td>[0.70, 0.88]</td>
+<td>[0.69, 0.86]</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>motion</td>
+<td>0.43</td>
+<td>[0.28, 0.55]</td>
+<td>0.27</td>
+<td>[0.50, 0.86]</td>
+<td>[0.19, 0.44]</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>absorption</td>
+<td>0.72</td>
+<td>[0.63, 0.80]</td>
+<td>0.18</td>
+<td>[0.59, 0.84]</td>
+<td>[0.60, 0.85]</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>motion</td>
+<td>0.29</td>
+<td>[0.13, 0.44]</td>
+<td>0.31</td>
+<td>[1.00, 1.00]</td>
+<td>[0.07, 0.29]</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>absorption</td>
+<td>0.93</td>
+<td>[0.86, 0.98]</td>
+<td>0.12</td>
+<td>[0.92, 1.00]</td>
+<td>[0.79, 0.98]</td>
+</tr>
+</tbody>
+</table>
+<p>With only 40–75 labelled entries per camera, a method scoring 0.78 and one scoring 0.76 are
+statistically indistinguishable — the few-hundredths gaps the sweeps chase are far inside the
+label-noise band. <strong>This is the quantitative basis for every "shipped config is the plateau pick,
+no change" decision</strong> the last several sessions reached qualitatively.</p>
+<p><strong>(2) The motion-vs-absorption choice splits cleanly by density (paired bootstrap of ΔF1, shared GT
+draw):</strong> C1 ΔF1 [-0.10, +0.13] (prob 0.65) and C2 [-0.00, +0.21] (prob 0.97) <strong>include 0</strong> — the
+F1 edge is within noise, so absorption's case on the sparse cameras rests on its <em>count ratio</em>
+(in-band vs motion's C2 under-count) and spatial localisation, not F1. C3 [+0.16, +0.45] and C4
+[+0.48, +0.81] (both prob 1.00) <strong>exclude 0</strong> — absorption <em>significantly</em> beats motion exactly where
+motion's signal structurally fails (crowded/grassy entrances, no clean dark-notch descent). So the
+headline "absorption beats motion everywhere" is two distinct claims: a <em>count</em> win on the sparse
+cameras and a <em>significant F1</em> win on the dense ones. No config change (the CIs confirm the shipped
+configs, they don't point to a better one). No counting code/config/GT touched. Reproduce:
+<code>uv run --no-sync python scripts/metric_uncertainty.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-real-data-regression-lock-on-the-absorption-counter-cores-the-algorithm-itself-was-unguarded">Finding (2026-06-19, overnight): REAL-DATA regression lock on the absorption COUNTER cores (the algorithm itself was unguarded)</h2>
+<p>The published absorption numbers (scoreboard.md: C1 52, C2 73, C3 49, C4 38) are produced
+by the two pure cores <code>find_terminations</code> → <code>count_absorptions</code>
+(<code>src/beecounter/count/absorption.py</code>) over the <strong>gitignored</strong> FT detection caches. Audited
+what actually guards them and found a real gap: every committed test guards everything
+<em>around</em> the cores but not the cores on real data. <code>test_scoreboard_golden.py</code> re-scores
+frozen <em>output</em> frames — it locks the <strong>scorer</strong>/windowing and explicitly "decouples this
+from the detector", so a bug inside the cores would change the real count yet leave the
+frozen frames (and that test) green. <code>test_absorption_counter.py</code> exercises the cores on
+tiny <em>synthetic</em> inputs — branch behaviour, not the real per-frame detection distribution.
+So a refactor that breaks the actual counting algorithm passes every committed test.</p>
+<p>Closed it with a <strong>real-data fixture</strong>: <code>scripts/gen_absorption_fixture.py</code> freezes C1's
+real per-frame FT detection centres (15,304 points, conf≥0.1, rounded to 0.1 px — far finer
+than any ≥50 px gate, so the canonical output is preserved exactly) + the canonical events
+into <code>tests/fixtures/c1_absorption_realdata.json</code> (213 KB). <code>tests/test_absorption_realdata.py</code>
+(4 tests) re-runs the <strong>exact production cores</strong> over the frozen real input and asserts the
+canonical event list (53 full-video / 52 windowed ≤880 — the published headline), plus output
+invariants (ascending frames, all in-polygon, all before tail_cut) and a config↔fixture drift
+guard (fails if <code>c1_absorption.yaml</code>'s counting params change without regenerating). No
+video/weights/GPU — reproduces on a fresh checkout. The cores are <strong>camera-agnostic</strong> (only
+config params differ per camera, and those branches are covered synthetically), so this C1
+lock catches algorithm regressions that would affect all four cameras. Complements the golden
+test: that one locks the scorer on frozen outputs; this one locks the <em>algorithm</em> on real
+input. No counting code/config/GT touched — only a new generator + fixture + test. Reproduce
+the lock: <code>uv run --no-sync pytest tests/test_absorption_realdata.py -q</code>; regenerate the
+fixture: <code>uv run --no-sync python scripts/gen_absorption_fixture.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-the-research-paper-deliverable-now-has-figures-the-one-missing-modality-all-from-committed-data">Finding (2026-06-19, overnight): the research-paper deliverable now has FIGURES (the one missing modality), all from committed data</h2>
+<p>Every prior validation session produced markdown <em>tables</em> (scoreboard, metric_uncertainty,
+gt_characterization, error_analysis, robustness, spatial). The "research-paper docs" deliverable,
+however, had <strong>zero figures</strong> — the one modality a paper expects and the repo entirely lacked.
+Closed it with <code>scripts/generate_figures.py</code> → three paper-quality PNGs under
+<code>figures/</code>, rendered <strong>entirely from committed data</strong> (the golden frames
+<code>tests/fixtures/scoreboard_golden.json</code> + the manual GT — no video, GPU, or detection caches, so
+they reproduce on a fresh checkout): (1) <code>fig_counts.png</code> — predicted IN vs GT per camera with the
+±10% band as caps on the GT bar (all four absorption counts in-band); (2) <code>fig_f1_ci.png</code> — F1 with
+bootstrap 95% CIs (reuses <code>metric_uncertainty.analyze</code>, so the CIs are the same gated numbers as the
+report), visibly overlapping on the sparse cameras and separating on the dense ones; (3)
+<code>fig_simultaneity.png</code> — same-frame simultaneity rising C1 8% → C4 29% (the structural recall
+ceiling). The point F1s are gated against the golden scoreboard inside <code>analyze()</code> before any figure
+is drawn, so a figure can never silently disagree with the published tables. matplotlib is already a
+dependency (3.10.9, arm64 wheel); PNGs under <code>figures/</code> are not gitignored.
+No counting code/config/GT/scorer touched → C1 unchanged by construction (motion 52/51 F1 0.76,
+absorption 52/51 F1 0.78). Pure data-prep is unit-tested (<code>tests/test_generate_figures.py</code>, 5 tests).
+Reproduce: <code>uv run --no-sync python scripts/generate_figures.py --print</code>.</p>
+<h2 id="finding-2026-06-19-overnight-real-data-regression-lock-on-the-motion-counter-the-symmetric-gap-hungariantracker-was-wholly-untested">Finding (2026-06-19, overnight): REAL-DATA regression lock on the MOTION counter (the symmetric gap; HungarianTracker was wholly untested)</h2>
+<p>Last session locked the absorption <em>algorithm</em> on real data and noted the absorption cores
+had been guarded only by a scorer-on-frozen-outputs test + synthetic-input tests. Audited
+the <strong>other</strong> shipped C1 counter — the motion pipeline (MOG2 → <code>HungarianTracker</code> →
+<code>VanishEntryCounter</code>, producing the published C1 motion 52) — and found the <strong>identical
+gap, worse</strong>: <code>test_scoreboard_golden.py</code> locks the scorer on frozen <em>output</em> frames
+(decoupled from the algorithm); <code>test_vanish_entry.py</code> covers the counter on <em>synthetic</em>
+paths only; and <code>HungarianTracker</code> had <strong>zero tests of any kind</strong>. So a refactor breaking
+the tracker or the counter's real-data behaviour would change the count yet pass every
+committed test.</p>
+<p>Closed it the same way, symmetric to absorption: <code>scripts/gen_motion_fixture.py</code> freezes
+C1's exact per-frame MOG2 detections (11,247 boxes over 900 frames; integer-pixel xyxy at
+scale 1.0, so the freeze is exact — the tracker's 70 px gate makes any sub-px difference
+irrelevant anyway) + the auto dark-zone mask (packed bits + bbox, no cv2 needed to use) +
+the canonical 52 vanish events → <code>tests/fixtures/c1_motion_realdata.json</code> (620 KB).
+<code>tests/test_motion_realdata.py</code> (4 tests) re-runs the <strong>exact production
+<code>HungarianTracker</code> + <code>VanishEntryCounter</code></strong> over the frozen dets and asserts the canonical
+event list (frames + track_ids + centroids), the published headline (52 full = 52 windowed
+≤880; C1 motion fires no event past 880), real-output invariants (all direction "in", all
+in-zone, dedup respected), and a config↔fixture drift guard on <code>c1_entry.yaml</code>'s
+tracker/counter params. <strong>The generator carries a fidelity gate</strong>: it asserts the frozen-det
+replay reproduces <code>run_entry_count</code> event-for-event before writing, so the fixture provably
+matches production. MOG2 is never re-run by the test (only its frozen output is replayed),
+so the lock is deterministic across OpenCV versions and needs no video/cv2/GPU. Now both
+shipped C1 counters have a real-data algorithm lock to complement the golden scorer lock.
+No counting code/config/GT touched → C1 unchanged (motion 52/51 F1 0.76, absorption 52/51
+F1 0.78). Reproduce the lock: <code>uv run --no-sync pytest tests/test_motion_realdata.py -q</code>;
+regenerate the fixture: <code>uv run --no-sync python scripts/gen_motion_fixture.py</code>.</p>
+<h2 id="finding-2026-06-19-overnight-c1-operating-curve-the-shipped-operating-point-is-the-in-band-f1-peak-for-both-counters-and-absorption-dominates-motion-across-the-whole-tradeoff">Finding (2026-06-19, overnight): C1 OPERATING CURVE — the shipped operating point is the in-band F1 peak for both counters, and absorption dominates motion across the whole tradeoff</h2>
+<p>Every number the project reports is a <strong>single operating point</strong> (the shipped config); the
+robustness analysis steps each config ±1 grid notch but nothing traced the full
+precision/recall tradeoff — the standard research-paper "operating curve" that shows <em>where on
+the tradeoff the shipped point sits and why it was chosen</em>. Built <code>scripts/operating_curve.py</code>
+(+ <code>tests/test_operating_curve.py</code>, 8 tests) → <code>operating_curve.md</code> +
+<code>figures/fig_operating_curve.png</code>. It sweeps each C1 counter along its single
+natural recall lever — motion <code>min_track_obs</code> (1..9, shipped 5), absorption <code>min_len</code> (1..13,
+shipped 6) — holding every other param shipped, replaying the <strong>production cores</strong> over the two
+committed real-data fixtures (<code>tests/fixtures/c1_{motion,absorption}_realdata.json</code>) and scoring
+each point through the exact production scorer (<code>scoreboard.score</code>, windowed ≤880 vs GT=51). So
+it reproduces on a fresh checkout: no video, no GPU, no gitignored detection caches. A built-in
+gate asserts the shipped lever value reproduces the published headline before writing.</p>
+<p><strong>Three findings the curve makes visible:</strong>
+1. <strong>The shipped point is the COUNT-band centre AND the in-band F1 peak for both methods.</strong> Apply
+   the count-primary constraint first (ratio in ±10%) then maximise F1 → the shipped value falls
+   out for <em>both</em>: motion <code>min_track_obs=5</code> → 52/51 r1.02 F1 0.76; absorption <code>min_len=6</code> →
+   52/51 r1.02 F1 0.78. The count-primary objective and the temporal-F1 objective do <strong>not</strong>
+   conflict on C1 — they select the same operating point. (Motion's raw F1 is ~0.002 higher —
+   far inside the ±0.10 bootstrap noise — at the stricter <code>min_track_obs=8</code>, but that point
+   under-counts at r0.86/±20%, so the count-primary rule correctly rejects it. This is the
+   operating-curve proof of the project's "count is primary, don't chase sub-noise F1" thesis.)
+2. <strong>Absorption dominates motion across the curve</strong> — higher precision at matched recall and a
+   higher F1 peak (0.78 vs 0.76); the operating-curve form of the "absorption is the better
+   temporal method" headline (consistent with the metric_uncertainty paired-ΔF1 result, which
+   on sparse C1 includes 0 — so the <em>dominance</em> is the qualitative shape, the <em>gap</em> is within noise).
+3. <strong>The shipped point is the knee.</strong> Loosening the lever buys recall but leaves the count band by
+   over-counting (chain/track re-spawns: e.g. absorption <code>min_len=1</code> → 112 IN r2.20 P0.45);
+   tightening buys precision but drops recall and the count (<code>min_len=13</code> → 28 IN r0.55). There is
+   nothing better to pick — the quantitative basis for the recurring "ship the plateau" decision.</p>
+<p>No counting code/config/GT/scorer touched → C1 unchanged by construction (motion 52/51 F1 0.76,
+absorption 52/51 F1 0.78 — the gate re-confirms both). Additive analysis only: new script + tests +
+report + figure + doc links. Reproduce: <code>uv run --no-sync python scripts/operating_curve.py</code>.</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

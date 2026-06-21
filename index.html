@@ -1,0 +1,58 @@
+<!doctype html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Bee-entry counting — findings &amp; reports</title>
+<style>
+
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+
+.hero{max-width:880px;margin:0 auto;padding:44px 24px 8px}
+.hero h1{font-size:33px;letter-spacing:-.02em;margin:0 0 6px}
+.hero p{color:var(--mut);font-size:18px;margin:0 0 4px;max-width:640px}
+.wrap{max-width:880px;margin:0 auto;padding:8px 24px 40px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0 30px}
+@media(max-width:640px){.cards{grid-template-columns:1fr}}
+.card{display:block;background:#fff;border:1px solid var(--line);border-radius:11px;padding:16px 18px;text-decoration:none;color:var(--ink);transition:border-color .12s,box-shadow .12s}
+.card:hover{border-color:#1d4ed8;box-shadow:0 2px 10px rgba(16,24,40,.06)}
+.card h3{margin:0 0 5px;font-size:17px} .card p{margin:0;color:var(--mut);font-size:14px;line-height:1.5}
+h2.sec{font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);border-bottom:2px solid var(--line);padding-bottom:6px;margin:30px 0 10px}
+ul.reports{columns:2;column-gap:34px;padding-left:1.1em;margin:0} @media(max-width:640px){ul.reports{columns:1}}
+ul.reports li{margin:6px 0} ul.reports a{color:var(--link);text-decoration:none} ul.reports a:hover{text-decoration:underline}
+.dl a{display:inline-block;margin:4px 8px 4px 0;padding:7px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--link);text-decoration:none;font-size:14px}
+.dl a:hover{border-color:#1d4ed8}
+</style></head><body>
+<div class="hero">
+  <h1>🐝 Bee-entry counting — findings &amp; reports</h1>
+  <p>Counting honeybee <b>entries</b> into four hive entrances from camera footage, and asking
+  whether hives in different orchards differ in how busy they are. A static, read-only mirror of the project reports.</p>
+</div>
+<div class="wrap">
+  <div class="cards"><a class="card" href="findings.html"><h3>📊 Findings</h3><p>Do hives in different environments differ in bee-entry traffic? The headline answer, curated visuals, and data downloads.</p></a><a class="card" href="insights.html"><h3>🖼️ Visual gallery</h3><p>All ten analysis plots — entry rates, time-of-day rhythm, spatial density, significance.</p></a><a class="card" href="architecture.html"><h3>🛠️ Architecture</h3><p>How a 30-second clip becomes a validated per-hive entry count.</p></a><a class="card" href="dataset_report.html"><h3>📁 Full-dataset report</h3><p>All 704 videos: corrected per-camera counts, cross-camera stats, plots, exports.</p></a><a class="card" href="final.html"><h3>✅ Method & validation</h3><p>The headline deliverable: methods, per-camera results, ground-truth validation.</p></a></div>
+  <h2 class="sec">Data downloads</h2>
+  <p class="dl"><a href="data/dataset_entries.csv">dataset_entries.csv</a><a href="data/dataset_entries.json">dataset_entries.json</a><a href="data/entries_by_bin.csv">entries_by_bin.csv</a><a href="data/dataset_manifest.csv">dataset_manifest.csv</a><a href="data/dataset_manifest.json">dataset_manifest.json</a><a href="data/timeline.json">timeline.json</a><a href="data/camera_drift.json">camera_drift.json</a></p>
+  <h2 class="sec">All reports</h2>
+  <ul class="reports"><li><a href="dataset_report.html">Full-dataset bee-entry report (auto-generated)</a></li><li><a href="final.html">Bee Counter — Final Report</a></li><li><a href="camera_geometry.html">Camera geometry & valid-window review (2026-06-21)</a></li><li><a href="timeline.html">Per-camera recording timeline (auto-generated)</a></li><li><a href="scoreboard.html">Counting scoreboard (auto-generated)</a></li><li><a href="spatial_validation.html">Spatial validation (auto-generated)</a></li><li><a href="robustness.html">Absorption counter — robustness & tolerance sensitivity (auto-generated)</a></li><li><a href="gt_characterization.html">Ground-truth characterization (auto-generated)</a></li><li><a href="operating_curve.html">C1 operating curves — precision/recall tradeoff of the two shipped counters</a></li><li><a href="metric_uncertainty.html">Metric uncertainty — bootstrap 95% CIs on the published P/R/F1</a></li><li><a href="error_analysis.html">Temporal error characterization — where the counters' FP/FN fall</a></li><li><a href="decisions.html">C1 bee-entry counter — progress & decision log</a></li><li><a href="bakeoff.html">Phase 1 Bake-off Report</a></li><li><a href="DATA_CITATIONS.html">Data citations</a></li></ul>
+</div>
+<footer class="site">Engineering: Jordan-AI (Shaked Yarden &amp; Shaylee) · Research: Yehuda &amp; team.
+The interactive debug viewer (video scrubbing, labeling) runs locally — see the project repo's
+<code>SETUP.md</code>. This site is generated by <code>scripts/build_static_site.py</code>.</footer>
+</body></html>

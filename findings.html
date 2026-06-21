@@ -1,0 +1,82 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bee entry traffic across four hives — findings</title>
+<style>
+ :root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309}
+ body{font:17px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:#fafafa;margin:0}
+ main{max-width:880px;margin:0 auto;padding:40px 24px 80px}
+ h1{font-size:30px;margin:0 0 4px;letter-spacing:-.01em} .sub{color:var(--mut);font-size:17px;margin:0 0 28px}
+ h2{font-size:20px;margin:38px 0 10px;border-bottom:2px solid var(--line);padding-bottom:6px}
+ .lead{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:8px 0}
+ .lead p{margin:0 0 10px} .note{font-size:14.5px;color:var(--mut);margin:10px 0 0}
+ table{border-collapse:collapse;width:100%;margin:8px 0;font-size:16px}
+ th{text-align:left;color:var(--mut);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.03em;padding:6px 14px 8px 0;border-bottom:2px solid var(--line)}
+ td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}
+ td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700} td.dim{font-weight:400;color:var(--mut)}
+ td.m{white-space:nowrap;width:1%}
+ figure{margin:0 0 26px} figure img{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff}
+ figcaption{font-size:14.5px;color:var(--mut);margin-top:7px}
+ ul{padding-left:1.1em} li{margin:5px 0}
+ .dl a,.more a{display:inline-block;margin:4px 10px 4px 0;padding:7px 13px;border:1px solid var(--line);border-radius:7px;
+   background:#fff;color:#1d4ed8;text-decoration:none;font-size:14.5px}
+ .dl a:hover,.more a:hover{border-color:#1d4ed8}
+ footer{margin-top:40px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+<main>
+ <h1>Bee entry traffic across four hives</h1>
+ <p class="sub">Do hives placed in different environments differ in how many bees enter? · 2026-04-30,
+ one afternoon (~12:00–16:40 UTC) · 4 hive-entrance cameras · 66,087 counted bee entries.</p>
+
+ <div class="lead">
+  <p><b>Yes — the four hives differ dramatically and significantly in bee-entry traffic.</b>
+  Ranked by entry rate (bees entering per recorded minute):</p>
+  <table>
+   <tr><th></th><th>Hive · orchard</th><th>entries/min</th><th>total</th><th>clips</th></tr>
+   <tr><td class='m'>🥇 busiest</td><td><b>C4</b> · Cherry</td><td class='num'>422</td><td class='num'>6,113</td><td class='num dim'>29</td></tr><tr><td class='m'>🥈</td><td><b>C2</b> · Site בהג״ט</td><td class='num'>204</td><td class='num'>29,538</td><td class='num dim'>289</td></tr><tr><td class='m'>🥉</td><td><b>C1</b> · Blueberry</td><td class='num'>167</td><td class='num'>28,973</td><td class='num dim'>348</td></tr><tr><td class='m'>least busy</td><td><b>C3</b> · Kiwi</td><td class='num'>133</td><td class='num'>1,463</td><td class='num dim'>22</td></tr>
+  </table>
+  <p class="note">Every pairwise difference is statistically significant (Mann–Whitney&nbsp;U,
+  p&nbsp;≤&nbsp;1e-09), and the ranking <b>holds in the common window 14:50–16:08&nbsp;UTC</b>
+  when all hives were filmed at once — so it is a genuine between-hive difference, not a time-of-day
+  artefact. The busiest hive (<b>Cherry</b>) had ~3.2× the entry rate of the
+  quietest (<b>Kiwi</b>).</p>
+ </div>
+
+ <h2>The evidence</h2>
+ <figure><img src="figures/insights/01_rate_ci.png" loading="lazy"><figcaption>Entry rate per hive with 95% confidence intervals — the core comparison (entries per recorded minute).</figcaption></figure><figure><img src="figures/insights/03_common_window.png" loading="lazy"><figcaption>Restricted to the window when all four hives were filmed simultaneously — controls for time-of-day.</figcaption></figure><figure><img src="figures/insights/04_time_of_day.png" loading="lazy"><figcaption>Entry activity over the afternoon (15-min bins) — when each hive peaks.</figcaption></figure><figure><img src="figures/insights/09_spatial.png" loading="lazy"><figcaption>Where along each entrance the bees actually enter (entry-location density over the entrance image).</figcaption></figure>
+
+ <h2>How to read these numbers</h2>
+ <ul>
+  <li><b>Compare rates, not totals.</b> These are motion-triggered cameras that recorded for very
+  different durations (C1/C2 hours, C3/C4 minutes), so <i>total</i> entries mostly reflect recording
+  time. The <b>entries-per-recorded-minute</b> rate is the fair measure of how busy each entrance was.</li>
+  <li><b>One afternoon.</b> This is a single day's recording; it shows the hives <i>did</i> differ on this
+  afternoon. The common-window cut controls for time-of-day, but attributing the difference to specific
+  environmental factors would need more days/sites.</li>
+  <li><b>Counts are robust ballpark estimates</b> (±~10% vs hand-labelled ground truth on the validation
+  clips), not exact. <b>C2 carries the most uncertainty</b> (camera moved + grass progressively occluded
+  its entrance); C1 is the most stable. Method + validation in the technical detail below.</li>
+ </ul>
+
+ <h2>Data — run your own analysis</h2>
+ <p class="dl">
+  <a href="data/dataset_entries.csv">per-clip entries (CSV)</a>
+  <a href="data/entries_by_bin.csv">15-min bins (CSV)</a>
+  <a href="data/dataset_entries.json">per-clip + stats (JSON)</a>
+  <a href="data/timeline.json">timeline + gaps (JSON)</a>
+ </p>
+ <p class="note">Each row is one ~30s clip: camera, absolute UTC time, duration, entries, entries/min.</p>
+
+ <h2>Methods &amp; technical detail</h2>
+ <p class="more">
+  <a href="dataset_report.html">Full report</a>
+  <a href="architecture.html">Architecture</a>
+  <a href="insights.html">All visuals (gallery)</a>
+  <a href="camera_geometry.html">Camera-geometry review</a>
+  <a href="final.html">Method &amp; validation</a>
+  <span style="color:#5b6573">(interactive — run the local viewer)</span>
+ </p>
+
+ <footer>Counts: trackless "absorption" counter on a fine-tuned bee detector, per-camera entrance zones,
+ camera-drift-corrected (2026-06-21). Generated by <code>scripts/insight_plots.py</code>.</footer>
+</main>
+</html>

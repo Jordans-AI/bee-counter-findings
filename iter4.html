@@ -1,0 +1,472 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 5 — Iter 4: Endpoint counter + larger fine-tuned detector — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-5-iter-4-endpoint-counter-larger-fine-tuned-detector">Phase 5 — Iter 4: Endpoint counter + larger fine-tuned detector</h1>
+<p>Run timestamp: <code>20260519_034009</code>.</p>
+<p>Starting point (iter 1, iter 2, iter 3 best): mean <strong>0.775</strong>, min-clip <strong>0.550</strong>.</p>
+<p>Iter-4 hypothesis: the bottleneck on iter 3 was not the detector but the
+<strong>counter</strong>. The hysteresis-based <code>LineCrossingDetector</code> demands 3-25
+consecutive same-side frames on each side of the entrance band. In dense
+scenes where ByteTrack fragments transits into 5-10 frame tracks, no single
+track meets the hysteresis budget, so zero crossings are emitted.</p>
+<p>Two changes:
+* <strong>A — endpoint counter.</strong> New <code>EndpointLineCrossingDetector</code> works on short
+  tracks: a track has crossed if its first and last centroids are on opposite
+  sides AND total displacement ≥ <code>min_displacement</code>. Greedy dedup merges
+  nearby parallel tracks.
+* <strong>B — bigger detector trained on existing pseudo-labels.</strong> Originally
+  YOLO11x; fell back to YOLO11m (see §5.4.2).</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>Endpoint counter unit tests: 8/8 pass.</strong> The counter itself is correct.</li>
+<li><strong>YOLO11x training was infeasible on MPS at imgsz=1280 batch=4</strong> (~3.5
+  min/epoch). Fell back to YOLO11m at imgsz=1280 batch=8 (~2.6 min/epoch).
+  Trained 4 epochs in ~10 min. <strong>best val mAP50 = 0.0078 at epoch 1</strong> (no
+  improvement at epochs 2-4). Training cut early due to budget.</li>
+<li><strong>The hypothesis was wrong.</strong> The endpoint counter is the <em>opposite</em> of the
+  iter-1/iter-2/iter-3 problem: instead of emitting 0 crossings, it
+  catastrophically <em>over-counts</em> on fragmented tracks. Both MOG2 + endpoint
+  AND YOLO11m + endpoint scored well below the MOG2 + hysteresis baseline.</li>
+<li><strong>Mixed final score: mean = 0.775, min-clip = 0.550. PASS = no, SHIP = no.</strong>
+  Mixed assignment picked <code>mog2_hysteresis</code> on every camera; the endpoint
+  candidates lost on all 4 cameras.</li>
+<li><strong>Honest read:</strong> the counter+tracker interaction is not a separable problem.
+  Tightening hysteresis filters out true crossings; loosening to endpoint
+  matching admits noise. The correct fix is upstream — produce a tracker that
+  actually keeps a bee's identity stable across the entrance line. That
+  requires either a much better detector (&gt;0.5 mAP, not 0.07) or an ID-aware
+  tracker (e.g. DeepSORT with reID embeddings), neither attempted in iter 4.</li>
+</ul>
+<h2 id="541-endpoint-counter">5.4.1 — Endpoint counter</h2>
+<p><code>src/beecounter/count/endpoint_counter.py</code>. Unit tests in
+<code>tests/test_endpoint_counter.py</code>: <strong>8 tests pass</strong>.</p>
+<p>Test coverage:
+* Straight outside→inside crossing → 1 IN event.
+* Straight inside→outside crossing → 1 OUT event.
+* Oscillation with no net side change → 0 events.
+* Track length &lt; <code>min_track_len</code> → 0 events.
+* Displacement below <code>min_displacement</code> → 0 events.
+* Two near-parallel tracks within dedup radius → merged to 1 event.
+* Two distant parallel tracks → kept as 2 events.
+* Serialization to canonical events.jsonl shape.</p>
+<p>API:</p>
+<pre><code class="language-python">EndpointLineCrossingDetector(
+    line: Line,
+    min_track_len: int = 3,
+    min_displacement: float = 15.0,
+    dedup_radius_px: float = 30.0,
+)
+</code></pre>
+<p><code>update_track(tid, fidx, centroid)</code> accumulates; <code>finalize()</code> returns events.</p>
+<h2 id="542-yolo11x-yolo11m-fallback-training">5.4.2 — YOLO11x → YOLO11m fallback (training)</h2>
+<h3 id="run-a-yolo11x-at-imgsz960-batch4-killed">Run A — YOLO11x at imgsz=960 batch=4 (killed)</h3>
+<p>Run launched at 03:42 with <code>--epochs 25 --imgsz 960 --batch 4 --patience 15</code>.
+Wall-clock per epoch ≈ 200s (3.3 min). Killed after epoch 2 at 03:49 because
+25 epochs would have consumed the entire training budget (~83 min) without
+clearing mAP50 = 0.05.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Epoch</th>
+<th style="text-align: right;">wall-clock (s)</th>
+<th style="text-align: right;">val mAP50</th>
+<th style="text-align: right;">val mAP50-95</th>
+<th style="text-align: right;">val/box_loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">209</td>
+<td style="text-align: right;">0.00007</td>
+<td style="text-align: right;">0.00001</td>
+<td style="text-align: right;">5.12</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">414 (205)</td>
+<td style="text-align: right;">0.00342</td>
+<td style="text-align: right;">0.00078</td>
+<td style="text-align: right;">3.18</td>
+</tr>
+</tbody>
+</table>
+<p><code>data/yolo_train/ft_yolo11x/weights/best.pt</code> is the epoch-1 checkpoint
+(precision/recall plateaued around random at epoch 2). <strong>Not used for
+inference.</strong></p>
+<h3 id="run-b-yolo11m-at-imgsz1280-batch8-used">Run B — YOLO11m at imgsz=1280 batch=8 (used)</h3>
+<p>Per the iter-4 brief's fallback. Launched at 03:50 with <code>--model yolo11m
+--epochs 20 --imgsz 1280 --batch 8 --patience 12</code>. Per-epoch wall-clock ≈ 155s
+(2.6 min). Killed after epoch 4 at 04:01 because the val mAP50 was oscillating
+between 0.003 and 0.008 with no upward trend, and continuing would have eaten
+the entire time budget without clearing PASS.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Epoch</th>
+<th style="text-align: right;">wall-clock (s)</th>
+<th style="text-align: right;">precision</th>
+<th style="text-align: right;">recall</th>
+<th style="text-align: right;">val mAP50</th>
+<th style="text-align: right;">val mAP50-95</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">0.099</td>
+<td style="text-align: right;"><strong>0.0078</strong></td>
+<td style="text-align: right;">0.0019</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">313 (157)</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">0.220</td>
+<td style="text-align: right;">0.0047</td>
+<td style="text-align: right;">0.0015</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">470 (157)</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.0085</td>
+<td style="text-align: right;">0.0025</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">624 (154)</td>
+<td style="text-align: right;">0.022</td>
+<td style="text-align: right;">0.094</td>
+<td style="text-align: right;">0.0029</td>
+<td style="text-align: right;">0.0007</td>
+</tr>
+</tbody>
+</table>
+<p><code>best.pt</code> = epoch 3 (highest val mAP50 by ultralytics' definition). Total
+training wall-clock: <strong>10 min</strong>. <strong>This is the model used for the
+yolo11x_endpoint candidate</strong> (named for the requested architecture, actually
+yolo11m weights — see fallback in <code>scripts/run_yolo11x_endpoint.py</code>).</p>
+<p>Augmentation used as requested by the brief: <code>hsv_h=0.02 hsv_s=0.5 hsv_v=0.4
+degrees=5 translate=0.1 scale=0.3 fliplr=0.5 mosaic=0.5 mixup=0.1
+copy_paste=0.1</code>.</p>
+<h3 id="deviation-from-brief">Deviation from brief</h3>
+<p>Brief asked for 60 epochs of YOLO11x at imgsz=1280 batch=4 (~5-7 hrs at the
+observed per-epoch rate, far past budget). Brief offered yolo11m as fallback,
+which we took. Brief asked for 50-min training budget; we cut at 10 min when
+the model was clearly not converging, to preserve the remaining budget for
+inference and reporting.</p>
+<h2 id="543-yolo11x_endpoint-per-clip-scores">5.4.3 — yolo11x_endpoint per-clip scores</h2>
+<p>Inference config: <code>conf=0.02 iou=0.4 imgsz=1280 device=mps tracker=bytetrack.yaml</code>
+with endpoint params <code>min_track_len=3 min_displacement=20 dedup_radius=40</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">n_dets</th>
+<th style="text-align: right;">n_unique_tids</th>
+<th>method (in,out)</th>
+<th>judge (in,out)</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">42,336</td>
+<td style="text-align: right;">1,514</td>
+<td>(16, 27)</td>
+<td>(0, 4)</td>
+<td style="text-align: right;">0.150</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">182,206</td>
+<td style="text-align: right;">4,925</td>
+<td>(147, 362)</td>
+<td>(0, 0)</td>
+<td style="text-align: right;"><strong>0.000</strong></td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">32,178</td>
+<td style="text-align: right;">2,042</td>
+<td>(123, 93)</td>
+<td>(4, 6)</td>
+<td style="text-align: right;"><strong>0.000</strong></td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">120,178</td>
+<td style="text-align: right;">3,209</td>
+<td>(27, 60)</td>
+<td>(2, 5)</td>
+<td style="text-align: right;">0.200</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.088</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Min-clip = 0.000. PASS = no, SHIP = no.</strong> Far below the 0.775 baseline.</p>
+<p>At conf=0.02 the detector emits 32k-182k boxes per 30-second clip and
+ByteTrack stitches them into 1.5k-4.9k unique track IDs. The endpoint counter
+then sees enough opposite-side endpoints to fire dozens-to-hundreds of "in"
+and "out" events per clip, vastly overstating real activity.</p>
+<h2 id="544-mog2_endpoint-per-clip-scores">5.4.4 — mog2_endpoint per-clip scores</h2>
+<p>Same MOG2+Hungarian detector+tracker as the Phase 2 baseline, but counter
+swapped from hysteresis (<code>hysteresis_frames=10..25, band_px=12..24</code>) to
+endpoint (<code>min_track_len=3, min_displacement=15, dedup_radius=30</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">n_dets</th>
+<th style="text-align: right;">n_emitted_tracks</th>
+<th style="text-align: right;">tids</th>
+<th>method (in,out)</th>
+<th>judge (in,out)</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">78,236</td>
+<td style="text-align: right;">41,380</td>
+<td style="text-align: right;">2,042</td>
+<td>(12, 24)</td>
+<td>(0, 4)</td>
+<td style="text-align: right;">0.250</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">55,796</td>
+<td style="text-align: right;">18,964</td>
+<td style="text-align: right;">801</td>
+<td>(10, 14)</td>
+<td>(0, 0)</td>
+<td style="text-align: right;">0.250</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">70,526</td>
+<td style="text-align: right;">14,323</td>
+<td style="text-align: right;">622</td>
+<td>(23, 16)</td>
+<td>(4, 6)</td>
+<td style="text-align: right;">0.200</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">92,266</td>
+<td style="text-align: right;">37,169</td>
+<td style="text-align: right;">2,535</td>
+<td>(23, 28)</td>
+<td>(2, 5)</td>
+<td style="text-align: right;">0.100</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.200</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Min-clip = 0.100. PASS = no, SHIP = no.</strong> Worse than baseline by ~0.58.</p>
+<p>I ran a partial sweep on C1 with <code>(min_track_len, min_displacement,
+dedup_radius)</code> ∈ {(5,30,50), (5,50,50), (8,30,50), (8,50,50)} — every combo
+scored 0.35 (still overcounting by 7-15x vs the judge's 4 OUT crossings on
+C1). The sweep was killed at C1 because the conclusion was clear: tighter
+thresholds reduce the over-count but cannot recover the baseline 0.8 score
+without recovering the hysteresis behavior. See
+<code>results/runs/phase5_iter4_20260519_034009/mog2_endpoint_swept/</code> for the
+sweep artifacts (incomplete).</p>
+<h2 id="545-mixed-per-camera-assignment">5.4.5 — Mixed per-camera assignment</h2>
+<p><code>configs/method_per_camera_iter4.yaml</code>. Candidates per camera:
+<code>mog2_hysteresis</code> (Phase 2 baseline), <code>mog2_endpoint</code>, <code>yolo11x_endpoint</code>.
+Mixed picks the highest-scoring per camera.</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">mog2_hysteresis</th>
+<th style="text-align: right;">mog2_endpoint</th>
+<th style="text-align: right;">yolo11x_endpoint</th>
+<th>Chosen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;"><strong>0.800</strong></td>
+<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">0.150</td>
+<td>mog2_hysteresis</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;"><strong>1.000</strong></td>
+<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">0.000</td>
+<td>mog2_hysteresis</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: right;">0.200</td>
+<td style="text-align: right;">0.000</td>
+<td>mog2_hysteresis</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;"><strong>0.750</strong></td>
+<td style="text-align: right;">0.100</td>
+<td style="text-align: right;">0.200</td>
+<td>mog2_hysteresis</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mixed aggregate: mean = 0.775, min-clip = 0.550, PASS = no, SHIP = no.</strong></p>
+<p>Identical to Phase 2 baseline. Neither endpoint variant won a single camera.</p>
+<h2 id="546-why-both-endpoint-candidates-lost">5.4.6 — Why both endpoint candidates lost</h2>
+<p>The endpoint counter is the dual of the hysteresis counter:</p>
+<ul>
+<li><strong>Hysteresis</strong> rejects short noisy tracks; on dense scenes with fragmented
+  tracks (each transit ⇒ N short track IDs, none long enough to satisfy
+  hysteresis), it emits zero crossings.</li>
+<li><strong>Endpoint</strong> accepts short tracks; on the same dense scenes, every fragment
+  of every transit becomes a candidate event, and the dedup heuristic cannot
+  collapse fragments that the tracker assigned IDs &gt; dedup_radius apart in
+  pixel space (which is most of them when occlusions split tracks at the
+  entrance line, where bees are also closest together).</li>
+</ul>
+<p>In other words: the fragmentation that hides true crossings from hysteresis is
+ALSO the source of false crossings under endpoint. The root cause is the
+<strong>tracker losing IDs across the entrance line</strong>, not the counter. Fixing that
+requires either:</p>
+<ol>
+<li>A detector with confidence high enough that ByteTrack's <code>track_high_thresh</code>
+   keeps the same ID across occlusions (needs val mAP50 ≥ ~0.3, vs the 0.008
+   we got at 4 epochs of yolo11m).</li>
+<li>A reID-aware tracker that explicitly stitches fragments using appearance
+   embeddings (DeepSORT, BoT-SORT, OC-SORT with reID head).</li>
+</ol>
+<p>Neither was in scope for iter 4. The endpoint-counter idea is a dead end
+without one of those upstream fixes.</p>
+<h2 id="status-against-the-bars">Status against the bars</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Min-clip</th>
+<th style="text-align: center;">PASS (≥0.85, ≥0.70)</th>
+<th style="text-align: center;">SHIP (≥0.92, ≥0.85)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 baseline (tuned MOG2)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 1 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 2 mixed</td>
+<td style="text-align: right;">0.738</td>
+<td style="text-align: right;">0.500</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 3 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>Iter 4 mixed</strong></td>
+<td style="text-align: right;"><strong>0.775</strong></td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+</tr>
+<tr>
+<td>Iter 4 yolo11x_endpoint (standalone)</td>
+<td style="text-align: right;">0.088</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 4 mog2_endpoint (standalone)</td>
+<td style="text-align: right;">0.200</td>
+<td style="text-align: right;">0.100</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compute-spend">Compute spend</h2>
+<ul>
+<li>Anthropic API (judge scoring): <strong>0 fresh calls.</strong> The judge windows are
+  determined by clip duration + window size (3s), not by event timestamps;
+  every window for iter 4 hit cache from iter 1/2/3. Cost = $0 incremental.</li>
+<li>MPS compute (yolo11x training, abandoned): 2 epochs × 207s = ~7 min.</li>
+<li>MPS compute (yolo11m training): 4 epochs × 156s = ~10 min.</li>
+<li>MPS compute (yolo11m inference, 4 cams): 54 + 73 + 65 + 85 = ~4.6 min.</li>
+<li>CPU (MOG2 inference, 4 cams): ~25s × 4 = ~1.7 min.</li>
+<li>CPU (MOG2 endpoint sweep, partial): ~3 min on C1 only.</li>
+</ul>
+<p><strong>Total wall-clock for the iteration: ~36 min compute + ~5 min overhead.</strong></p>
+<h2 id="what-we-did-not-try-dead-ends-documented-for-next-iter">What we did not try (dead ends documented for next iter)</h2>
+<ul>
+<li>Custom ByteTrack thresholds tuned to yolo11m's confidence distribution.</li>
+<li>DeepSORT / BoT-SORT / OC-SORT with reID embeddings.</li>
+<li>Higher-mAP detector (would require &gt;&gt;30 epochs of training).</li>
+<li>Per-camera endpoint thresholds (partial sweep on C1 showed no
+  configuration recovers baseline).</li>
+<li>Hybrid counter: hysteresis for stable tracks + endpoint for very short ones
+  (would need careful track-length stratification, untested).</li>
+</ul></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

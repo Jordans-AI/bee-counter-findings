@@ -1,0 +1,5070 @@
+{
+  "C1": {
+    "n_clips": 349,
+    "n_flagged": 2,
+    "zone_brightness_median": 98.0,
+    "flag_cutoff": 158.6,
+    "entries_total": 29001,
+    "entries_flagged": 161,
+    "pct_entries_flagged": 0.56,
+    "flagged_clips": [
+      {
+        "video_id": "C1_IMAG0856",
+        "time": "15:05:19",
+        "entries": 80,
+        "zone_brightness": 160.6
+      },
+      {
+        "video_id": "C1_IMAG0860",
+        "time": "15:05:57",
+        "entries": 81,
+        "zone_brightness": 161.3
+      }
+    ],
+    "clips": [
+      {
+        "video_id": "C1_IMAG0004",
+        "creation_time": "2026-04-30T12:12:33.000000Z",
+        "entries": 28,
+        "zone_brightness": 93.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0008",
+        "creation_time": "2026-04-30T12:14:10.000000Z",
+        "entries": 64,
+        "zone_brightness": 52.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0012",
+        "creation_time": "2026-04-30T12:15:32.000000Z",
+        "entries": 85,
+        "zone_brightness": 55.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0016",
+        "creation_time": "2026-04-30T12:16:48.000000Z",
+        "entries": 53,
+        "zone_brightness": 56.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0020",
+        "creation_time": "2026-04-30T12:18:10.000000Z",
+        "entries": 64,
+        "zone_brightness": 51.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0024",
+        "creation_time": "2026-04-30T12:19:03.000000Z",
+        "entries": 72,
+        "zone_brightness": 54.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0028",
+        "creation_time": "2026-04-30T12:21:13.000000Z",
+        "entries": 66,
+        "zone_brightness": 56.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0032",
+        "creation_time": "2026-04-30T12:22:12.000000Z",
+        "entries": 73,
+        "zone_brightness": 53.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0036",
+        "creation_time": "2026-04-30T12:23:26.000000Z",
+        "entries": 69,
+        "zone_brightness": 54.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0040",
+        "creation_time": "2026-04-30T12:24:02.000000Z",
+        "entries": 79,
+        "zone_brightness": 52.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0044",
+        "creation_time": "2026-04-30T12:24:55.000000Z",
+        "entries": 72,
+        "zone_brightness": 55.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0048",
+        "creation_time": "2026-04-30T12:25:58.000000Z",
+        "entries": 68,
+        "zone_brightness": 53.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0052",
+        "creation_time": "2026-04-30T12:26:37.000000Z",
+        "entries": 68,
+        "zone_brightness": 58.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0056",
+        "creation_time": "2026-04-30T12:27:45.000000Z",
+        "entries": 69,
+        "zone_brightness": 59.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0060",
+        "creation_time": "2026-04-30T12:28:38.000000Z",
+        "entries": 81,
+        "zone_brightness": 63.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0064",
+        "creation_time": "2026-04-30T12:29:35.000000Z",
+        "entries": 66,
+        "zone_brightness": 64.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0068",
+        "creation_time": "2026-04-30T12:30:30.000000Z",
+        "entries": 77,
+        "zone_brightness": 67.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0072",
+        "creation_time": "2026-04-30T12:31:09.000000Z",
+        "entries": 68,
+        "zone_brightness": 70.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0076",
+        "creation_time": "2026-04-30T12:31:47.000000Z",
+        "entries": 60,
+        "zone_brightness": 71.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0080",
+        "creation_time": "2026-04-30T12:32:29.000000Z",
+        "entries": 81,
+        "zone_brightness": 74.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0084",
+        "creation_time": "2026-04-30T12:33:35.000000Z",
+        "entries": 80,
+        "zone_brightness": 82.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0088",
+        "creation_time": "2026-04-30T12:34:30.000000Z",
+        "entries": 84,
+        "zone_brightness": 85.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0092",
+        "creation_time": "2026-04-30T12:35:17.000000Z",
+        "entries": 86,
+        "zone_brightness": 87.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0096",
+        "creation_time": "2026-04-30T12:35:58.000000Z",
+        "entries": 83,
+        "zone_brightness": 90.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0100",
+        "creation_time": "2026-04-30T12:37:07.000000Z",
+        "entries": 90,
+        "zone_brightness": 96.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0104",
+        "creation_time": "2026-04-30T12:37:54.000000Z",
+        "entries": 95,
+        "zone_brightness": 97.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0108",
+        "creation_time": "2026-04-30T12:39:22.000000Z",
+        "entries": 97,
+        "zone_brightness": 97.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0112",
+        "creation_time": "2026-04-30T12:40:01.000000Z",
+        "entries": 91,
+        "zone_brightness": 98.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0116",
+        "creation_time": "2026-04-30T12:40:46.000000Z",
+        "entries": 76,
+        "zone_brightness": 97.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0120",
+        "creation_time": "2026-04-30T12:41:38.000000Z",
+        "entries": 70,
+        "zone_brightness": 94.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0124",
+        "creation_time": "2026-04-30T12:42:20.000000Z",
+        "entries": 89,
+        "zone_brightness": 93.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0128",
+        "creation_time": "2026-04-30T12:43:06.000000Z",
+        "entries": 84,
+        "zone_brightness": 96.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0132",
+        "creation_time": "2026-04-30T12:44:09.000000Z",
+        "entries": 84,
+        "zone_brightness": 93.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0136",
+        "creation_time": "2026-04-30T12:45:07.000000Z",
+        "entries": 85,
+        "zone_brightness": 95.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0140",
+        "creation_time": "2026-04-30T12:46:06.000000Z",
+        "entries": 81,
+        "zone_brightness": 97.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0144",
+        "creation_time": "2026-04-30T12:47:54.000000Z",
+        "entries": 95,
+        "zone_brightness": 91.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0148",
+        "creation_time": "2026-04-30T12:48:59.000000Z",
+        "entries": 87,
+        "zone_brightness": 92.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0152",
+        "creation_time": "2026-04-30T12:50:41.000000Z",
+        "entries": 74,
+        "zone_brightness": 83.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0156",
+        "creation_time": "2026-04-30T12:51:24.000000Z",
+        "entries": 80,
+        "zone_brightness": 94.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0160",
+        "creation_time": "2026-04-30T12:52:12.000000Z",
+        "entries": 81,
+        "zone_brightness": 88.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0164",
+        "creation_time": "2026-04-30T12:52:51.000000Z",
+        "entries": 92,
+        "zone_brightness": 90.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0168",
+        "creation_time": "2026-04-30T12:54:05.000000Z",
+        "entries": 83,
+        "zone_brightness": 94.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0172",
+        "creation_time": "2026-04-30T12:54:49.000000Z",
+        "entries": 76,
+        "zone_brightness": 94.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0176",
+        "creation_time": "2026-04-30T12:55:25.000000Z",
+        "entries": 86,
+        "zone_brightness": 92.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0180",
+        "creation_time": "2026-04-30T12:56:05.000000Z",
+        "entries": 90,
+        "zone_brightness": 90.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0184",
+        "creation_time": "2026-04-30T12:57:47.000000Z",
+        "entries": 91,
+        "zone_brightness": 88.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0188",
+        "creation_time": "2026-04-30T12:58:31.000000Z",
+        "entries": 83,
+        "zone_brightness": 90.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0192",
+        "creation_time": "2026-04-30T12:59:10.000000Z",
+        "entries": 87,
+        "zone_brightness": 91.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0196",
+        "creation_time": "2026-04-30T12:59:52.000000Z",
+        "entries": 78,
+        "zone_brightness": 88.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0200",
+        "creation_time": "2026-04-30T13:00:47.000000Z",
+        "entries": 79,
+        "zone_brightness": 88.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0204",
+        "creation_time": "2026-04-30T13:02:05.000000Z",
+        "entries": 81,
+        "zone_brightness": 90.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0208",
+        "creation_time": "2026-04-30T13:02:50.000000Z",
+        "entries": 73,
+        "zone_brightness": 90.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0212",
+        "creation_time": "2026-04-30T13:03:49.000000Z",
+        "entries": 95,
+        "zone_brightness": 86.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0216",
+        "creation_time": "2026-04-30T13:04:30.000000Z",
+        "entries": 94,
+        "zone_brightness": 85.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0220",
+        "creation_time": "2026-04-30T13:05:06.000000Z",
+        "entries": 86,
+        "zone_brightness": 82.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0224",
+        "creation_time": "2026-04-30T13:06:19.000000Z",
+        "entries": 86,
+        "zone_brightness": 82.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0228",
+        "creation_time": "2026-04-30T13:07:08.000000Z",
+        "entries": 85,
+        "zone_brightness": 88.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0232",
+        "creation_time": "2026-04-30T13:08:13.000000Z",
+        "entries": 99,
+        "zone_brightness": 89.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0236",
+        "creation_time": "2026-04-30T13:08:53.000000Z",
+        "entries": 85,
+        "zone_brightness": 86.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0240",
+        "creation_time": "2026-04-30T13:09:29.000000Z",
+        "entries": 86,
+        "zone_brightness": 86.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0244",
+        "creation_time": "2026-04-30T13:10:12.000000Z",
+        "entries": 89,
+        "zone_brightness": 85.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0248",
+        "creation_time": "2026-04-30T13:10:54.000000Z",
+        "entries": 87,
+        "zone_brightness": 82.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0252",
+        "creation_time": "2026-04-30T13:11:47.000000Z",
+        "entries": 91,
+        "zone_brightness": 85.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0256",
+        "creation_time": "2026-04-30T13:12:40.000000Z",
+        "entries": 73,
+        "zone_brightness": 87.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0260",
+        "creation_time": "2026-04-30T13:13:21.000000Z",
+        "entries": 90,
+        "zone_brightness": 81.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0264",
+        "creation_time": "2026-04-30T13:14:35.000000Z",
+        "entries": 80,
+        "zone_brightness": 82.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0268",
+        "creation_time": "2026-04-30T13:15:19.000000Z",
+        "entries": 75,
+        "zone_brightness": 82.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0272",
+        "creation_time": "2026-04-30T13:15:58.000000Z",
+        "entries": 83,
+        "zone_brightness": 84.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0276",
+        "creation_time": "2026-04-30T13:16:36.000000Z",
+        "entries": 100,
+        "zone_brightness": 85.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0280",
+        "creation_time": "2026-04-30T13:17:22.000000Z",
+        "entries": 90,
+        "zone_brightness": 87.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0284",
+        "creation_time": "2026-04-30T13:18:16.000000Z",
+        "entries": 87,
+        "zone_brightness": 89.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0288",
+        "creation_time": "2026-04-30T13:18:55.000000Z",
+        "entries": 86,
+        "zone_brightness": 85.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0292",
+        "creation_time": "2026-04-30T13:19:34.000000Z",
+        "entries": 89,
+        "zone_brightness": 81.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0296",
+        "creation_time": "2026-04-30T13:20:13.000000Z",
+        "entries": 86,
+        "zone_brightness": 84.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0300",
+        "creation_time": "2026-04-30T13:21:05.000000Z",
+        "entries": 87,
+        "zone_brightness": 89.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0304",
+        "creation_time": "2026-04-30T13:22:17.000000Z",
+        "entries": 95,
+        "zone_brightness": 84.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0308",
+        "creation_time": "2026-04-30T13:23:09.000000Z",
+        "entries": 90,
+        "zone_brightness": 85.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0312",
+        "creation_time": "2026-04-30T13:23:59.000000Z",
+        "entries": 90,
+        "zone_brightness": 88.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0316",
+        "creation_time": "2026-04-30T13:25:08.000000Z",
+        "entries": 88,
+        "zone_brightness": 84.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0320",
+        "creation_time": "2026-04-30T13:25:58.000000Z",
+        "entries": 92,
+        "zone_brightness": 86.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0324",
+        "creation_time": "2026-04-30T13:26:42.000000Z",
+        "entries": 79,
+        "zone_brightness": 82.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0328",
+        "creation_time": "2026-04-30T13:27:34.000000Z",
+        "entries": 87,
+        "zone_brightness": 83.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0332",
+        "creation_time": "2026-04-30T13:28:14.000000Z",
+        "entries": 96,
+        "zone_brightness": 81.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0336",
+        "creation_time": "2026-04-30T13:28:58.000000Z",
+        "entries": 93,
+        "zone_brightness": 77.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0340",
+        "creation_time": "2026-04-30T13:29:42.000000Z",
+        "entries": 88,
+        "zone_brightness": 81.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0344",
+        "creation_time": "2026-04-30T13:30:31.000000Z",
+        "entries": 84,
+        "zone_brightness": 79.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0348",
+        "creation_time": "2026-04-30T13:31:07.000000Z",
+        "entries": 88,
+        "zone_brightness": 81.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0352",
+        "creation_time": "2026-04-30T13:32:11.000000Z",
+        "entries": 78,
+        "zone_brightness": 83.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0356",
+        "creation_time": "2026-04-30T13:32:52.000000Z",
+        "entries": 87,
+        "zone_brightness": 85.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0360",
+        "creation_time": "2026-04-30T13:33:39.000000Z",
+        "entries": 93,
+        "zone_brightness": 80.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0364",
+        "creation_time": "2026-04-30T13:34:29.000000Z",
+        "entries": 91,
+        "zone_brightness": 82.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0368",
+        "creation_time": "2026-04-30T13:35:11.000000Z",
+        "entries": 81,
+        "zone_brightness": 79.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0372",
+        "creation_time": "2026-04-30T13:36:09.000000Z",
+        "entries": 95,
+        "zone_brightness": 79.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0376",
+        "creation_time": "2026-04-30T13:37:07.000000Z",
+        "entries": 83,
+        "zone_brightness": 80.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0380",
+        "creation_time": "2026-04-30T13:38:07.000000Z",
+        "entries": 93,
+        "zone_brightness": 80.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0384",
+        "creation_time": "2026-04-30T13:38:47.000000Z",
+        "entries": 85,
+        "zone_brightness": 77.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0388",
+        "creation_time": "2026-04-30T13:39:28.000000Z",
+        "entries": 90,
+        "zone_brightness": 73.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0392",
+        "creation_time": "2026-04-30T13:40:17.000000Z",
+        "entries": 93,
+        "zone_brightness": 75.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0396",
+        "creation_time": "2026-04-30T13:41:25.000000Z",
+        "entries": 91,
+        "zone_brightness": 81.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0400",
+        "creation_time": "2026-04-30T13:42:18.000000Z",
+        "entries": 84,
+        "zone_brightness": 79.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0404",
+        "creation_time": "2026-04-30T13:43:11.000000Z",
+        "entries": 72,
+        "zone_brightness": 81.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0408",
+        "creation_time": "2026-04-30T13:43:48.000000Z",
+        "entries": 81,
+        "zone_brightness": 76.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0412",
+        "creation_time": "2026-04-30T13:44:24.000000Z",
+        "entries": 91,
+        "zone_brightness": 81.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0416",
+        "creation_time": "2026-04-30T13:45:17.000000Z",
+        "entries": 90,
+        "zone_brightness": 80.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0420",
+        "creation_time": "2026-04-30T13:45:58.000000Z",
+        "entries": 77,
+        "zone_brightness": 76.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0424",
+        "creation_time": "2026-04-30T13:46:55.000000Z",
+        "entries": 85,
+        "zone_brightness": 81.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0428",
+        "creation_time": "2026-04-30T13:47:33.000000Z",
+        "entries": 78,
+        "zone_brightness": 82.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0432",
+        "creation_time": "2026-04-30T13:48:27.000000Z",
+        "entries": 89,
+        "zone_brightness": 81.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0436",
+        "creation_time": "2026-04-30T13:49:23.000000Z",
+        "entries": 93,
+        "zone_brightness": 75.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0440",
+        "creation_time": "2026-04-30T13:50:04.000000Z",
+        "entries": 99,
+        "zone_brightness": 77.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0444",
+        "creation_time": "2026-04-30T13:50:45.000000Z",
+        "entries": 95,
+        "zone_brightness": 80.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0448",
+        "creation_time": "2026-04-30T13:51:23.000000Z",
+        "entries": 95,
+        "zone_brightness": 80.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0452",
+        "creation_time": "2026-04-30T13:52:04.000000Z",
+        "entries": 85,
+        "zone_brightness": 78.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0456",
+        "creation_time": "2026-04-30T13:52:40.000000Z",
+        "entries": 87,
+        "zone_brightness": 82.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0460",
+        "creation_time": "2026-04-30T13:53:26.000000Z",
+        "entries": 83,
+        "zone_brightness": 79.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0464",
+        "creation_time": "2026-04-30T13:54:06.000000Z",
+        "entries": 89,
+        "zone_brightness": 80.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0468",
+        "creation_time": "2026-04-30T13:54:48.000000Z",
+        "entries": 85,
+        "zone_brightness": 81.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0472",
+        "creation_time": "2026-04-30T13:55:27.000000Z",
+        "entries": 88,
+        "zone_brightness": 89.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0476",
+        "creation_time": "2026-04-30T13:56:10.000000Z",
+        "entries": 94,
+        "zone_brightness": 80.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0480",
+        "creation_time": "2026-04-30T13:57:04.000000Z",
+        "entries": 91,
+        "zone_brightness": 80.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0484",
+        "creation_time": "2026-04-30T13:57:46.000000Z",
+        "entries": 81,
+        "zone_brightness": 83.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0488",
+        "creation_time": "2026-04-30T13:58:52.000000Z",
+        "entries": 78,
+        "zone_brightness": 83.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0492",
+        "creation_time": "2026-04-30T13:59:31.000000Z",
+        "entries": 75,
+        "zone_brightness": 80.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0496",
+        "creation_time": "2026-04-30T14:00:08.000000Z",
+        "entries": 93,
+        "zone_brightness": 84.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0500",
+        "creation_time": "2026-04-30T14:00:50.000000Z",
+        "entries": 86,
+        "zone_brightness": 90.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0504",
+        "creation_time": "2026-04-30T14:01:55.000000Z",
+        "entries": 87,
+        "zone_brightness": 89.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0508",
+        "creation_time": "2026-04-30T14:02:35.000000Z",
+        "entries": 91,
+        "zone_brightness": 90.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0512",
+        "creation_time": "2026-04-30T14:03:27.000000Z",
+        "entries": 88,
+        "zone_brightness": 88.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0516",
+        "creation_time": "2026-04-30T14:04:05.000000Z",
+        "entries": 94,
+        "zone_brightness": 91.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0520",
+        "creation_time": "2026-04-30T14:04:41.000000Z",
+        "entries": 86,
+        "zone_brightness": 93.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0524",
+        "creation_time": "2026-04-30T14:05:34.000000Z",
+        "entries": 90,
+        "zone_brightness": 92.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0528",
+        "creation_time": "2026-04-30T14:06:10.000000Z",
+        "entries": 83,
+        "zone_brightness": 91.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0532",
+        "creation_time": "2026-04-30T14:06:50.000000Z",
+        "entries": 91,
+        "zone_brightness": 98.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0536",
+        "creation_time": "2026-04-30T14:07:33.000000Z",
+        "entries": 87,
+        "zone_brightness": 94.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0540",
+        "creation_time": "2026-04-30T14:08:11.000000Z",
+        "entries": 74,
+        "zone_brightness": 95.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0544",
+        "creation_time": "2026-04-30T14:09:07.000000Z",
+        "entries": 81,
+        "zone_brightness": 89.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0548",
+        "creation_time": "2026-04-30T14:09:42.000000Z",
+        "entries": 95,
+        "zone_brightness": 94.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0552",
+        "creation_time": "2026-04-30T14:10:29.000000Z",
+        "entries": 96,
+        "zone_brightness": 95.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0556",
+        "creation_time": "2026-04-30T14:11:30.000000Z",
+        "entries": 90,
+        "zone_brightness": 99.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0560",
+        "creation_time": "2026-04-30T14:12:11.000000Z",
+        "entries": 92,
+        "zone_brightness": 95.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0564",
+        "creation_time": "2026-04-30T14:12:52.000000Z",
+        "entries": 87,
+        "zone_brightness": 99.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0568",
+        "creation_time": "2026-04-30T14:13:31.000000Z",
+        "entries": 80,
+        "zone_brightness": 100.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0572",
+        "creation_time": "2026-04-30T14:14:14.000000Z",
+        "entries": 83,
+        "zone_brightness": 101.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0576",
+        "creation_time": "2026-04-30T14:15:02.000000Z",
+        "entries": 71,
+        "zone_brightness": 103.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0580",
+        "creation_time": "2026-04-30T14:15:47.000000Z",
+        "entries": 85,
+        "zone_brightness": 101.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0584",
+        "creation_time": "2026-04-30T14:16:33.000000Z",
+        "entries": 88,
+        "zone_brightness": 97.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0588",
+        "creation_time": "2026-04-30T14:17:11.000000Z",
+        "entries": 95,
+        "zone_brightness": 107.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0592",
+        "creation_time": "2026-04-30T14:17:50.000000Z",
+        "entries": 98,
+        "zone_brightness": 97.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0596",
+        "creation_time": "2026-04-30T14:19:05.000000Z",
+        "entries": 89,
+        "zone_brightness": 103.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0600",
+        "creation_time": "2026-04-30T14:19:52.000000Z",
+        "entries": 84,
+        "zone_brightness": 100.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0604",
+        "creation_time": "2026-04-30T14:20:28.000000Z",
+        "entries": 98,
+        "zone_brightness": 100.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0608",
+        "creation_time": "2026-04-30T14:21:13.000000Z",
+        "entries": 90,
+        "zone_brightness": 101.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0612",
+        "creation_time": "2026-04-30T14:22:06.000000Z",
+        "entries": 80,
+        "zone_brightness": 95.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0616",
+        "creation_time": "2026-04-30T14:22:48.000000Z",
+        "entries": 85,
+        "zone_brightness": 98.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0620",
+        "creation_time": "2026-04-30T14:23:26.000000Z",
+        "entries": 95,
+        "zone_brightness": 97.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0624",
+        "creation_time": "2026-04-30T14:24:02.000000Z",
+        "entries": 76,
+        "zone_brightness": 107.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0628",
+        "creation_time": "2026-04-30T14:24:39.000000Z",
+        "entries": 84,
+        "zone_brightness": 99.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0632",
+        "creation_time": "2026-04-30T14:25:18.000000Z",
+        "entries": 85,
+        "zone_brightness": 102.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0636",
+        "creation_time": "2026-04-30T14:26:01.000000Z",
+        "entries": 86,
+        "zone_brightness": 105.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0640",
+        "creation_time": "2026-04-30T14:26:40.000000Z",
+        "entries": 81,
+        "zone_brightness": 103.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0644",
+        "creation_time": "2026-04-30T14:27:22.000000Z",
+        "entries": 82,
+        "zone_brightness": 99.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0648",
+        "creation_time": "2026-04-30T14:28:02.000000Z",
+        "entries": 73,
+        "zone_brightness": 98.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0652",
+        "creation_time": "2026-04-30T14:28:43.000000Z",
+        "entries": 87,
+        "zone_brightness": 96.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0656",
+        "creation_time": "2026-04-30T14:29:21.000000Z",
+        "entries": 92,
+        "zone_brightness": 95.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0660",
+        "creation_time": "2026-04-30T14:30:03.000000Z",
+        "entries": 84,
+        "zone_brightness": 103.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0664",
+        "creation_time": "2026-04-30T14:30:42.000000Z",
+        "entries": 93,
+        "zone_brightness": 101.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0668",
+        "creation_time": "2026-04-30T14:31:21.000000Z",
+        "entries": 76,
+        "zone_brightness": 100.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0672",
+        "creation_time": "2026-04-30T14:31:56.000000Z",
+        "entries": 89,
+        "zone_brightness": 97.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0676",
+        "creation_time": "2026-04-30T14:32:44.000000Z",
+        "entries": 86,
+        "zone_brightness": 101.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0680",
+        "creation_time": "2026-04-30T14:33:30.000000Z",
+        "entries": 92,
+        "zone_brightness": 102.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0684",
+        "creation_time": "2026-04-30T14:34:30.000000Z",
+        "entries": 82,
+        "zone_brightness": 102.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0688",
+        "creation_time": "2026-04-30T14:35:10.000000Z",
+        "entries": 80,
+        "zone_brightness": 105.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0692",
+        "creation_time": "2026-04-30T14:35:47.000000Z",
+        "entries": 87,
+        "zone_brightness": 111.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0696",
+        "creation_time": "2026-04-30T14:37:01.000000Z",
+        "entries": 94,
+        "zone_brightness": 101.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0700",
+        "creation_time": "2026-04-30T14:37:38.000000Z",
+        "entries": 82,
+        "zone_brightness": 105.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0704",
+        "creation_time": "2026-04-30T14:38:15.000000Z",
+        "entries": 66,
+        "zone_brightness": 101.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0708",
+        "creation_time": "2026-04-30T14:38:53.000000Z",
+        "entries": 84,
+        "zone_brightness": 106.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0712",
+        "creation_time": "2026-04-30T14:39:37.000000Z",
+        "entries": 79,
+        "zone_brightness": 107.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0716",
+        "creation_time": "2026-04-30T14:40:19.000000Z",
+        "entries": 82,
+        "zone_brightness": 105.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0720",
+        "creation_time": "2026-04-30T14:41:00.000000Z",
+        "entries": 89,
+        "zone_brightness": 99.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0724",
+        "creation_time": "2026-04-30T14:41:42.000000Z",
+        "entries": 82,
+        "zone_brightness": 110.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0728",
+        "creation_time": "2026-04-30T14:42:19.000000Z",
+        "entries": 81,
+        "zone_brightness": 101.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0732",
+        "creation_time": "2026-04-30T14:43:04.000000Z",
+        "entries": 93,
+        "zone_brightness": 103.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0736",
+        "creation_time": "2026-04-30T14:43:52.000000Z",
+        "entries": 86,
+        "zone_brightness": 106.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0740",
+        "creation_time": "2026-04-30T14:44:30.000000Z",
+        "entries": 92,
+        "zone_brightness": 106.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0744",
+        "creation_time": "2026-04-30T14:45:07.000000Z",
+        "entries": 86,
+        "zone_brightness": 108.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0748",
+        "creation_time": "2026-04-30T14:45:47.000000Z",
+        "entries": 86,
+        "zone_brightness": 106.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0752",
+        "creation_time": "2026-04-30T14:46:29.000000Z",
+        "entries": 88,
+        "zone_brightness": 108.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0756",
+        "creation_time": "2026-04-30T14:47:07.000000Z",
+        "entries": 66,
+        "zone_brightness": 106.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0760",
+        "creation_time": "2026-04-30T14:47:53.000000Z",
+        "entries": 81,
+        "zone_brightness": 108.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0764",
+        "creation_time": "2026-04-30T14:48:50.000000Z",
+        "entries": 78,
+        "zone_brightness": 109.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0768",
+        "creation_time": "2026-04-30T14:49:32.000000Z",
+        "entries": 85,
+        "zone_brightness": 114.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0772",
+        "creation_time": "2026-04-30T14:50:12.000000Z",
+        "entries": 86,
+        "zone_brightness": 107.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0776",
+        "creation_time": "2026-04-30T14:50:52.000000Z",
+        "entries": 91,
+        "zone_brightness": 111.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0780",
+        "creation_time": "2026-04-30T14:51:34.000000Z",
+        "entries": 84,
+        "zone_brightness": 109.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0784",
+        "creation_time": "2026-04-30T14:52:09.000000Z",
+        "entries": 85,
+        "zone_brightness": 108.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0788",
+        "creation_time": "2026-04-30T14:52:48.000000Z",
+        "entries": 89,
+        "zone_brightness": 107.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0792",
+        "creation_time": "2026-04-30T14:53:25.000000Z",
+        "entries": 87,
+        "zone_brightness": 107.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0796",
+        "creation_time": "2026-04-30T14:54:42.000000Z",
+        "entries": 83,
+        "zone_brightness": 108.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0800",
+        "creation_time": "2026-04-30T14:55:23.000000Z",
+        "entries": 81,
+        "zone_brightness": 110.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0804",
+        "creation_time": "2026-04-30T14:56:05.000000Z",
+        "entries": 82,
+        "zone_brightness": 109.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0808",
+        "creation_time": "2026-04-30T14:56:45.000000Z",
+        "entries": 86,
+        "zone_brightness": 104.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0812",
+        "creation_time": "2026-04-30T14:57:25.000000Z",
+        "entries": 78,
+        "zone_brightness": 103.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0816",
+        "creation_time": "2026-04-30T14:58:06.000000Z",
+        "entries": 94,
+        "zone_brightness": 106.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0820",
+        "creation_time": "2026-04-30T14:59:04.000000Z",
+        "entries": 82,
+        "zone_brightness": 106.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0824",
+        "creation_time": "2026-04-30T14:59:44.000000Z",
+        "entries": 71,
+        "zone_brightness": 104.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0828",
+        "creation_time": "2026-04-30T15:00:41.000000Z",
+        "entries": 77,
+        "zone_brightness": 107.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0832",
+        "creation_time": "2026-04-30T15:01:21.000000Z",
+        "entries": 84,
+        "zone_brightness": 106.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0836",
+        "creation_time": "2026-04-30T15:02:02.000000Z",
+        "entries": 85,
+        "zone_brightness": 107.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0840",
+        "creation_time": "2026-04-30T15:02:41.000000Z",
+        "entries": 79,
+        "zone_brightness": 113.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0844",
+        "creation_time": "2026-04-30T15:03:19.000000Z",
+        "entries": 87,
+        "zone_brightness": 107.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0848",
+        "creation_time": "2026-04-30T15:04:05.000000Z",
+        "entries": 90,
+        "zone_brightness": 110.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0852",
+        "creation_time": "2026-04-30T15:04:41.000000Z",
+        "entries": 78,
+        "zone_brightness": 116.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0856",
+        "creation_time": "2026-04-30T15:05:19.000000Z",
+        "entries": 80,
+        "zone_brightness": 160.6,
+        "flagged": true
+      },
+      {
+        "video_id": "C1_IMAG0860",
+        "creation_time": "2026-04-30T15:05:57.000000Z",
+        "entries": 81,
+        "zone_brightness": 161.3,
+        "flagged": true
+      },
+      {
+        "video_id": "C1_IMAG0864",
+        "creation_time": "2026-04-30T15:06:38.000000Z",
+        "entries": 71,
+        "zone_brightness": 158.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0868",
+        "creation_time": "2026-04-30T15:07:30.000000Z",
+        "entries": 70,
+        "zone_brightness": 157.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0872",
+        "creation_time": "2026-04-30T15:08:09.000000Z",
+        "entries": 72,
+        "zone_brightness": 148.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0876",
+        "creation_time": "2026-04-30T15:08:48.000000Z",
+        "entries": 75,
+        "zone_brightness": 154.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0880",
+        "creation_time": "2026-04-30T15:09:28.000000Z",
+        "entries": 84,
+        "zone_brightness": 149.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0884",
+        "creation_time": "2026-04-30T15:10:09.000000Z",
+        "entries": 78,
+        "zone_brightness": 153.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0888",
+        "creation_time": "2026-04-30T15:10:52.000000Z",
+        "entries": 69,
+        "zone_brightness": 143.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0892",
+        "creation_time": "2026-04-30T15:11:29.000000Z",
+        "entries": 81,
+        "zone_brightness": 146.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0896",
+        "creation_time": "2026-04-30T15:12:06.000000Z",
+        "entries": 73,
+        "zone_brightness": 148.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0900",
+        "creation_time": "2026-04-30T15:12:46.000000Z",
+        "entries": 88,
+        "zone_brightness": 145.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0904",
+        "creation_time": "2026-04-30T15:13:24.000000Z",
+        "entries": 75,
+        "zone_brightness": 145.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0908",
+        "creation_time": "2026-04-30T15:14:20.000000Z",
+        "entries": 77,
+        "zone_brightness": 140.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0912",
+        "creation_time": "2026-04-30T15:15:07.000000Z",
+        "entries": 89,
+        "zone_brightness": 144.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0916",
+        "creation_time": "2026-04-30T15:15:43.000000Z",
+        "entries": 82,
+        "zone_brightness": 146.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0920",
+        "creation_time": "2026-04-30T15:16:20.000000Z",
+        "entries": 78,
+        "zone_brightness": 145.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0924",
+        "creation_time": "2026-04-30T15:16:58.000000Z",
+        "entries": 80,
+        "zone_brightness": 145.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0928",
+        "creation_time": "2026-04-30T15:17:35.000000Z",
+        "entries": 73,
+        "zone_brightness": 143.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0932",
+        "creation_time": "2026-04-30T15:18:14.000000Z",
+        "entries": 69,
+        "zone_brightness": 142.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0936",
+        "creation_time": "2026-04-30T15:18:54.000000Z",
+        "entries": 85,
+        "zone_brightness": 132.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0940",
+        "creation_time": "2026-04-30T15:19:58.000000Z",
+        "entries": 87,
+        "zone_brightness": 140.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0944",
+        "creation_time": "2026-04-30T15:20:34.000000Z",
+        "entries": 76,
+        "zone_brightness": 138.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0948",
+        "creation_time": "2026-04-30T15:21:17.000000Z",
+        "entries": 83,
+        "zone_brightness": 135.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0952",
+        "creation_time": "2026-04-30T15:21:56.000000Z",
+        "entries": 73,
+        "zone_brightness": 141.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0956",
+        "creation_time": "2026-04-30T15:22:39.000000Z",
+        "entries": 79,
+        "zone_brightness": 134.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0960",
+        "creation_time": "2026-04-30T15:23:19.000000Z",
+        "entries": 89,
+        "zone_brightness": 135.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0964",
+        "creation_time": "2026-04-30T15:23:56.000000Z",
+        "entries": 76,
+        "zone_brightness": 128.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0968",
+        "creation_time": "2026-04-30T15:24:32.000000Z",
+        "entries": 79,
+        "zone_brightness": 135.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0972",
+        "creation_time": "2026-04-30T15:25:16.000000Z",
+        "entries": 79,
+        "zone_brightness": 137.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0976",
+        "creation_time": "2026-04-30T15:25:56.000000Z",
+        "entries": 85,
+        "zone_brightness": 131.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0980",
+        "creation_time": "2026-04-30T15:26:37.000000Z",
+        "entries": 65,
+        "zone_brightness": 134.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0984",
+        "creation_time": "2026-04-30T15:27:18.000000Z",
+        "entries": 74,
+        "zone_brightness": 130.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0988",
+        "creation_time": "2026-04-30T15:27:56.000000Z",
+        "entries": 77,
+        "zone_brightness": 129.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0992",
+        "creation_time": "2026-04-30T15:28:35.000000Z",
+        "entries": 80,
+        "zone_brightness": 127.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG0996",
+        "creation_time": "2026-04-30T15:29:16.000000Z",
+        "entries": 70,
+        "zone_brightness": 125.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1000",
+        "creation_time": "2026-04-30T15:29:54.000000Z",
+        "entries": 70,
+        "zone_brightness": 118.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1004",
+        "creation_time": "2026-04-30T15:30:36.000000Z",
+        "entries": 68,
+        "zone_brightness": 119.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1008",
+        "creation_time": "2026-04-30T15:31:15.000000Z",
+        "entries": 76,
+        "zone_brightness": 124.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1012",
+        "creation_time": "2026-04-30T15:31:55.000000Z",
+        "entries": 78,
+        "zone_brightness": 129.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1016",
+        "creation_time": "2026-04-30T15:32:33.000000Z",
+        "entries": 78,
+        "zone_brightness": 125.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1020",
+        "creation_time": "2026-04-30T15:33:11.000000Z",
+        "entries": 81,
+        "zone_brightness": 135.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1024",
+        "creation_time": "2026-04-30T15:33:48.000000Z",
+        "entries": 70,
+        "zone_brightness": 126.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1028",
+        "creation_time": "2026-04-30T15:34:29.000000Z",
+        "entries": 80,
+        "zone_brightness": 125.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1032",
+        "creation_time": "2026-04-30T15:35:07.000000Z",
+        "entries": 68,
+        "zone_brightness": 124.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1036",
+        "creation_time": "2026-04-30T15:35:52.000000Z",
+        "entries": 68,
+        "zone_brightness": 122.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1040",
+        "creation_time": "2026-04-30T15:36:32.000000Z",
+        "entries": 80,
+        "zone_brightness": 122.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1044",
+        "creation_time": "2026-04-30T15:37:09.000000Z",
+        "entries": 81,
+        "zone_brightness": 124.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1048",
+        "creation_time": "2026-04-30T15:38:01.000000Z",
+        "entries": 70,
+        "zone_brightness": 126.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1052",
+        "creation_time": "2026-04-30T15:38:38.000000Z",
+        "entries": 74,
+        "zone_brightness": 121.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1056",
+        "creation_time": "2026-04-30T15:39:16.000000Z",
+        "entries": 70,
+        "zone_brightness": 118.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1060",
+        "creation_time": "2026-04-30T15:39:58.000000Z",
+        "entries": 78,
+        "zone_brightness": 123.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1064",
+        "creation_time": "2026-04-30T15:40:48.000000Z",
+        "entries": 76,
+        "zone_brightness": 120.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1068",
+        "creation_time": "2026-04-30T15:41:26.000000Z",
+        "entries": 85,
+        "zone_brightness": 117.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1072",
+        "creation_time": "2026-04-30T15:42:03.000000Z",
+        "entries": 66,
+        "zone_brightness": 125.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1076",
+        "creation_time": "2026-04-30T15:42:42.000000Z",
+        "entries": 81,
+        "zone_brightness": 109.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1080",
+        "creation_time": "2026-04-30T15:43:24.000000Z",
+        "entries": 86,
+        "zone_brightness": 113.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1084",
+        "creation_time": "2026-04-30T15:44:04.000000Z",
+        "entries": 93,
+        "zone_brightness": 108.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1088",
+        "creation_time": "2026-04-30T15:44:45.000000Z",
+        "entries": 91,
+        "zone_brightness": 114.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1092",
+        "creation_time": "2026-04-30T15:45:24.000000Z",
+        "entries": 89,
+        "zone_brightness": 101.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1096",
+        "creation_time": "2026-04-30T15:46:06.000000Z",
+        "entries": 81,
+        "zone_brightness": 105.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1100",
+        "creation_time": "2026-04-30T15:46:44.000000Z",
+        "entries": 84,
+        "zone_brightness": 106.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1104",
+        "creation_time": "2026-04-30T15:47:20.000000Z",
+        "entries": 69,
+        "zone_brightness": 104.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1108",
+        "creation_time": "2026-04-30T15:48:01.000000Z",
+        "entries": 88,
+        "zone_brightness": 108.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1112",
+        "creation_time": "2026-04-30T15:48:42.000000Z",
+        "entries": 80,
+        "zone_brightness": 100.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1116",
+        "creation_time": "2026-04-30T15:49:20.000000Z",
+        "entries": 85,
+        "zone_brightness": 107.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1120",
+        "creation_time": "2026-04-30T15:50:03.000000Z",
+        "entries": 83,
+        "zone_brightness": 102.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1124",
+        "creation_time": "2026-04-30T15:50:40.000000Z",
+        "entries": 76,
+        "zone_brightness": 103.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1128",
+        "creation_time": "2026-04-30T15:51:18.000000Z",
+        "entries": 85,
+        "zone_brightness": 101.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1132",
+        "creation_time": "2026-04-30T15:51:57.000000Z",
+        "entries": 84,
+        "zone_brightness": 98.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1136",
+        "creation_time": "2026-04-30T15:52:34.000000Z",
+        "entries": 83,
+        "zone_brightness": 103.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1140",
+        "creation_time": "2026-04-30T15:53:14.000000Z",
+        "entries": 79,
+        "zone_brightness": 96.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1144",
+        "creation_time": "2026-04-30T15:53:51.000000Z",
+        "entries": 84,
+        "zone_brightness": 106.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1148",
+        "creation_time": "2026-04-30T15:54:27.000000Z",
+        "entries": 80,
+        "zone_brightness": 102.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1152",
+        "creation_time": "2026-04-30T15:55:07.000000Z",
+        "entries": 83,
+        "zone_brightness": 100.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1156",
+        "creation_time": "2026-04-30T15:55:51.000000Z",
+        "entries": 82,
+        "zone_brightness": 99.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1160",
+        "creation_time": "2026-04-30T15:56:27.000000Z",
+        "entries": 83,
+        "zone_brightness": 99.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1164",
+        "creation_time": "2026-04-30T15:57:08.000000Z",
+        "entries": 84,
+        "zone_brightness": 99.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1168",
+        "creation_time": "2026-04-30T15:57:45.000000Z",
+        "entries": 101,
+        "zone_brightness": 98.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1172",
+        "creation_time": "2026-04-30T15:58:23.000000Z",
+        "entries": 86,
+        "zone_brightness": 99.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1176",
+        "creation_time": "2026-04-30T15:59:03.000000Z",
+        "entries": 76,
+        "zone_brightness": 96.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1180",
+        "creation_time": "2026-04-30T15:59:48.000000Z",
+        "entries": 88,
+        "zone_brightness": 99.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1184",
+        "creation_time": "2026-04-30T16:00:29.000000Z",
+        "entries": 83,
+        "zone_brightness": 98.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1188",
+        "creation_time": "2026-04-30T16:01:07.000000Z",
+        "entries": 93,
+        "zone_brightness": 105.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1192",
+        "creation_time": "2026-04-30T16:01:48.000000Z",
+        "entries": 83,
+        "zone_brightness": 103.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1196",
+        "creation_time": "2026-04-30T16:02:25.000000Z",
+        "entries": 81,
+        "zone_brightness": 98.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1200",
+        "creation_time": "2026-04-30T16:03:02.000000Z",
+        "entries": 85,
+        "zone_brightness": 97.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1204",
+        "creation_time": "2026-04-30T16:03:40.000000Z",
+        "entries": 77,
+        "zone_brightness": 100.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1208",
+        "creation_time": "2026-04-30T16:04:24.000000Z",
+        "entries": 88,
+        "zone_brightness": 104.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1212",
+        "creation_time": "2026-04-30T16:05:03.000000Z",
+        "entries": 90,
+        "zone_brightness": 101.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1216",
+        "creation_time": "2026-04-30T16:05:39.000000Z",
+        "entries": 77,
+        "zone_brightness": 95.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1220",
+        "creation_time": "2026-04-30T16:06:22.000000Z",
+        "entries": 84,
+        "zone_brightness": 103.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1224",
+        "creation_time": "2026-04-30T16:07:01.000000Z",
+        "entries": 84,
+        "zone_brightness": 91.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1228",
+        "creation_time": "2026-04-30T16:07:40.000000Z",
+        "entries": 80,
+        "zone_brightness": 96.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1232",
+        "creation_time": "2026-04-30T16:08:21.000000Z",
+        "entries": 85,
+        "zone_brightness": 99.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1236",
+        "creation_time": "2026-04-30T16:09:00.000000Z",
+        "entries": 79,
+        "zone_brightness": 98.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1240",
+        "creation_time": "2026-04-30T16:09:39.000000Z",
+        "entries": 85,
+        "zone_brightness": 93.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1244",
+        "creation_time": "2026-04-30T16:10:17.000000Z",
+        "entries": 79,
+        "zone_brightness": 99.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1248",
+        "creation_time": "2026-04-30T16:10:58.000000Z",
+        "entries": 87,
+        "zone_brightness": 98.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1252",
+        "creation_time": "2026-04-30T16:11:37.000000Z",
+        "entries": 87,
+        "zone_brightness": 91.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1256",
+        "creation_time": "2026-04-30T16:12:13.000000Z",
+        "entries": 90,
+        "zone_brightness": 100.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1260",
+        "creation_time": "2026-04-30T16:12:51.000000Z",
+        "entries": 86,
+        "zone_brightness": 102.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1264",
+        "creation_time": "2026-04-30T16:13:32.000000Z",
+        "entries": 75,
+        "zone_brightness": 104.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1268",
+        "creation_time": "2026-04-30T16:14:16.000000Z",
+        "entries": 90,
+        "zone_brightness": 107.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1272",
+        "creation_time": "2026-04-30T16:14:54.000000Z",
+        "entries": 82,
+        "zone_brightness": 103.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1276",
+        "creation_time": "2026-04-30T16:15:30.000000Z",
+        "entries": 77,
+        "zone_brightness": 103.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1280",
+        "creation_time": "2026-04-30T16:16:15.000000Z",
+        "entries": 89,
+        "zone_brightness": 104.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1284",
+        "creation_time": "2026-04-30T16:16:55.000000Z",
+        "entries": 74,
+        "zone_brightness": 104.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1288",
+        "creation_time": "2026-04-30T16:17:37.000000Z",
+        "entries": 88,
+        "zone_brightness": 104.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1292",
+        "creation_time": "2026-04-30T16:18:17.000000Z",
+        "entries": 76,
+        "zone_brightness": 100.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1296",
+        "creation_time": "2026-04-30T16:18:56.000000Z",
+        "entries": 91,
+        "zone_brightness": 94.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1300",
+        "creation_time": "2026-04-30T16:19:35.000000Z",
+        "entries": 84,
+        "zone_brightness": 94.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1304",
+        "creation_time": "2026-04-30T16:20:13.000000Z",
+        "entries": 83,
+        "zone_brightness": 93.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1308",
+        "creation_time": "2026-04-30T16:21:00.000000Z",
+        "entries": 92,
+        "zone_brightness": 95.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1312",
+        "creation_time": "2026-04-30T16:21:40.000000Z",
+        "entries": 86,
+        "zone_brightness": 94.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1316",
+        "creation_time": "2026-04-30T16:22:19.000000Z",
+        "entries": 82,
+        "zone_brightness": 103.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1320",
+        "creation_time": "2026-04-30T16:23:10.000000Z",
+        "entries": 90,
+        "zone_brightness": 103.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1324",
+        "creation_time": "2026-04-30T16:23:48.000000Z",
+        "entries": 98,
+        "zone_brightness": 98.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1328",
+        "creation_time": "2026-04-30T16:24:31.000000Z",
+        "entries": 94,
+        "zone_brightness": 96.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1332",
+        "creation_time": "2026-04-30T16:25:09.000000Z",
+        "entries": 83,
+        "zone_brightness": 100.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1336",
+        "creation_time": "2026-04-30T16:25:51.000000Z",
+        "entries": 85,
+        "zone_brightness": 97.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1340",
+        "creation_time": "2026-04-30T16:26:32.000000Z",
+        "entries": 91,
+        "zone_brightness": 99.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1344",
+        "creation_time": "2026-04-30T16:27:11.000000Z",
+        "entries": 86,
+        "zone_brightness": 91.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1348",
+        "creation_time": "2026-04-30T16:27:53.000000Z",
+        "entries": 102,
+        "zone_brightness": 89.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1352",
+        "creation_time": "2026-04-30T16:28:50.000000Z",
+        "entries": 92,
+        "zone_brightness": 81.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1356",
+        "creation_time": "2026-04-30T16:29:32.000000Z",
+        "entries": 83,
+        "zone_brightness": 71.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1360",
+        "creation_time": "2026-04-30T16:30:36.000000Z",
+        "entries": 89,
+        "zone_brightness": 60.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1364",
+        "creation_time": "2026-04-30T16:31:20.000000Z",
+        "entries": 86,
+        "zone_brightness": 52.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1368",
+        "creation_time": "2026-04-30T16:32:03.000000Z",
+        "entries": 82,
+        "zone_brightness": 45.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1372",
+        "creation_time": "2026-04-30T16:32:53.000000Z",
+        "entries": 87,
+        "zone_brightness": 41.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1376",
+        "creation_time": "2026-04-30T16:34:16.000000Z",
+        "entries": 83,
+        "zone_brightness": 38.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1380",
+        "creation_time": "2026-04-30T16:35:46.000000Z",
+        "entries": 79,
+        "zone_brightness": 33.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1384",
+        "creation_time": "2026-04-30T16:36:38.000000Z",
+        "entries": 81,
+        "zone_brightness": 32.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1388",
+        "creation_time": "2026-04-30T16:38:07.000000Z",
+        "entries": 85,
+        "zone_brightness": 27.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1392",
+        "creation_time": "2026-04-30T16:38:59.000000Z",
+        "entries": 79,
+        "zone_brightness": 27.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C1_IMAG1396",
+        "creation_time": "2026-04-30T16:40:00.000000Z",
+        "entries": 87,
+        "zone_brightness": 25.2,
+        "flagged": false
+      }
+    ]
+  },
+  "C2": {
+    "n_clips": 303,
+    "n_flagged": 13,
+    "zone_brightness_median": 19.4,
+    "flag_cutoff": 55.4,
+    "entries_total": 37838,
+    "entries_flagged": 1248,
+    "pct_entries_flagged": 3.3,
+    "flagged_clips": [
+      {
+        "video_id": "C2_IMAG0004",
+        "time": "12:25:48",
+        "entries": 27,
+        "zone_brightness": 122.1
+      },
+      {
+        "video_id": "C2_IMAG0120",
+        "time": "12:48:24",
+        "entries": 103,
+        "zone_brightness": 62.9
+      },
+      {
+        "video_id": "C2_IMAG0192",
+        "time": "13:05:29",
+        "entries": 105,
+        "zone_brightness": 63.9
+      },
+      {
+        "video_id": "C2_IMAG0196",
+        "time": "13:06:33",
+        "entries": 106,
+        "zone_brightness": 67.3
+      },
+      {
+        "video_id": "C2_IMAG0200",
+        "time": "13:07:12",
+        "entries": 107,
+        "zone_brightness": 62.1
+      },
+      {
+        "video_id": "C2_IMAG0204",
+        "time": "13:07:52",
+        "entries": 91,
+        "zone_brightness": 71.8
+      },
+      {
+        "video_id": "C2_IMAG0208",
+        "time": "13:08:32",
+        "entries": 105,
+        "zone_brightness": 89.8
+      },
+      {
+        "video_id": "C2_IMAG0212",
+        "time": "13:09:25",
+        "entries": 94,
+        "zone_brightness": 61.0
+      },
+      {
+        "video_id": "C2_IMAG0216",
+        "time": "13:10:02",
+        "entries": 108,
+        "zone_brightness": 59.7
+      },
+      {
+        "video_id": "C2_IMAG0316",
+        "time": "13:33:46",
+        "entries": 93,
+        "zone_brightness": 55.9
+      },
+      {
+        "video_id": "C2_IMAG0320",
+        "time": "13:34:31",
+        "entries": 108,
+        "zone_brightness": 58.5
+      },
+      {
+        "video_id": "C2_IMAG0564",
+        "time": "14:21:18",
+        "entries": 116,
+        "zone_brightness": 66.9
+      },
+      {
+        "video_id": "C2_IMAG1212",
+        "time": "16:09:28",
+        "entries": 85,
+        "zone_brightness": 77.8
+      }
+    ],
+    "clips": [
+      {
+        "video_id": "C2_IMAG0004",
+        "creation_time": "2026-04-30T12:25:48.000000Z",
+        "entries": 27,
+        "zone_brightness": 122.1,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0012",
+        "creation_time": "2026-04-30T12:27:57.000000Z",
+        "entries": 107,
+        "zone_brightness": 31.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0016",
+        "creation_time": "2026-04-30T12:28:35.000000Z",
+        "entries": 117,
+        "zone_brightness": 28.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0020",
+        "creation_time": "2026-04-30T12:29:12.000000Z",
+        "entries": 91,
+        "zone_brightness": 30.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0024",
+        "creation_time": "2026-04-30T12:29:52.000000Z",
+        "entries": 127,
+        "zone_brightness": 33.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0028",
+        "creation_time": "2026-04-30T12:30:30.000000Z",
+        "entries": 117,
+        "zone_brightness": 31.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0032",
+        "creation_time": "2026-04-30T12:31:14.000000Z",
+        "entries": 112,
+        "zone_brightness": 28.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0036",
+        "creation_time": "2026-04-30T12:32:01.000000Z",
+        "entries": 119,
+        "zone_brightness": 29.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0040",
+        "creation_time": "2026-04-30T12:33:02.000000Z",
+        "entries": 107,
+        "zone_brightness": 30.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0044",
+        "creation_time": "2026-04-30T12:34:01.000000Z",
+        "entries": 104,
+        "zone_brightness": 30.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0048",
+        "creation_time": "2026-04-30T12:35:03.000000Z",
+        "entries": 85,
+        "zone_brightness": 54.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0052",
+        "creation_time": "2026-04-30T12:35:44.000000Z",
+        "entries": 104,
+        "zone_brightness": 26.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0056",
+        "creation_time": "2026-04-30T12:36:32.000000Z",
+        "entries": 109,
+        "zone_brightness": 15.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0060",
+        "creation_time": "2026-04-30T12:37:32.000000Z",
+        "entries": 130,
+        "zone_brightness": 19.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0064",
+        "creation_time": "2026-04-30T12:38:32.000000Z",
+        "entries": 133,
+        "zone_brightness": 15.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0068",
+        "creation_time": "2026-04-30T12:39:08.000000Z",
+        "entries": 136,
+        "zone_brightness": 17.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0072",
+        "creation_time": "2026-04-30T12:39:45.000000Z",
+        "entries": 137,
+        "zone_brightness": 16.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0076",
+        "creation_time": "2026-04-30T12:40:27.000000Z",
+        "entries": 115,
+        "zone_brightness": 47.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0080",
+        "creation_time": "2026-04-30T12:41:03.000000Z",
+        "entries": 148,
+        "zone_brightness": 26.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0084",
+        "creation_time": "2026-04-30T12:41:39.000000Z",
+        "entries": 129,
+        "zone_brightness": 18.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0088",
+        "creation_time": "2026-04-30T12:42:16.000000Z",
+        "entries": 114,
+        "zone_brightness": 44.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0092",
+        "creation_time": "2026-04-30T12:42:52.000000Z",
+        "entries": 162,
+        "zone_brightness": 22.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0096",
+        "creation_time": "2026-04-30T12:43:30.000000Z",
+        "entries": 122,
+        "zone_brightness": 22.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0100",
+        "creation_time": "2026-04-30T12:44:33.000000Z",
+        "entries": 146,
+        "zone_brightness": 19.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0104",
+        "creation_time": "2026-04-30T12:45:09.000000Z",
+        "entries": 129,
+        "zone_brightness": 18.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0108",
+        "creation_time": "2026-04-30T12:46:02.000000Z",
+        "entries": 139,
+        "zone_brightness": 18.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0112",
+        "creation_time": "2026-04-30T12:46:41.000000Z",
+        "entries": 127,
+        "zone_brightness": 18.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0116",
+        "creation_time": "2026-04-30T12:47:32.000000Z",
+        "entries": 117,
+        "zone_brightness": 19.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0120",
+        "creation_time": "2026-04-30T12:48:24.000000Z",
+        "entries": 103,
+        "zone_brightness": 62.9,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0124",
+        "creation_time": "2026-04-30T12:49:00.000000Z",
+        "entries": 142,
+        "zone_brightness": 23.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0128",
+        "creation_time": "2026-04-30T12:50:03.000000Z",
+        "entries": 133,
+        "zone_brightness": 19.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0132",
+        "creation_time": "2026-04-30T12:50:44.000000Z",
+        "entries": 128,
+        "zone_brightness": 19.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0136",
+        "creation_time": "2026-04-30T12:51:33.000000Z",
+        "entries": 139,
+        "zone_brightness": 19.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0140",
+        "creation_time": "2026-04-30T12:52:32.000000Z",
+        "entries": 131,
+        "zone_brightness": 19.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0144",
+        "creation_time": "2026-04-30T12:53:33.000000Z",
+        "entries": 141,
+        "zone_brightness": 18.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0148",
+        "creation_time": "2026-04-30T12:54:32.000000Z",
+        "entries": 144,
+        "zone_brightness": 17.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0152",
+        "creation_time": "2026-04-30T12:55:33.000000Z",
+        "entries": 140,
+        "zone_brightness": 16.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0156",
+        "creation_time": "2026-04-30T12:56:31.000000Z",
+        "entries": 129,
+        "zone_brightness": 16.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0160",
+        "creation_time": "2026-04-30T12:57:32.000000Z",
+        "entries": 137,
+        "zone_brightness": 14.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0164",
+        "creation_time": "2026-04-30T12:58:33.000000Z",
+        "entries": 135,
+        "zone_brightness": 15.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0168",
+        "creation_time": "2026-04-30T12:59:33.000000Z",
+        "entries": 127,
+        "zone_brightness": 16.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0172",
+        "creation_time": "2026-04-30T13:00:31.000000Z",
+        "entries": 153,
+        "zone_brightness": 15.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0176",
+        "creation_time": "2026-04-30T13:01:31.000000Z",
+        "entries": 129,
+        "zone_brightness": 15.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0180",
+        "creation_time": "2026-04-30T13:02:32.000000Z",
+        "entries": 133,
+        "zone_brightness": 13.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0184",
+        "creation_time": "2026-04-30T13:03:33.000000Z",
+        "entries": 125,
+        "zone_brightness": 15.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0188",
+        "creation_time": "2026-04-30T13:04:32.000000Z",
+        "entries": 134,
+        "zone_brightness": 13.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0192",
+        "creation_time": "2026-04-30T13:05:29.000000Z",
+        "entries": 105,
+        "zone_brightness": 63.9,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0196",
+        "creation_time": "2026-04-30T13:06:33.000000Z",
+        "entries": 106,
+        "zone_brightness": 67.3,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0200",
+        "creation_time": "2026-04-30T13:07:12.000000Z",
+        "entries": 107,
+        "zone_brightness": 62.1,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0204",
+        "creation_time": "2026-04-30T13:07:52.000000Z",
+        "entries": 91,
+        "zone_brightness": 71.8,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0208",
+        "creation_time": "2026-04-30T13:08:32.000000Z",
+        "entries": 105,
+        "zone_brightness": 89.8,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0212",
+        "creation_time": "2026-04-30T13:09:25.000000Z",
+        "entries": 94,
+        "zone_brightness": 61.0,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0216",
+        "creation_time": "2026-04-30T13:10:02.000000Z",
+        "entries": 108,
+        "zone_brightness": 59.7,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0220",
+        "creation_time": "2026-04-30T13:10:43.000000Z",
+        "entries": 110,
+        "zone_brightness": 27.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0224",
+        "creation_time": "2026-04-30T13:11:31.000000Z",
+        "entries": 117,
+        "zone_brightness": 13.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0228",
+        "creation_time": "2026-04-30T13:12:26.000000Z",
+        "entries": 122,
+        "zone_brightness": 12.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0232",
+        "creation_time": "2026-04-30T13:13:32.000000Z",
+        "entries": 136,
+        "zone_brightness": 12.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0236",
+        "creation_time": "2026-04-30T13:14:31.000000Z",
+        "entries": 120,
+        "zone_brightness": 12.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0240",
+        "creation_time": "2026-04-30T13:15:33.000000Z",
+        "entries": 128,
+        "zone_brightness": 11.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0244",
+        "creation_time": "2026-04-30T13:16:31.000000Z",
+        "entries": 134,
+        "zone_brightness": 12.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0248",
+        "creation_time": "2026-04-30T13:17:32.000000Z",
+        "entries": 133,
+        "zone_brightness": 10.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0252",
+        "creation_time": "2026-04-30T13:18:31.000000Z",
+        "entries": 124,
+        "zone_brightness": 11.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0256",
+        "creation_time": "2026-04-30T13:19:32.000000Z",
+        "entries": 120,
+        "zone_brightness": 11.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0260",
+        "creation_time": "2026-04-30T13:20:32.000000Z",
+        "entries": 131,
+        "zone_brightness": 11.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0264",
+        "creation_time": "2026-04-30T13:21:31.000000Z",
+        "entries": 114,
+        "zone_brightness": 11.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0268",
+        "creation_time": "2026-04-30T13:22:33.000000Z",
+        "entries": 107,
+        "zone_brightness": 11.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0272",
+        "creation_time": "2026-04-30T13:23:15.000000Z",
+        "entries": 119,
+        "zone_brightness": 11.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0276",
+        "creation_time": "2026-04-30T13:24:02.000000Z",
+        "entries": 122,
+        "zone_brightness": 12.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0280",
+        "creation_time": "2026-04-30T13:25:01.000000Z",
+        "entries": 131,
+        "zone_brightness": 10.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0284",
+        "creation_time": "2026-04-30T13:26:02.000000Z",
+        "entries": 117,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0288",
+        "creation_time": "2026-04-30T13:27:03.000000Z",
+        "entries": 115,
+        "zone_brightness": 10.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0292",
+        "creation_time": "2026-04-30T13:28:01.000000Z",
+        "entries": 118,
+        "zone_brightness": 10.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0296",
+        "creation_time": "2026-04-30T13:29:02.000000Z",
+        "entries": 123,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0300",
+        "creation_time": "2026-04-30T13:30:02.000000Z",
+        "entries": 134,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0304",
+        "creation_time": "2026-04-30T13:31:01.000000Z",
+        "entries": 129,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0308",
+        "creation_time": "2026-04-30T13:32:03.000000Z",
+        "entries": 116,
+        "zone_brightness": 43.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0312",
+        "creation_time": "2026-04-30T13:33:02.000000Z",
+        "entries": 109,
+        "zone_brightness": 26.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0316",
+        "creation_time": "2026-04-30T13:33:46.000000Z",
+        "entries": 93,
+        "zone_brightness": 55.9,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0320",
+        "creation_time": "2026-04-30T13:34:31.000000Z",
+        "entries": 108,
+        "zone_brightness": 58.5,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0324",
+        "creation_time": "2026-04-30T13:35:13.000000Z",
+        "entries": 115,
+        "zone_brightness": 9.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0328",
+        "creation_time": "2026-04-30T13:36:01.000000Z",
+        "entries": 123,
+        "zone_brightness": 10.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0332",
+        "creation_time": "2026-04-30T13:37:02.000000Z",
+        "entries": 114,
+        "zone_brightness": 9.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0336",
+        "creation_time": "2026-04-30T13:38:03.000000Z",
+        "entries": 124,
+        "zone_brightness": 11.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0340",
+        "creation_time": "2026-04-30T13:38:57.000000Z",
+        "entries": 120,
+        "zone_brightness": 9.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0344",
+        "creation_time": "2026-04-30T13:39:53.000000Z",
+        "entries": 125,
+        "zone_brightness": 10.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0348",
+        "creation_time": "2026-04-30T13:40:32.000000Z",
+        "entries": 135,
+        "zone_brightness": 9.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0352",
+        "creation_time": "2026-04-30T13:41:19.000000Z",
+        "entries": 128,
+        "zone_brightness": 10.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0356",
+        "creation_time": "2026-04-30T13:42:01.000000Z",
+        "entries": 128,
+        "zone_brightness": 9.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0360",
+        "creation_time": "2026-04-30T13:42:41.000000Z",
+        "entries": 113,
+        "zone_brightness": 9.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0364",
+        "creation_time": "2026-04-30T13:43:31.000000Z",
+        "entries": 115,
+        "zone_brightness": 9.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0368",
+        "creation_time": "2026-04-30T13:44:21.000000Z",
+        "entries": 150,
+        "zone_brightness": 10.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0372",
+        "creation_time": "2026-04-30T13:44:58.000000Z",
+        "entries": 123,
+        "zone_brightness": 26.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0376",
+        "creation_time": "2026-04-30T13:45:41.000000Z",
+        "entries": 128,
+        "zone_brightness": 10.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0380",
+        "creation_time": "2026-04-30T13:46:32.000000Z",
+        "entries": 134,
+        "zone_brightness": 10.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0384",
+        "creation_time": "2026-04-30T13:47:14.000000Z",
+        "entries": 124,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0388",
+        "creation_time": "2026-04-30T13:48:03.000000Z",
+        "entries": 120,
+        "zone_brightness": 11.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0392",
+        "creation_time": "2026-04-30T13:48:40.000000Z",
+        "entries": 137,
+        "zone_brightness": 10.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0396",
+        "creation_time": "2026-04-30T13:49:23.000000Z",
+        "entries": 133,
+        "zone_brightness": 10.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0400",
+        "creation_time": "2026-04-30T13:50:03.000000Z",
+        "entries": 118,
+        "zone_brightness": 10.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0404",
+        "creation_time": "2026-04-30T13:50:43.000000Z",
+        "entries": 125,
+        "zone_brightness": 12.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0408",
+        "creation_time": "2026-04-30T13:51:32.000000Z",
+        "entries": 130,
+        "zone_brightness": 10.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0412",
+        "creation_time": "2026-04-30T13:52:22.000000Z",
+        "entries": 138,
+        "zone_brightness": 10.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0416",
+        "creation_time": "2026-04-30T13:53:02.000000Z",
+        "entries": 123,
+        "zone_brightness": 10.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0420",
+        "creation_time": "2026-04-30T13:53:43.000000Z",
+        "entries": 130,
+        "zone_brightness": 11.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0424",
+        "creation_time": "2026-04-30T13:54:27.000000Z",
+        "entries": 134,
+        "zone_brightness": 11.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0428",
+        "creation_time": "2026-04-30T13:55:31.000000Z",
+        "entries": 144,
+        "zone_brightness": 11.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0432",
+        "creation_time": "2026-04-30T13:56:32.000000Z",
+        "entries": 128,
+        "zone_brightness": 11.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0436",
+        "creation_time": "2026-04-30T13:57:12.000000Z",
+        "entries": 127,
+        "zone_brightness": 11.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0440",
+        "creation_time": "2026-04-30T13:57:55.000000Z",
+        "entries": 129,
+        "zone_brightness": 11.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0444",
+        "creation_time": "2026-04-30T13:58:34.000000Z",
+        "entries": 148,
+        "zone_brightness": 11.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0448",
+        "creation_time": "2026-04-30T13:59:22.000000Z",
+        "entries": 146,
+        "zone_brightness": 12.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0452",
+        "creation_time": "2026-04-30T14:00:02.000000Z",
+        "entries": 140,
+        "zone_brightness": 11.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0456",
+        "creation_time": "2026-04-30T14:00:56.000000Z",
+        "entries": 147,
+        "zone_brightness": 11.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0460",
+        "creation_time": "2026-04-30T14:01:33.000000Z",
+        "entries": 148,
+        "zone_brightness": 11.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0464",
+        "creation_time": "2026-04-30T14:02:32.000000Z",
+        "entries": 138,
+        "zone_brightness": 13.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0468",
+        "creation_time": "2026-04-30T14:03:28.000000Z",
+        "entries": 126,
+        "zone_brightness": 11.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0472",
+        "creation_time": "2026-04-30T14:04:15.000000Z",
+        "entries": 150,
+        "zone_brightness": 12.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0476",
+        "creation_time": "2026-04-30T14:04:53.000000Z",
+        "entries": 141,
+        "zone_brightness": 12.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0480",
+        "creation_time": "2026-04-30T14:05:32.000000Z",
+        "entries": 133,
+        "zone_brightness": 14.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0484",
+        "creation_time": "2026-04-30T14:06:10.000000Z",
+        "entries": 138,
+        "zone_brightness": 13.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0488",
+        "creation_time": "2026-04-30T14:06:47.000000Z",
+        "entries": 123,
+        "zone_brightness": 13.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0492",
+        "creation_time": "2026-04-30T14:07:24.000000Z",
+        "entries": 118,
+        "zone_brightness": 12.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0496",
+        "creation_time": "2026-04-30T14:08:05.000000Z",
+        "entries": 135,
+        "zone_brightness": 13.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0500",
+        "creation_time": "2026-04-30T14:08:51.000000Z",
+        "entries": 138,
+        "zone_brightness": 12.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0504",
+        "creation_time": "2026-04-30T14:09:32.000000Z",
+        "entries": 134,
+        "zone_brightness": 13.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0508",
+        "creation_time": "2026-04-30T14:10:13.000000Z",
+        "entries": 140,
+        "zone_brightness": 13.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0512",
+        "creation_time": "2026-04-30T14:11:02.000000Z",
+        "entries": 135,
+        "zone_brightness": 13.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0516",
+        "creation_time": "2026-04-30T14:11:40.000000Z",
+        "entries": 121,
+        "zone_brightness": 14.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0520",
+        "creation_time": "2026-04-30T14:12:28.000000Z",
+        "entries": 137,
+        "zone_brightness": 15.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0524",
+        "creation_time": "2026-04-30T14:13:31.000000Z",
+        "entries": 130,
+        "zone_brightness": 13.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0528",
+        "creation_time": "2026-04-30T14:14:32.000000Z",
+        "entries": 139,
+        "zone_brightness": 12.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0532",
+        "creation_time": "2026-04-30T14:15:09.000000Z",
+        "entries": 143,
+        "zone_brightness": 12.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0536",
+        "creation_time": "2026-04-30T14:15:47.000000Z",
+        "entries": 153,
+        "zone_brightness": 12.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0540",
+        "creation_time": "2026-04-30T14:16:31.000000Z",
+        "entries": 133,
+        "zone_brightness": 14.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0544",
+        "creation_time": "2026-04-30T14:17:09.000000Z",
+        "entries": 148,
+        "zone_brightness": 12.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0548",
+        "creation_time": "2026-04-30T14:18:02.000000Z",
+        "entries": 134,
+        "zone_brightness": 13.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0552",
+        "creation_time": "2026-04-30T14:18:48.000000Z",
+        "entries": 134,
+        "zone_brightness": 15.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0556",
+        "creation_time": "2026-04-30T14:19:31.000000Z",
+        "entries": 146,
+        "zone_brightness": 14.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0560",
+        "creation_time": "2026-04-30T14:20:32.000000Z",
+        "entries": 135,
+        "zone_brightness": 14.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0564",
+        "creation_time": "2026-04-30T14:21:18.000000Z",
+        "entries": 116,
+        "zone_brightness": 66.9,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_IMAG0568",
+        "creation_time": "2026-04-30T14:21:56.000000Z",
+        "entries": 127,
+        "zone_brightness": 14.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0572",
+        "creation_time": "2026-04-30T14:22:36.000000Z",
+        "entries": 144,
+        "zone_brightness": 14.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0576",
+        "creation_time": "2026-04-30T14:23:15.000000Z",
+        "entries": 132,
+        "zone_brightness": 14.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0580",
+        "creation_time": "2026-04-30T14:24:00.000000Z",
+        "entries": 130,
+        "zone_brightness": 14.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0584",
+        "creation_time": "2026-04-30T14:24:42.000000Z",
+        "entries": 143,
+        "zone_brightness": 14.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0588",
+        "creation_time": "2026-04-30T14:25:27.000000Z",
+        "entries": 140,
+        "zone_brightness": 13.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0592",
+        "creation_time": "2026-04-30T14:26:09.000000Z",
+        "entries": 133,
+        "zone_brightness": 15.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0596",
+        "creation_time": "2026-04-30T14:26:47.000000Z",
+        "entries": 135,
+        "zone_brightness": 15.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0600",
+        "creation_time": "2026-04-30T14:27:25.000000Z",
+        "entries": 119,
+        "zone_brightness": 15.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0604",
+        "creation_time": "2026-04-30T14:28:03.000000Z",
+        "entries": 119,
+        "zone_brightness": 14.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0608",
+        "creation_time": "2026-04-30T14:28:57.000000Z",
+        "entries": 131,
+        "zone_brightness": 15.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0612",
+        "creation_time": "2026-04-30T14:29:38.000000Z",
+        "entries": 127,
+        "zone_brightness": 14.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0616",
+        "creation_time": "2026-04-30T14:30:16.000000Z",
+        "entries": 127,
+        "zone_brightness": 13.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0620",
+        "creation_time": "2026-04-30T14:30:57.000000Z",
+        "entries": 130,
+        "zone_brightness": 14.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0624",
+        "creation_time": "2026-04-30T14:31:39.000000Z",
+        "entries": 129,
+        "zone_brightness": 14.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0628",
+        "creation_time": "2026-04-30T14:32:16.000000Z",
+        "entries": 148,
+        "zone_brightness": 15.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0632",
+        "creation_time": "2026-04-30T14:32:54.000000Z",
+        "entries": 134,
+        "zone_brightness": 15.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0636",
+        "creation_time": "2026-04-30T14:33:32.000000Z",
+        "entries": 137,
+        "zone_brightness": 15.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0640",
+        "creation_time": "2026-04-30T14:34:08.000000Z",
+        "entries": 138,
+        "zone_brightness": 16.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0644",
+        "creation_time": "2026-04-30T14:34:47.000000Z",
+        "entries": 134,
+        "zone_brightness": 15.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0648",
+        "creation_time": "2026-04-30T14:35:24.000000Z",
+        "entries": 132,
+        "zone_brightness": 15.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0652",
+        "creation_time": "2026-04-30T14:36:01.000000Z",
+        "entries": 140,
+        "zone_brightness": 15.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0656",
+        "creation_time": "2026-04-30T14:36:42.000000Z",
+        "entries": 130,
+        "zone_brightness": 15.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0660",
+        "creation_time": "2026-04-30T14:37:31.000000Z",
+        "entries": 133,
+        "zone_brightness": 19.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0664",
+        "creation_time": "2026-04-30T14:38:12.000000Z",
+        "entries": 132,
+        "zone_brightness": 16.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0668",
+        "creation_time": "2026-04-30T14:38:51.000000Z",
+        "entries": 126,
+        "zone_brightness": 16.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0672",
+        "creation_time": "2026-04-30T14:39:30.000000Z",
+        "entries": 135,
+        "zone_brightness": 16.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0676",
+        "creation_time": "2026-04-30T14:40:07.000000Z",
+        "entries": 140,
+        "zone_brightness": 17.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0680",
+        "creation_time": "2026-04-30T14:40:50.000000Z",
+        "entries": 132,
+        "zone_brightness": 16.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0684",
+        "creation_time": "2026-04-30T14:41:29.000000Z",
+        "entries": 144,
+        "zone_brightness": 17.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0688",
+        "creation_time": "2026-04-30T14:42:13.000000Z",
+        "entries": 142,
+        "zone_brightness": 17.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0692",
+        "creation_time": "2026-04-30T14:43:01.000000Z",
+        "entries": 127,
+        "zone_brightness": 18.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0696",
+        "creation_time": "2026-04-30T14:43:40.000000Z",
+        "entries": 134,
+        "zone_brightness": 18.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0700",
+        "creation_time": "2026-04-30T14:44:17.000000Z",
+        "entries": 117,
+        "zone_brightness": 20.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0704",
+        "creation_time": "2026-04-30T14:44:54.000000Z",
+        "entries": 125,
+        "zone_brightness": 18.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0708",
+        "creation_time": "2026-04-30T14:45:33.000000Z",
+        "entries": 137,
+        "zone_brightness": 17.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0712",
+        "creation_time": "2026-04-30T14:46:12.000000Z",
+        "entries": 130,
+        "zone_brightness": 17.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0716",
+        "creation_time": "2026-04-30T14:46:51.000000Z",
+        "entries": 125,
+        "zone_brightness": 17.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0720",
+        "creation_time": "2026-04-30T14:47:28.000000Z",
+        "entries": 127,
+        "zone_brightness": 17.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0724",
+        "creation_time": "2026-04-30T14:48:05.000000Z",
+        "entries": 122,
+        "zone_brightness": 17.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0728",
+        "creation_time": "2026-04-30T14:48:46.000000Z",
+        "entries": 132,
+        "zone_brightness": 17.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0732",
+        "creation_time": "2026-04-30T14:49:23.000000Z",
+        "entries": 126,
+        "zone_brightness": 18.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0736",
+        "creation_time": "2026-04-30T14:50:02.000000Z",
+        "entries": 140,
+        "zone_brightness": 20.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0740",
+        "creation_time": "2026-04-30T14:50:40.000000Z",
+        "entries": 135,
+        "zone_brightness": 17.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0744",
+        "creation_time": "2026-04-30T14:51:20.000000Z",
+        "entries": 119,
+        "zone_brightness": 18.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0748",
+        "creation_time": "2026-04-30T14:51:57.000000Z",
+        "entries": 125,
+        "zone_brightness": 19.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0752",
+        "creation_time": "2026-04-30T14:52:37.000000Z",
+        "entries": 120,
+        "zone_brightness": 18.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0756",
+        "creation_time": "2026-04-30T14:53:12.000000Z",
+        "entries": 108,
+        "zone_brightness": 19.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0760",
+        "creation_time": "2026-04-30T14:53:50.000000Z",
+        "entries": 108,
+        "zone_brightness": 18.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0764",
+        "creation_time": "2026-04-30T14:54:26.000000Z",
+        "entries": 118,
+        "zone_brightness": 20.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0768",
+        "creation_time": "2026-04-30T14:55:11.000000Z",
+        "entries": 114,
+        "zone_brightness": 20.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0772",
+        "creation_time": "2026-04-30T14:55:48.000000Z",
+        "entries": 121,
+        "zone_brightness": 19.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0776",
+        "creation_time": "2026-04-30T14:56:28.000000Z",
+        "entries": 108,
+        "zone_brightness": 20.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0780",
+        "creation_time": "2026-04-30T14:57:06.000000Z",
+        "entries": 124,
+        "zone_brightness": 19.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0784",
+        "creation_time": "2026-04-30T14:57:47.000000Z",
+        "entries": 122,
+        "zone_brightness": 19.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0788",
+        "creation_time": "2026-04-30T14:58:24.000000Z",
+        "entries": 117,
+        "zone_brightness": 19.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0792",
+        "creation_time": "2026-04-30T14:58:59.000000Z",
+        "entries": 110,
+        "zone_brightness": 20.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0796",
+        "creation_time": "2026-04-30T14:59:38.000000Z",
+        "entries": 131,
+        "zone_brightness": 19.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0800",
+        "creation_time": "2026-04-30T15:00:17.000000Z",
+        "entries": 134,
+        "zone_brightness": 19.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0804",
+        "creation_time": "2026-04-30T15:00:55.000000Z",
+        "entries": 115,
+        "zone_brightness": 20.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0808",
+        "creation_time": "2026-04-30T15:01:35.000000Z",
+        "entries": 114,
+        "zone_brightness": 19.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0812",
+        "creation_time": "2026-04-30T15:02:25.000000Z",
+        "entries": 121,
+        "zone_brightness": 19.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0816",
+        "creation_time": "2026-04-30T15:03:05.000000Z",
+        "entries": 125,
+        "zone_brightness": 20.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0820",
+        "creation_time": "2026-04-30T15:03:43.000000Z",
+        "entries": 127,
+        "zone_brightness": 20.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0824",
+        "creation_time": "2026-04-30T15:04:25.000000Z",
+        "entries": 124,
+        "zone_brightness": 21.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0828",
+        "creation_time": "2026-04-30T15:05:12.000000Z",
+        "entries": 125,
+        "zone_brightness": 21.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0832",
+        "creation_time": "2026-04-30T15:05:51.000000Z",
+        "entries": 119,
+        "zone_brightness": 20.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0836",
+        "creation_time": "2026-04-30T15:06:32.000000Z",
+        "entries": 119,
+        "zone_brightness": 20.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0840",
+        "creation_time": "2026-04-30T15:07:09.000000Z",
+        "entries": 143,
+        "zone_brightness": 21.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0844",
+        "creation_time": "2026-04-30T15:07:47.000000Z",
+        "entries": 134,
+        "zone_brightness": 20.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0848",
+        "creation_time": "2026-04-30T15:08:25.000000Z",
+        "entries": 115,
+        "zone_brightness": 21.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0852",
+        "creation_time": "2026-04-30T15:09:02.000000Z",
+        "entries": 134,
+        "zone_brightness": 20.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0856",
+        "creation_time": "2026-04-30T15:09:47.000000Z",
+        "entries": 135,
+        "zone_brightness": 20.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0860",
+        "creation_time": "2026-04-30T15:10:28.000000Z",
+        "entries": 134,
+        "zone_brightness": 21.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0864",
+        "creation_time": "2026-04-30T15:11:03.000000Z",
+        "entries": 124,
+        "zone_brightness": 22.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0868",
+        "creation_time": "2026-04-30T15:11:40.000000Z",
+        "entries": 139,
+        "zone_brightness": 21.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0872",
+        "creation_time": "2026-04-30T15:12:18.000000Z",
+        "entries": 126,
+        "zone_brightness": 22.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0876",
+        "creation_time": "2026-04-30T15:12:57.000000Z",
+        "entries": 130,
+        "zone_brightness": 21.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0880",
+        "creation_time": "2026-04-30T15:13:35.000000Z",
+        "entries": 125,
+        "zone_brightness": 21.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0884",
+        "creation_time": "2026-04-30T15:14:19.000000Z",
+        "entries": 137,
+        "zone_brightness": 21.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0888",
+        "creation_time": "2026-04-30T15:15:02.000000Z",
+        "entries": 129,
+        "zone_brightness": 22.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0892",
+        "creation_time": "2026-04-30T15:15:37.000000Z",
+        "entries": 124,
+        "zone_brightness": 22.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0896",
+        "creation_time": "2026-04-30T15:16:20.000000Z",
+        "entries": 136,
+        "zone_brightness": 23.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0900",
+        "creation_time": "2026-04-30T15:17:00.000000Z",
+        "entries": 130,
+        "zone_brightness": 23.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0904",
+        "creation_time": "2026-04-30T15:17:40.000000Z",
+        "entries": 131,
+        "zone_brightness": 23.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0908",
+        "creation_time": "2026-04-30T15:18:17.000000Z",
+        "entries": 134,
+        "zone_brightness": 24.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0912",
+        "creation_time": "2026-04-30T15:18:54.000000Z",
+        "entries": 125,
+        "zone_brightness": 23.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0916",
+        "creation_time": "2026-04-30T15:19:31.000000Z",
+        "entries": 142,
+        "zone_brightness": 24.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0920",
+        "creation_time": "2026-04-30T15:20:09.000000Z",
+        "entries": 130,
+        "zone_brightness": 24.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0924",
+        "creation_time": "2026-04-30T15:20:47.000000Z",
+        "entries": 132,
+        "zone_brightness": 22.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0928",
+        "creation_time": "2026-04-30T15:21:26.000000Z",
+        "entries": 141,
+        "zone_brightness": 22.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0932",
+        "creation_time": "2026-04-30T15:22:04.000000Z",
+        "entries": 112,
+        "zone_brightness": 22.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0936",
+        "creation_time": "2026-04-30T15:22:48.000000Z",
+        "entries": 116,
+        "zone_brightness": 22.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0940",
+        "creation_time": "2026-04-30T15:23:24.000000Z",
+        "entries": 105,
+        "zone_brightness": 21.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0944",
+        "creation_time": "2026-04-30T15:24:03.000000Z",
+        "entries": 118,
+        "zone_brightness": 22.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0948",
+        "creation_time": "2026-04-30T15:24:40.000000Z",
+        "entries": 124,
+        "zone_brightness": 23.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0952",
+        "creation_time": "2026-04-30T15:25:19.000000Z",
+        "entries": 122,
+        "zone_brightness": 22.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0956",
+        "creation_time": "2026-04-30T15:25:58.000000Z",
+        "entries": 120,
+        "zone_brightness": 23.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0960",
+        "creation_time": "2026-04-30T15:26:36.000000Z",
+        "entries": 108,
+        "zone_brightness": 23.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0964",
+        "creation_time": "2026-04-30T15:27:18.000000Z",
+        "entries": 125,
+        "zone_brightness": 24.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0968",
+        "creation_time": "2026-04-30T15:27:55.000000Z",
+        "entries": 113,
+        "zone_brightness": 23.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0972",
+        "creation_time": "2026-04-30T15:28:32.000000Z",
+        "entries": 131,
+        "zone_brightness": 23.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0976",
+        "creation_time": "2026-04-30T15:29:10.000000Z",
+        "entries": 107,
+        "zone_brightness": 22.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0980",
+        "creation_time": "2026-04-30T15:29:48.000000Z",
+        "entries": 115,
+        "zone_brightness": 23.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0984",
+        "creation_time": "2026-04-30T15:30:26.000000Z",
+        "entries": 111,
+        "zone_brightness": 23.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0988",
+        "creation_time": "2026-04-30T15:31:07.000000Z",
+        "entries": 131,
+        "zone_brightness": 23.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0992",
+        "creation_time": "2026-04-30T15:31:45.000000Z",
+        "entries": 126,
+        "zone_brightness": 24.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG0996",
+        "creation_time": "2026-04-30T15:32:24.000000Z",
+        "entries": 115,
+        "zone_brightness": 23.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1000",
+        "creation_time": "2026-04-30T15:33:02.000000Z",
+        "entries": 114,
+        "zone_brightness": 23.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1004",
+        "creation_time": "2026-04-30T15:33:43.000000Z",
+        "entries": 114,
+        "zone_brightness": 25.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1008",
+        "creation_time": "2026-04-30T15:34:22.000000Z",
+        "entries": 125,
+        "zone_brightness": 25.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1012",
+        "creation_time": "2026-04-30T15:35:01.000000Z",
+        "entries": 124,
+        "zone_brightness": 24.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1016",
+        "creation_time": "2026-04-30T15:35:48.000000Z",
+        "entries": 134,
+        "zone_brightness": 24.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1020",
+        "creation_time": "2026-04-30T15:36:28.000000Z",
+        "entries": 111,
+        "zone_brightness": 27.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1024",
+        "creation_time": "2026-04-30T15:37:08.000000Z",
+        "entries": 124,
+        "zone_brightness": 26.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1028",
+        "creation_time": "2026-04-30T15:37:49.000000Z",
+        "entries": 117,
+        "zone_brightness": 25.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1032",
+        "creation_time": "2026-04-30T15:38:30.000000Z",
+        "entries": 130,
+        "zone_brightness": 27.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1036",
+        "creation_time": "2026-04-30T15:39:10.000000Z",
+        "entries": 123,
+        "zone_brightness": 27.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1040",
+        "creation_time": "2026-04-30T15:39:50.000000Z",
+        "entries": 119,
+        "zone_brightness": 25.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1044",
+        "creation_time": "2026-04-30T15:40:31.000000Z",
+        "entries": 121,
+        "zone_brightness": 26.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1048",
+        "creation_time": "2026-04-30T15:41:10.000000Z",
+        "entries": 123,
+        "zone_brightness": 25.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1052",
+        "creation_time": "2026-04-30T15:41:52.000000Z",
+        "entries": 120,
+        "zone_brightness": 25.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1056",
+        "creation_time": "2026-04-30T15:42:32.000000Z",
+        "entries": 110,
+        "zone_brightness": 27.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1060",
+        "creation_time": "2026-04-30T15:43:12.000000Z",
+        "entries": 116,
+        "zone_brightness": 26.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1064",
+        "creation_time": "2026-04-30T15:43:57.000000Z",
+        "entries": 117,
+        "zone_brightness": 25.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1068",
+        "creation_time": "2026-04-30T15:44:39.000000Z",
+        "entries": 127,
+        "zone_brightness": 26.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1072",
+        "creation_time": "2026-04-30T15:45:32.000000Z",
+        "entries": 124,
+        "zone_brightness": 26.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1076",
+        "creation_time": "2026-04-30T15:46:13.000000Z",
+        "entries": 108,
+        "zone_brightness": 26.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1080",
+        "creation_time": "2026-04-30T15:46:54.000000Z",
+        "entries": 126,
+        "zone_brightness": 26.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1084",
+        "creation_time": "2026-04-30T15:47:33.000000Z",
+        "entries": 123,
+        "zone_brightness": 27.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1088",
+        "creation_time": "2026-04-30T15:48:22.000000Z",
+        "entries": 125,
+        "zone_brightness": 26.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1092",
+        "creation_time": "2026-04-30T15:49:02.000000Z",
+        "entries": 121,
+        "zone_brightness": 26.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1096",
+        "creation_time": "2026-04-30T15:49:42.000000Z",
+        "entries": 130,
+        "zone_brightness": 27.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1100",
+        "creation_time": "2026-04-30T15:50:23.000000Z",
+        "entries": 122,
+        "zone_brightness": 28.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1104",
+        "creation_time": "2026-04-30T15:51:04.000000Z",
+        "entries": 119,
+        "zone_brightness": 27.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1108",
+        "creation_time": "2026-04-30T15:51:44.000000Z",
+        "entries": 140,
+        "zone_brightness": 27.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1112",
+        "creation_time": "2026-04-30T15:52:23.000000Z",
+        "entries": 126,
+        "zone_brightness": 27.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1116",
+        "creation_time": "2026-04-30T15:53:04.000000Z",
+        "entries": 112,
+        "zone_brightness": 26.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1120",
+        "creation_time": "2026-04-30T15:53:44.000000Z",
+        "entries": 125,
+        "zone_brightness": 27.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1124",
+        "creation_time": "2026-04-30T15:54:24.000000Z",
+        "entries": 114,
+        "zone_brightness": 28.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1128",
+        "creation_time": "2026-04-30T15:55:04.000000Z",
+        "entries": 126,
+        "zone_brightness": 28.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1132",
+        "creation_time": "2026-04-30T15:55:48.000000Z",
+        "entries": 120,
+        "zone_brightness": 28.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1136",
+        "creation_time": "2026-04-30T15:56:30.000000Z",
+        "entries": 96,
+        "zone_brightness": 29.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1140",
+        "creation_time": "2026-04-30T15:57:10.000000Z",
+        "entries": 127,
+        "zone_brightness": 29.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1144",
+        "creation_time": "2026-04-30T15:57:54.000000Z",
+        "entries": 125,
+        "zone_brightness": 29.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1148",
+        "creation_time": "2026-04-30T15:58:34.000000Z",
+        "entries": 117,
+        "zone_brightness": 28.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1152",
+        "creation_time": "2026-04-30T15:59:17.000000Z",
+        "entries": 106,
+        "zone_brightness": 29.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1156",
+        "creation_time": "2026-04-30T15:59:57.000000Z",
+        "entries": 119,
+        "zone_brightness": 28.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1160",
+        "creation_time": "2026-04-30T16:00:36.000000Z",
+        "entries": 124,
+        "zone_brightness": 29.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1164",
+        "creation_time": "2026-04-30T16:01:19.000000Z",
+        "entries": 110,
+        "zone_brightness": 28.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1168",
+        "creation_time": "2026-04-30T16:01:57.000000Z",
+        "entries": 116,
+        "zone_brightness": 30.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1172",
+        "creation_time": "2026-04-30T16:02:37.000000Z",
+        "entries": 117,
+        "zone_brightness": 28.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1176",
+        "creation_time": "2026-04-30T16:03:20.000000Z",
+        "entries": 114,
+        "zone_brightness": 29.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1180",
+        "creation_time": "2026-04-30T16:03:59.000000Z",
+        "entries": 127,
+        "zone_brightness": 28.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1184",
+        "creation_time": "2026-04-30T16:04:40.000000Z",
+        "entries": 133,
+        "zone_brightness": 32.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1188",
+        "creation_time": "2026-04-30T16:05:23.000000Z",
+        "entries": 128,
+        "zone_brightness": 29.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1192",
+        "creation_time": "2026-04-30T16:06:03.000000Z",
+        "entries": 139,
+        "zone_brightness": 31.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1196",
+        "creation_time": "2026-04-30T16:06:48.000000Z",
+        "entries": 118,
+        "zone_brightness": 30.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1200",
+        "creation_time": "2026-04-30T16:07:29.000000Z",
+        "entries": 112,
+        "zone_brightness": 29.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1204",
+        "creation_time": "2026-04-30T16:08:13.000000Z",
+        "entries": 119,
+        "zone_brightness": 30.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1208",
+        "creation_time": "2026-04-30T16:08:53.000000Z",
+        "entries": 121,
+        "zone_brightness": 31.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C2_IMAG1212",
+        "creation_time": "2026-04-30T16:09:28.000000Z",
+        "entries": 85,
+        "zone_brightness": 77.8,
+        "flagged": true
+      },
+      {
+        "video_id": "C2_hive1.mp4",
+        "creation_time": "2026-04-30T12:26:02.000000Z",
+        "entries": 17,
+        "zone_brightness": null,
+        "flagged": false
+      }
+    ]
+  },
+  "C3": {
+    "n_clips": 23,
+    "n_flagged": 0,
+    "zone_brightness_median": 91.0,
+    "flag_cutoff": 108.1,
+    "entries_total": 1466,
+    "entries_flagged": 0,
+    "pct_entries_flagged": 0.0,
+    "flagged_clips": [],
+    "clips": [
+      {
+        "video_id": "C3_IMAG0002",
+        "creation_time": "2026-04-30T14:51:04.000000Z",
+        "entries": 57,
+        "zone_brightness": 96.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0004",
+        "creation_time": "2026-04-30T14:54:43.000000Z",
+        "entries": 70,
+        "zone_brightness": 99.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0006",
+        "creation_time": "2026-04-30T14:58:24.000000Z",
+        "entries": 70,
+        "zone_brightness": 90.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0008",
+        "creation_time": "2026-04-30T15:02:01.000000Z",
+        "entries": 67,
+        "zone_brightness": 87.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0010",
+        "creation_time": "2026-04-30T15:05:39.000000Z",
+        "entries": 72,
+        "zone_brightness": 81.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0012",
+        "creation_time": "2026-04-30T15:09:19.000000Z",
+        "entries": 63,
+        "zone_brightness": 88.4,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0014",
+        "creation_time": "2026-04-30T15:12:56.000000Z",
+        "entries": 76,
+        "zone_brightness": 91.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0016",
+        "creation_time": "2026-04-30T15:16:50.000000Z",
+        "entries": 70,
+        "zone_brightness": 90.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0018",
+        "creation_time": "2026-04-30T15:20:33.000000Z",
+        "entries": 58,
+        "zone_brightness": 81.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0020",
+        "creation_time": "2026-04-30T15:24:10.000000Z",
+        "entries": 60,
+        "zone_brightness": 93.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0022",
+        "creation_time": "2026-04-30T15:27:49.000000Z",
+        "entries": 62,
+        "zone_brightness": 89.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0024",
+        "creation_time": "2026-04-30T15:31:28.000000Z",
+        "entries": 70,
+        "zone_brightness": 88.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0026",
+        "creation_time": "2026-04-30T15:35:07.000000Z",
+        "entries": 70,
+        "zone_brightness": 88.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0028",
+        "creation_time": "2026-04-30T15:38:47.000000Z",
+        "entries": 66,
+        "zone_brightness": 93.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0030",
+        "creation_time": "2026-04-30T15:42:26.000000Z",
+        "entries": 78,
+        "zone_brightness": 88.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0032",
+        "creation_time": "2026-04-30T15:46:04.000000Z",
+        "entries": 71,
+        "zone_brightness": 94.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0034",
+        "creation_time": "2026-04-30T15:49:50.000000Z",
+        "entries": 58,
+        "zone_brightness": 91.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0036",
+        "creation_time": "2026-04-30T15:53:29.000000Z",
+        "entries": 64,
+        "zone_brightness": 92.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0038",
+        "creation_time": "2026-04-30T15:57:10.000000Z",
+        "entries": 70,
+        "zone_brightness": 92.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0040",
+        "creation_time": "2026-04-30T16:00:48.000000Z",
+        "entries": 64,
+        "zone_brightness": 95.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0042",
+        "creation_time": "2026-04-30T16:04:31.000000Z",
+        "entries": 72,
+        "zone_brightness": 96.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0044",
+        "creation_time": "2026-04-30T16:08:13.000000Z",
+        "entries": 55,
+        "zone_brightness": 91.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C3_IMAG0046",
+        "creation_time": "2026-04-30T16:11:25.000000Z",
+        "entries": 3,
+        "zone_brightness": null,
+        "flagged": false
+      }
+    ]
+  },
+  "C4": {
+    "n_clips": 29,
+    "n_flagged": 0,
+    "zone_brightness_median": 106.2,
+    "flag_cutoff": 180.6,
+    "entries_total": 6093,
+    "entries_flagged": 0,
+    "pct_entries_flagged": 0.0,
+    "flagged_clips": [],
+    "clips": [
+      {
+        "video_id": "C4_IMAG0002",
+        "creation_time": "2026-04-30T13:43:07.000000Z",
+        "entries": 104,
+        "zone_brightness": 73.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0006",
+        "creation_time": "2026-04-30T13:54:38.000000Z",
+        "entries": 223,
+        "zone_brightness": 110.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0008",
+        "creation_time": "2026-04-30T14:00:27.000000Z",
+        "entries": 211,
+        "zone_brightness": 109.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0010",
+        "creation_time": "2026-04-30T14:06:25.000000Z",
+        "entries": 206,
+        "zone_brightness": 109.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0012",
+        "creation_time": "2026-04-30T14:12:10.000000Z",
+        "entries": 228,
+        "zone_brightness": 111.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0014",
+        "creation_time": "2026-04-30T14:17:54.000000Z",
+        "entries": 214,
+        "zone_brightness": 98.3,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0016",
+        "creation_time": "2026-04-30T14:23:39.000000Z",
+        "entries": 210,
+        "zone_brightness": 100.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0018",
+        "creation_time": "2026-04-30T14:29:25.000000Z",
+        "entries": 233,
+        "zone_brightness": 102.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0020",
+        "creation_time": "2026-04-30T14:35:22.000000Z",
+        "entries": 230,
+        "zone_brightness": 101.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0022",
+        "creation_time": "2026-04-30T14:41:09.000000Z",
+        "entries": 236,
+        "zone_brightness": 100.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0024",
+        "creation_time": "2026-04-30T14:46:55.000000Z",
+        "entries": 237,
+        "zone_brightness": 91.1,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0026",
+        "creation_time": "2026-04-30T14:52:40.000000Z",
+        "entries": 190,
+        "zone_brightness": 147.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0028",
+        "creation_time": "2026-04-30T14:58:25.000000Z",
+        "entries": 176,
+        "zone_brightness": 153.5,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0030",
+        "creation_time": "2026-04-30T15:04:10.000000Z",
+        "entries": 206,
+        "zone_brightness": 149.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0032",
+        "creation_time": "2026-04-30T15:09:57.000000Z",
+        "entries": 188,
+        "zone_brightness": 145.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0034",
+        "creation_time": "2026-04-30T15:15:55.000000Z",
+        "entries": 202,
+        "zone_brightness": 138.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0036",
+        "creation_time": "2026-04-30T15:21:41.000000Z",
+        "entries": 209,
+        "zone_brightness": 134.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0038",
+        "creation_time": "2026-04-30T15:27:28.000000Z",
+        "entries": 193,
+        "zone_brightness": 124.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG004",
+        "creation_time": "2026-04-30T13:48:55.000000Z",
+        "entries": 202,
+        "zone_brightness": 118.6,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0040",
+        "creation_time": "2026-04-30T15:33:12.000000Z",
+        "entries": 218,
+        "zone_brightness": 106.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0042",
+        "creation_time": "2026-04-30T15:39:04.000000Z",
+        "entries": 191,
+        "zone_brightness": 109.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0044",
+        "creation_time": "2026-04-30T15:44:51.000000Z",
+        "entries": 211,
+        "zone_brightness": 106.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0046",
+        "creation_time": "2026-04-30T15:50:38.000000Z",
+        "entries": 208,
+        "zone_brightness": 105.9,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0048",
+        "creation_time": "2026-04-30T15:56:23.000000Z",
+        "entries": 243,
+        "zone_brightness": 92.2,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0050",
+        "creation_time": "2026-04-30T16:02:11.000000Z",
+        "entries": 235,
+        "zone_brightness": 97.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0052",
+        "creation_time": "2026-04-30T16:07:56.000000Z",
+        "entries": 227,
+        "zone_brightness": 84.8,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0054",
+        "creation_time": "2026-04-30T16:13:43.000000Z",
+        "entries": 221,
+        "zone_brightness": 78.7,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0056",
+        "creation_time": "2026-04-30T16:19:34.000000Z",
+        "entries": 230,
+        "zone_brightness": 86.0,
+        "flagged": false
+      },
+      {
+        "video_id": "C4_IMAG0058",
+        "creation_time": "2026-04-30T16:25:21.000000Z",
+        "entries": 211,
+        "zone_brightness": 89.8,
+        "flagged": false
+      }
+    ]
+  }
+}

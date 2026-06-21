@@ -1,0 +1,166 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Bee In/Out Counter — Specification — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="bee-inout-counter-specification">Bee In/Out Counter — Specification</h1>
+<h2 id="problem">Problem</h2>
+<p>Given video footage from a camera placed at a bee-hive entrance, output a reliable count
+of <strong>bees entering</strong> the hive and <strong>bees exiting</strong> the hive over the duration of each video.</p>
+<p>Quality (accuracy on entrance/exit counts) is the only first-order metric. Throughput,
+runtime, model size, and code elegance are all secondary.</p>
+<h2 id="data">Data</h2>
+<p>Four 30s @ 30fps 1080p H.264 clips, one per camera, at <code>data/raw/videos/&lt;camera&gt;/</code>.
+Camera names are Hebrew; treat them as opaque IDs:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Folder</th>
+<th>Notable conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td><code>מצלמה1_אוכמניות</code></td>
+<td>Low side-angle of landing board, partial grass occlusion, ~10–20 bees</td>
+</tr>
+<tr>
+<td>C2</td>
+<td><code>מצלמה2_בהג_ט</code></td>
+<td>Cleaner side view, sparse flying bees against sky, ~5–10 bees</td>
+</tr>
+<tr>
+<td>C3</td>
+<td><code>מצלמה3_בדרךלקיווי</code></td>
+<td>Angled top view of densely populated landing board, crowd at entrance</td>
+</tr>
+<tr>
+<td>C4</td>
+<td><code>מצלמה4_דובדבן</code></td>
+<td>Low side-angle, heavy grass occlusion, mixed crawling + flying</td>
+</tr>
+</tbody>
+</table>
+<p>There is <strong>no ground truth</strong>, no validation set, no test set. The four clips are the
+whole dataset. We must bootstrap evaluation from Claude vision (see §Validation).</p>
+<h2 id="definitions">Definitions</h2>
+<ul>
+<li><strong>Entrance line</strong>: a 2D segment per camera marking the lip of the hive opening, with a
+  consistent "inside" normal direction (toward the box interior).</li>
+<li><strong>Bee event</strong>: a track whose centroid crosses the entrance line.</li>
+<li>"in" = the segment of the track crossing from outside to inside.</li>
+<li>"out" = the segment of the track crossing from inside to outside.</li>
+<li>A track may have multiple events (hovers, retreats); each line crossing counts.</li>
+<li><strong>Bee</strong> here includes both flying and crawling individuals. Wasps/flies are out of
+  scope but should not pollute the count if avoidable.</li>
+</ul>
+<h2 id="outputs-per-video">Outputs (per video)</h2>
+<ol>
+<li><code>events.jsonl</code> — one record per crossing event:
+   <code>{video_id, frame_idx, t_sec, track_id, direction, bbox, confidence}</code></li>
+<li><code>counts.json</code> — totals: <code>{video_id, total_in, total_out, net_in_minus_out, duration_s}</code></li>
+<li><code>annotated.mp4</code> — overlay rendering: boxes, track IDs, entrance line, running
+   <code>IN: x | OUT: y</code> counter.</li>
+<li><code>report.md</code> — per-video summary with method, parameters, judge-agreement score,
+   failure cases identified by the viewer.</li>
+</ol>
+<h2 id="architecture-target">Architecture (target)</h2>
+<pre><code>video → frame iterator → detector(s) → tracker → entrance-line counter → events → counts
+                                                       │
+                                                       └→ annotated.mp4 + viewer cache
+</code></pre>
+<p>Plug-in interfaces so multiple detector and tracker backends can be A/B tested behind
+the same counting and validation harness.</p>
+<h2 id="validation-protocol-claude-as-judge">Validation protocol (Claude-as-judge)</h2>
+<p>Without GT we bootstrap a pseudo-ground-truth signal:</p>
+<ol>
+<li><strong>Judge protocol — single-frame counts.</strong> Sample N stratified frames per video
+   (uniform + high-motion). Ask Claude Opus 4.7 vision to count bees visible <em>and</em>
+   to count bees within a small band around the entrance line. Record per-frame counts.</li>
+<li><strong>Judge protocol — short-clip event counts.</strong> For each video, slice into 3–5 second
+   sub-clips, send a short MP4 / strip of frames to Claude Opus 4.7 and ask for
+   <code>(in, out)</code> for that window. Aggregate to the per-video totals.</li>
+<li><strong>Method scoring.</strong> A method's score on a clip is <code>1 - |method_in - judge_in| /
+   max(judge_in, 1)</code> (and likewise for <code>out</code>); the overall score is the mean across the
+   four clips. ≥ 0.85 mean agreement is the bar for "good"; ≥ 0.92 is the bar for "ship".</li>
+<li><strong>Cross-method agreement</strong> is an independent signal: if three independent detectors
+   agree on a count within ±1, that increases confidence even before judging.</li>
+<li><strong>Cache every judge call</strong> (request hash → response) in <code>data/judge_cache/</code>
+   so repeated runs don't re-spend API.</li>
+</ol>
+<p>The judge is <em>fallible</em>. Treat judge-vs-method disagreements as cases to inspect via the
+viewer, not as automatic method failures. When the viewer reveals the judge was wrong,
+record the example and adjust the prompt.</p>
+<h2 id="candidate-technologies-phase-1-bake-off">Candidate technologies (Phase 1 — bake-off)</h2>
+<p>Implement each behind a uniform <code>Detector</code> interface, run on all 4 clips, score by §4.</p>
+<p>A. Detection + tracking (off-the-shelf)
+- A1. YOLO11x (ultralytics) + ByteTrack
+- A2. YOLO11x + SAHI (sliced inference for small bees) + ByteTrack
+- A3. RT-DETR-X + BoT-SORT</p>
+<p>B. Foundation / zero-shot
+- B1. GroundingDINO ("bee . honey bee . insect") + ByteTrack
+- B2. OWLv2 ("a honeybee") + ByteTrack
+- B3. SAM2 video propagation seeded from B1 boxes on key frames</p>
+<p>C. Classical CV
+- C1. MOG2 background subtraction + connected-component blobs + Hungarian assignment
+- C2. Optical-flow (Farneback / RAFT) on entrance ROI + flow-direction integration</p>
+<p>D. Hybrid (only after A/B/C measurements exist)
+- D1. Background-subtraction ROIs fed to the strongest detector
+- D2. Ensemble vote across the top 3 methods with weighted NMS</p>
+<p>Phase-1 winner = highest mean score across the 4 clips, with consistency (lowest stdev).</p>
+<h2 id="phase-2-improve-the-winner">Phase 2 — improve the winner</h2>
+<ul>
+<li>Tune per-camera: entrance line, ROI mask, confidence threshold, tracker params.</li>
+<li>If the Phase-1 winner clears ≥ 0.85 mean judge-agreement → skip fine-tuning, polish
+  the winner.</li>
+<li>If it does NOT clear 0.85 → use the judge to pseudo-label ~200–500 frames (boxes via
+  Claude Opus vision asked to output JSON coordinates, sanity-filtered by IoU with the
+  zero-shot detector), then fine-tune YOLO11s on those crops. Re-score.</li>
+<li>Try the ensemble (D2) on the winner + the next two strongest methods. Ship the
+  ensemble only if it strictly improves agreement on every clip.</li>
+</ul>
+<h2 id="phase-3-viewer-debugging-tool-dual-use">Phase 3 — viewer (debugging tool, dual-use)</h2>
+<p>A small local FastAPI app (<code>uv run bee viewer</code>) that:
+- Lists runs and clips.
+- Plays the annotated video with synchronized event/track overlays.
+- Lets the user (and the agent itself) scrub frame-by-frame, jump to crossing events,
+  toggle detector overlays.
+- Renders the per-frame judge counts vs the method counts as a time series.
+- Exports failure cases (frame range + reason) into <code>failures.jsonl</code>,
+  which the agent can read to drive the next iteration.</p>
+<p>The viewer is built early — by end of Phase 1 — so it doubles as the agent's debug loop.</p>
+<h2 id="non-goals">Non-goals</h2>
+<ul>
+<li>Real-time / streaming inference.</li>
+<li>Bee species classification.</li>
+<li>Tracking individual bees across multiple videos.</li>
+<li>A polished user-facing UI (the viewer is a debugging tool).</li>
+</ul>
+<h2 id="deliverables-end-of-overnight-run">Deliverables (end of overnight run)</h2>
+<ol>
+<li><code>results/runs/&lt;timestamp&gt;/</code> containing per-method counts and judge scores.</li>
+<li><code>bakeoff.md</code> — Phase 1 comparison table with screenshots.</li>
+<li><code>final.md</code> — winning pipeline, per-video counts, agreement scores,
+   known failure modes, recommended next steps.</li>
+<li>The viewer, runnable via <code>uv run bee viewer</code>.</li>
+<li>A reproducible <code>make demo</code> (or <code>bee run --all</code>) that regenerates §1–4 from raw video.</li>
+</ol></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

@@ -1,0 +1,142 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Full-dataset bee-entry counting — plan & measurable goals — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="full-dataset-bee-entry-counting-plan-measurable-goals">Full-dataset bee-entry counting — plan &amp; measurable goals</h1>
+<p>Takeover task (2026-06-20): a much larger set of hive-entrance videos arrived from
+Google Drive. The repo previously had only <strong>one 30 s clip per camera</strong>; the new
+dataset is <strong>704 videos</strong> across the same four physical cameras. This plan states the
+verifiable goals and how each is checked. Method choices follow the shipped pipeline
+(see <code>final.md</code> / <code>decisions.md</code>); this task <strong>scales it to the whole recording</strong>, it
+does not re-invent the counter.</p>
+<h2 id="what-arrived-phase-1-done">What arrived (Phase 1, done)</h2>
+<ul>
+<li>23-part Drive ZIP (45 GB), extracted with <code>ditto</code> into <code>data/raw/incoming/</code>
+  (gitignored). Contents: <strong>704 <code>.MOV</code></strong>, 2011 <code>.JPG</code> stills, 3 <code>Thumbs.db</code>.</li>
+<li>Manifest: <code>data/dataset_manifest.{csv,json}</code> (<code>scripts/build_manifest.py</code>),
+  ffprobe of every video, <strong>0 probe failures</strong>.</li>
+<li>All clips: <strong>2026-04-30</strong>, ~<strong>12:00–16:40 UTC</strong>, <strong>1920×1080 @ 30 fps</strong>, ~30 s
+  (900 frames; 2 short 4 s clips). Total footage <strong>5.85 h</strong>.</li>
+<li>Camera folders <code>1..4</code> → <code>C1..C4</code> (the long-standing מצלמה1..4 convention). Counts:
+  <strong>C1 349, C2 303, C3 23, C4 29</strong>. Stills are not part of the video count pipeline.</li>
+</ul>
+<h2 id="method-transfers-unchanged-the-cameras-are-static">Method (transfers unchanged — the cameras are static)</h2>
+<p>The shipped <strong>absorption</strong> counter: C1-fine-tuned YOLO detector (transfer, preset
+<code>bright</code>, conf 0.1) on each camera's microscope crop → short greedy local chains →
+count chains that <strong>terminate deep inside the entry-zone polygon</strong> (a bee absorbed
+into a dark hole). Per-camera crop (<code>microscope.yaml</code>), zone (<code>entry_zones.yaml</code>), and
+gating (<code>c{n}_absorption.yaml</code>) are reused verbatim. <code>scripts/dataset_pipeline.py</code>.</p>
+<h2 id="goals-each-verifiable">Goals (each verifiable)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Goal</th>
+<th>Verification</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1</td>
+<td>100% of videos inventoried + assigned to a camera (or flagged)</td>
+<td>manifest has 704 rows, 0 <code>UNKNOWN</code>, 0 probe errors</td>
+<td><strong>met</strong></td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Per-camera absolute-time timeline with gaps, no interpolation across non-recording</td>
+<td><code>scripts/build_timeline.py</code> → <code>timeline.{json,md}</code>; gap = inter-clip silence &gt; 120 s</td>
+<td><strong>met</strong> (data fills with counts)</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Geometry (crop+zone) validated to transfer on every camera</td>
+<td><code>scripts/validate_transfer.py</code> overlays eyeballed on all 4 cameras — all land on the dark entrance band</td>
+<td><strong>met</strong></td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Method validated against known-good</td>
+<td>new <code>C1_IMAG0016</code> is byte-identical to the original GT clip; pipeline returns <strong>53</strong> = committed absorption result (manual GT 51)</td>
+<td><strong>met</strong></td>
+</tr>
+<tr>
+<td>G5</td>
+<td>An entry count for <strong>every</strong> video, cached + reproducible, <code>null</code> (never 0) on failure</td>
+<td>one <code>results/runs/dataset/&lt;cam&gt;/&lt;id&gt;.json</code> per clip; detections cached; failures carry <code>entries: null</code> + error</td>
+<td>in progress</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>Per-camera timeline of entries + cross-camera stats + plots + CSV/JSON export</td>
+<td>Phase 6 report + <code>dataset_entries.csv</code> + figures</td>
+<td>pending</td>
+</tr>
+<tr>
+<td>G7</td>
+<td>Independent judge spot-check on a sample; flag method-vs-judge disagreement &gt; 30%</td>
+<td>reuse <code>src/beecounter/judge</code>; documented (the Opus judge is a weak undercounting estimator — see final.md)</td>
+<td>pending</td>
+</tr>
+<tr>
+<td>G8</td>
+<td><code>uv run pytest -q</code> and <code>uv run ruff check .</code> pass before each commit</td>
+<td>CI gate</td>
+<td>ongoing</td>
+</tr>
+</tbody>
+</table>
+<h2 id="non-goals-per-spec-claudemd">Non-goals (per spec + CLAUDE.md)</h2>
+<p>Exits (entries only), real-time inference, species ID, re-ID across clips, per-camera
+re-fine-tuning (the transfer detector already lands all four sample clips in the ±10%
+band; GT here is an approximate ballpark — no F1 overfitting).</p>
+<h2 id="run-mechanics">Run mechanics</h2>
+<ul>
+<li>Detection is GPU-bound → <strong>serial on MPS</strong> (<code>PYTORCH_ENABLE_MPS_FALLBACK=1</code>),
+  ~16 s/clip, ~3.2 h for 704. Counting is pure-Python and folded into the same pass.</li>
+<li>Idempotent + resumable: finished clips are skipped, so the run survives interruption.</li>
+<li>No videos/weights committed — only manifest, timeline, configs, code, reports, plots.</li>
+</ul>
+<hr />
+<h2 id="phase-7-camera-geometry-correction-2026-06-21-in-progress">Phase 7 — camera-geometry correction (2026-06-21, IN PROGRESS)</h2>
+<p>Manual quality-gate review (Phase 3 assumption was over-optimistic) found the cameras
+move over the session and the edges hold non-recording events. Full write-up + lessons:
+<strong><a href="camera_geometry.html">camera_geometry.md</a></strong>. Exclusions: <strong><a href="../../configs/valid_windows.yaml">configs/valid_windows.yaml</a></strong>.</p>
+<p>Summary: C1 small settle (no re-detect, drop 1 install clip); <strong>C2 one ~157px jump at
+12:36</strong> + grass + final fall (crop+zone re-drawn, drop install/stray/segment-A/fall →
+valid window IMAG0056–1208); C3 stable (drop 1 removal clip); <strong>C4 crop+zone re-drawn</strong>
+(keep all).</p>
+<h3 id="re-run-plan-subset-only-counts-are-not-yet-corrected">Re-run plan — SUBSET only (counts are NOT yet corrected)</h3>
+<ol>
+<li><strong>Visual sanity sign-off</strong> by the user on the new C2/C4 geometry (via the clip
+   debugger, which already shows the new crop+zone) — <em>gate before any re-run</em>.</li>
+<li><strong>Re-detect C2</strong> valid window (IMAG0056–1208, ~289 clips) + <strong>C4</strong> (29 clips) on the
+   new crops; recount. C1/C3 are <strong>not</strong> re-detected.</li>
+<li><strong>Apply <code>valid_windows.yaml</code></strong> at aggregation (drop excluded clips for all cameras).</li>
+<li><strong>Regenerate</strong> stats / timeline / plots / insights (Phase 6 scripts) from corrected
+   counts; report before/after impact.</li>
+</ol>
+<h3 id="process-lesson-for-future-runs">Process lesson for future runs</h3>
+<p>Add a geometry quality-gate (framing-stability + edge-clip check) <em>before</em> the big count,
+and prefer re-running on <strong>small subsets</strong> (a camera, a window) over full re-runs. The
+counting pipeline is idempotent/resumable, so per-camera re-detection (<code>--camera</code>,
+<code>--redetect</code>) is the unit of re-work.</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

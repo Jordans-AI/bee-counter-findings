@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bee-entry counting — system architecture</title>
+<style>
+  :root{
+    --ink:#1a1f29; --mut:#5b6573; --line:#e4e7ec; --bg:#f7f8fa;
+    --pipe:#2563eb; --pipe-bg:#eff6ff; --out:#16a34a; --out-bg:#f0fdf4;
+    --val:#d97706; --val-bg:#fff7ed; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{font:16px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+  main{max-width:1060px;margin:0 auto;padding:40px 24px 72px}
+  h1{font-size:27px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--mut);margin:0 0 18px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 28px;font-size:13.5px;color:var(--mut)}
+  .legend b{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  .gate{max-width:520px;margin:0 auto 6px;text-align:center}
+  .gate .chip{display:inline-block;background:var(--val-bg);border:1.5px solid var(--val);color:#7c4a06;
+    border-radius:10px;padding:10px 16px;font-size:13.5px;font-weight:600}
+  .gate .down{color:var(--val);font-size:22px;line-height:1;margin:2px 0 8px}
+  .flow{display:flex;align-items:stretch;flex-wrap:wrap;gap:0;justify-content:center}
+  .stage{flex:1 1 150px;min-width:150px;max-width:210px;background:var(--card);border:1px solid var(--line);
+    border-top:3px solid var(--pipe);border-radius:11px;padding:13px 14px;box-shadow:0 1px 3px rgba(16,24,40,.06)}
+  .stage .n{display:inline-block;font-size:11px;font-weight:700;color:var(--pipe);background:var(--pipe-bg);
+    border-radius:20px;padding:1px 8px;margin-bottom:7px}
+  .stage h3{margin:0 0 3px;font-size:15px}
+  .stage p{margin:0;font-size:12.5px;color:var(--mut)}
+  .chev{display:flex;align-items:center;color:#9aa4b2;font-size:22px;padding:0 4px;align-self:center}
+  .branch{text-align:center;color:var(--mut);font-size:22px;margin:14px 0 6px}
+  .lanes{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:720px){.lanes{grid-template-columns:1fr}}
+  .lane{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--card)}
+  .lane.out{border-top:3px solid var(--out)} .lane.val{border-top:3px solid var(--val)}
+  .lane h2{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .lane h2 .dot{width:9px;height:9px;border-radius:50%}
+  .item{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:8px 0;font-size:14px}
+  .item b{font-weight:600} .item span{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}
+  code{font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);border:1px solid var(--line);
+    border-radius:5px;padding:1px 5px}
+  footer{margin-top:30px;color:var(--mut);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+  a{color:#1d4ed8}
+</style>
+<main>
+  <h1>Bee-entry counting — system architecture</h1>
+  <p class="sub">From a 30-second hive-entrance clip to a validated per-hive entry count.</p>
+  <div class="legend">
+    <span><b style="background:#2563eb"></b>Counting pipeline</span>
+    <span><b style="background:#16a34a"></b>Aggregation &amp; outputs</span>
+    <span><b style="background:#d97706"></b>Geometry gate &amp; validation</span>
+  </div>
+
+  <div class="gate">
+    <div class="chip">Per-camera crop + entry-zone — drift-corrected, valid windows <code>configs/</code></div>
+    <div class="down">↓</div>
+  </div>
+
+  <div class="flow">
+    <div class="stage"><span class="n">1</span><h3>Raw clip</h3><p>30 s · 30 fps · 1080p MOV</p></div>
+    <div class="chev">▸</div>
+    <div class="stage"><span class="n">2</span><h3>Entrance crop</h3><p>tight crop + CLAHE brighten</p></div>
+    <div class="chev">▸</div>
+    <div class="stage"><span class="n">3</span><h3>YOLO&#8209;FT detector</h3><p>fine-tuned bee detector (MPS)</p></div>
+    <div class="chev">▸</div>
+    <div class="stage"><span class="n">4</span><h3>Local NN chains</h3><p>short greedy tracks</p></div>
+    <div class="chev">▸</div>
+    <div class="stage"><span class="n">5</span><h3>Absorption count</h3><p>chain dies in the dark zone = 1 entry</p></div>
+    <div class="chev">▸</div>
+    <div class="stage"><span class="n">6</span><h3>Per-clip entries</h3><p>one integer per clip</p></div>
+  </div>
+
+  <div class="branch">↓</div>
+
+  <div class="lanes">
+    <div class="lane out">
+      <h2><span class="dot" style="background:#16a34a"></span>Aggregation &amp; outputs</h2>
+      <div class="item"><b>Per-camera timeline</b><span>absolute UTC times + recording gaps</span></div>
+      <div class="item"><b>Cross-hive stats &amp; plots</b><span>entry rate ±CI, time-of-day, spatial density</span></div>
+      <div class="item"><b>Exports</b><span>per-clip CSV/JSON · 15-min bins · timeline</span></div>
+      <div class="item"><b>Findings page</b><span>researcher-facing summary</span></div>
+    </div>
+    <div class="lane val">
+      <h2><span class="dot" style="background:#d97706"></span>Validation &amp; tools</h2>
+      <div class="item"><b>Manual ground truth</b><span>per-clip counts — within ±10% on validation clips</span></div>
+      <div class="item"><b>Claude-as-judge spot-check</b><span>independent detection-signal sanity</span></div>
+      <div class="item"><b>Clip debugger / viewer</b><span>inspect any clip &amp; frame; overlays + flags</span></div>
+    </div>
+  </div>
+
+  <footer>
+    Method: trackless <b>"absorption"</b> counter — a bee enters by descending into a dark notch, so its
+    short detection chain <i>terminates</i> inside the per-camera entry zone (no global tracking needed).
+    Geometry is camera-drift-corrected (2026-06-21). &nbsp;·&nbsp;
+    <a href="dataset_report.html">Full report</a> ·
+    <a href="findings.html">Findings</a> ·
+    <a href="camera_geometry.html">Geometry review</a> ·
+    static PNG: <a href="figures/fig_architecture.png">fig_architecture.png</a>
+  </footer>
+</main>
+</html>

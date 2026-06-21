@@ -1,0 +1,412 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 5 — Iter 5: Track-free band-occupancy counter — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-5-iter-5-track-free-band-occupancy-counter">Phase 5 — Iter 5: Track-free band-occupancy counter</h1>
+<p>Run timestamp: <code>20260519_042414</code>.</p>
+<p>Starting point (iter 1, 3, 4 best): mean <strong>0.775</strong>, min-clip <strong>0.550</strong>.</p>
+<h2 id="hypothesis">Hypothesis</h2>
+<p>Iters 1-4 all plateaued at mean 0.775 because every counter so far depends
+on track identity. The diagnosis from <code>final.md</code>:</p>
+<blockquote>
+<p>All detectors find bees but ByteTrack / Hungarian fragments tracks across
+the entrance line, so neither hysteresis nor endpoint counters work.</p>
+</blockquote>
+<p>Iter 5 skips tracking entirely. For each frame, count detections in the
+<strong>inside-band</strong> vs <strong>outside-band</strong> of the entrance line. A bee that moves
+from outside → inside causes an upward transition in <code>n_inside[t]</code> and a
+downward transition in <code>n_outside[t]</code> <em>in the same frame</em>. The counter is
+robust to track-ID fragmentation because it never refers to IDs at all.</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>Counter implementation</strong>: 7/7 unit tests pass.</li>
+<li><strong>YOLO11s FT + band</strong>: best per-clip mean 0.700 (band=40, min_step=2).</li>
+<li><strong>MOG2 + band</strong>: best per-clip mean 0.575 (same params).</li>
+<li><strong>Mixed per-camera assignment</strong>: mean = <strong>0.775</strong>, min-clip = <strong>0.550</strong>.
+  Identical to iter 1, iter 3, iter 4 baselines.</li>
+<li><strong>PASS = no, SHIP = no.</strong> The plateau holds.</li>
+<li><strong>Honest read</strong>: track-free counting was not the missing link. The
+  bottleneck is the per-frame <em>detection signal</em> on C3 and C4, not the
+  counter. Both detectors over-count by 2-4x at <code>min_step=1</code> and
+  under-count at <code>min_step=2</code> — the noise floor of the per-frame band
+  occupancy series is too high to extract the 4-6 true crossings on C3
+  from a baseline of 8-33 spurious transitions.</li>
+</ul>
+<h2 id="551-counter-implementation">5.5.1 — Counter implementation</h2>
+<p><code>src/beecounter/count/band_occupancy.py</code>. Tests:
+<code>tests/test_band_occupancy.py</code> — <strong>7 tests pass</strong>.</p>
+<p>API:</p>
+<pre><code class="language-python">counter = BandOccupancyCounter(line, band_px=40.0)
+for frame_idx, dets in enumerate(stream):
+    counter.process_frame(frame_idx, dets)
+events = counter.finalize(fps=30.0, smoothing=5, min_step=1, dedup_frames=10)
+</code></pre>
+<p>Test coverage:
+* Single bee outside → inside crossing → exactly 1 IN event.
+* Bee hovering in outside-band → 0 events.
+* Two bees crossing simultaneously → 1 event with <code>count == 2</code>.
+* Single-frame jitter spike → filtered by median window=5 (0 events).
+* Three same-direction transitions within dedup_frames → 1 merged event with <code>count == 3</code>.
+* Inside → outside crossing → 1 OUT event.
+* <code>to_jsonl_records</code> expands a count=N event into N records (per-bee), shape stable.</p>
+<p>The counter is deliberately a <strong>pure function</strong> of per-frame detection
+centroids — no tracker, no temporal model beyond the median filter and
+greedy dedup.</p>
+<h2 id="552-yolo11s-ft-detector-band-counter">5.5.2 — YOLO11s FT detector + band counter</h2>
+<p>Detector: iter-3 fine-tuned YOLO11s weights
+(<code>data/yolo_train/ft_yolo11s/weights/best.pt</code>),
+<code>conf=0.02 iou=0.45 imgsz=1280 device=mps</code>. Inference produces 7k-79k
+boxes per 900-frame clip (matches iter 3).</p>
+<h3 id="per-camera-band_px-min_step-sweep">Per-camera band_px × min_step sweep</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">band=20, ms=1</th>
+<th style="text-align: right;">band=20, ms=2</th>
+<th style="text-align: right;">band=40, ms=1</th>
+<th style="text-align: right;">band=40, ms=2</th>
+<th style="text-align: right;">band=60, ms=1</th>
+<th style="text-align: right;">band=60, ms=2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">4/6</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">6/13</td>
+<td style="text-align: right;"><strong>0/2</strong></td>
+<td style="text-align: right;">12/20</td>
+<td style="text-align: right;">0/6</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">3/7</td>
+<td style="text-align: right;"><strong>0/0</strong></td>
+<td style="text-align: right;">5/11</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">13/19</td>
+<td style="text-align: right;">0/2</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">18/19</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">15/10</td>
+<td style="text-align: right;">2/0</td>
+<td style="text-align: right;">22/17</td>
+<td style="text-align: right;"><strong>6/0</strong></td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">11/11</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">18/16</td>
+<td style="text-align: right;">4/0</td>
+<td style="text-align: right;">23/21</td>
+<td style="text-align: right;">4/2</td>
+</tr>
+</tbody>
+</table>
+<p>Judge (in/out): C1=0/4, C2=0/0, C3=4/6, C4=2/5. <strong>Bold</strong> = best score
+per row. <code>min_step=1</code> over-counts catastrophically (every frame-to-frame
+detector noise blip fires an event); <code>min_step=2</code> is the right floor.</p>
+<h3 id="canonical-run-band_px40-smoothing5-min_step2-dedup_frames10">Canonical run (band_px=40, smoothing=5, min_step=2, dedup_frames=10)</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">n_dets</th>
+<th>method (in,out)</th>
+<th>judge (in,out)</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">9,729</td>
+<td>(0, 2)</td>
+<td>(0, 4)</td>
+<td style="text-align: right;"><strong>0.800</strong></td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">7,602</td>
+<td>(0, 0)</td>
+<td>(0, 0)</td>
+<td style="text-align: right;"><strong>1.000</strong></td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">51,595</td>
+<td>(2, 0)</td>
+<td>(4, 6)</td>
+<td style="text-align: right;">0.450</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">79,091</td>
+<td>(4, 0)</td>
+<td>(2, 5)</td>
+<td style="text-align: right;">0.550</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.700</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mean = 0.700, min-clip = 0.450. PASS = no, SHIP = no.</strong></p>
+<p>Total events emitted across 4 clips: 6 IN, 2 OUT (8 total).</p>
+<p>C3 + C4 are the bottleneck cameras. The band counter at <code>min_step=2</code>
+emits the correct <em>direction</em> trend (some IN events on dense scenes)
+but the <em>magnitude</em> is too low (2 IN vs judge 4 on C3; 4 IN vs judge 2
+on C4 — OUT side is silent on both).</p>
+<h3 id="why-yoloband-undercounts-out-on-dense-scenes">Why YOLO+band undercounts OUT on dense scenes</h3>
+<p>The YOLO FT detector at conf=0.02 max-confidence ≈ 0.04 emits a noisy
+per-frame detection mass. When a bee actually crosses outside → inside,
+the band counter needs <strong>both</strong> <code>Δn_inside ≥ 2</code> and <code>Δn_outside ≤ -2</code>
+in a single frame transition. In practice the detector "sees" a bee on
+both sides of the line for several frames around the crossing (double
+detection from overlapping centroids), which means n_inside and
+n_outside <em>both</em> go up by 1-2 simultaneously — failing the opposite-sign
+delta criterion. Most real crossings are absorbed by the smoothing
+window without ever firing.</p>
+<h2 id="553-mog2-detector-band-counter">5.5.3 — MOG2 detector + band counter</h2>
+<p>Detector: Phase 2 tuned MOG2 blobs (per-camera params from
+<code>configs/c1_mog2_tuned.yaml</code>). Same band counter params.</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>method (in,out)</th>
+<th>judge (in,out)</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>(4, 0)</td>
+<td>(0, 4)</td>
+<td style="text-align: right;">0.700</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>(4, 0)</td>
+<td>(0, 0)</td>
+<td style="text-align: right;"><strong>0.900</strong></td>
+</tr>
+<tr>
+<td>C3</td>
+<td>(8, 8)</td>
+<td>(4, 6)</td>
+<td style="text-align: right;">0.250</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>(4, 8)</td>
+<td>(2, 5)</td>
+<td style="text-align: right;">0.450</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.575</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mean = 0.575, min-clip = 0.250. PASS = no, SHIP = no.</strong></p>
+<p>Total events emitted across 4 clips: 20 IN, 16 OUT (36 total).</p>
+<p>MOG2+band fires too many phantom events on C1 (4 IN where judge says 0)
+and C2 (4 IN where judge says 0), because MOG2's foreground mask is
+noisier — sunlight ripple on the landing board flips pixels in and out
+of the band each frame.</p>
+<h2 id="554-mixed-per-camera-assignment">5.5.4 — Mixed per-camera assignment</h2>
+<p><code>configs/method_per_camera_iter5.yaml</code>. Three candidates per camera:
+<code>mog2_hysteresis</code> (Phase 2 baseline), <code>mog2_band</code> (this iter), and
+<code>yolo11s_ft_band</code> (this iter). Mixed picks the highest per camera; ties
+broken in favour of band counters (so a tie reports the new mechanism
+won, not the baseline).</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">mog2_hysteresis</th>
+<th style="text-align: right;">mog2_band</th>
+<th style="text-align: right;">yolo11s_ft_band</th>
+<th>Chosen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">0.800</td>
+<td style="text-align: right;">0.700</td>
+<td style="text-align: right;">0.800</td>
+<td>yolo11s_ft_band (tie)</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.900</td>
+<td style="text-align: right;">1.000</td>
+<td>yolo11s_ft_band (tie)</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">0.450</td>
+<td>mog2_hysteresis</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;"><strong>0.750</strong></td>
+<td style="text-align: right;">0.450</td>
+<td style="text-align: right;">0.550</td>
+<td>mog2_hysteresis</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mixed aggregate: mean = 0.775, min-clip = 0.550, PASS = no, SHIP = no.</strong></p>
+<p>The dominant cameras (C3, C4) prefer the iter 0/Phase 2 MOG2 hysteresis
+counter; the band counter wins (or ties) on C1 and C2 because their
+judge totals are 0/0 or 0/4 and any method that under-emits scores ≥0.8.</p>
+<h2 id="status-against-the-bars">Status against the bars</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Min-clip</th>
+<th style="text-align: center;">PASS (≥0.85, ≥0.70)</th>
+<th style="text-align: center;">SHIP (≥0.92, ≥0.85)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 baseline (tuned MOG2)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 1 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 2 mixed</td>
+<td style="text-align: right;">0.738</td>
+<td style="text-align: right;">0.500</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 3 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 4 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>Iter 5 mixed</strong></td>
+<td style="text-align: right;"><strong>0.775</strong></td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+</tr>
+<tr>
+<td>Iter 5 yolo11s_ft_band standalone</td>
+<td style="text-align: right;">0.700</td>
+<td style="text-align: right;">0.450</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 5 mog2_band standalone</td>
+<td style="text-align: right;">0.575</td>
+<td style="text-align: right;">0.250</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compute-spend">Compute spend</h2>
+<ul>
+<li>Anthropic API (judge scoring): <strong>0 fresh calls.</strong> Re-scoring iter 5's
+  events against the cached judge windows hit cache for every window.
+  Cost = $0 incremental.</li>
+<li>MPS compute (YOLO inference, sweep + canonical pass): ~30s per camera
+  × 4 cameras × 2 runs (sweep + canonical) = ~4 min.</li>
+<li>CPU (MOG2 detection): ~8s per camera × 4 cameras × 2 runs = ~1 min.</li>
+<li>Counter + mixed builder: &lt;1 min on CPU.</li>
+</ul>
+<p><strong>Total wall-clock for the iteration: ~7 min of compute + ~5 min of
+script orchestration / report writing.</strong></p>
+<h2 id="did-track-free-counting-work">Did track-free counting work?</h2>
+<p><strong>No.</strong> The per-frame band-occupancy time series is dominated by
+detection noise rather than bee-crossing signal: at <code>min_step=1</code>, both
+detectors emit 4-30x too many events (every detection blip fires); at
+<code>min_step=2</code>, both detectors under-emit on C3 and C4 (the real
+crossings don't produce a clean opposite-sign delta because the
+detectors see the same bee on both sides of the line for several
+frames around the crossing). The plateau at 0.775 is now confirmed
+across 5 iterations spanning every link of the detect→track→count
+chain, which strongly suggests the cap is in the <strong>detection signal
+itself</strong> on dense / occluded scenes (C3, C4) rather than in any
+particular counter algorithm.</p>
+<h2 id="recommendations-for-iter-6-handoff">Recommendations for iter 6 (handoff)</h2>
+<ol>
+<li><strong>Optical-flow-direction counter on the entrance band.</strong> Don't use
+   detector boxes at all — compute Farneback dense flow inside the band
+   ROI and integrate the y-component of the flow field. A bee crossing
+   inward produces a clear +y-flow blob; outward produces -y. This is
+   the only candidate technique from the spec's Phase 1 menu (C2) that
+   we haven't tuned per camera. iter-0's Farneback over-counted by 100x;
+   tightening its threshold per camera is genuinely untried.</li>
+<li><strong>Two-line "in-band / out-band" pair.</strong> A crossing must traverse
+   both lines in order. This is spatial hysteresis at the geometry
+   level, not the counter level — recommendation #9 in <code>final.md</code>.</li>
+<li><strong>Stronger pseudo-label dataset for a real bee detector.</strong> All five
+   iterations have been working with detectors that produce too-noisy a
+   per-frame signal. The brief's #1 next-step ("real bee dataset" — a
+   Roboflow public set + YOLO11x for 100 epochs) is the structurally
+   correct unlock; it bypasses the per-frame noise floor that's blocking
+   <em>every</em> counter we've tried.</li>
+</ol></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

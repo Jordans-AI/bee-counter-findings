@@ -1,0 +1,781 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Bee Counter — Final Report — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html" style="font-weight:700">Final</a></div><main class="report"><h1 id="bee-counter-final-report">Bee Counter — Final Report</h1>
+<blockquote>
+<p><strong>2026-06-20 UPDATE — scaled to the full dataset.</strong> The whole 2026-04-30 recording
+(704 videos, 5.85 h across the same four cameras) has now been counted end-to-end with
+this exact method. Per-camera entry timeline, cross-camera stats, plots, and CSV/JSON
+export: <strong><a href="dataset_report.html">dataset_report.md</a></strong> (timeline: <a href="timeline.html">timeline.md</a>).
+The full-dataset pipeline reproduces the committed scoreboard exactly on all four
+manual-GT clips, so everything below still holds — this report describes the <em>method</em>;
+dataset_report.md describes its <em>application to the whole recording</em>.</p>
+<p><strong>2026-06-18 UPDATE — all four cameras now have manual ground truth, and a
+single trackless counter ("absorption") works on every one.</strong>
+This top section supersedes the judge-proxy conclusion below <strong>for all four
+cameras</strong>. C1 is fully labelled (51 IN); C2/C3/C4 are partially labelled and
+scored only inside their labelled window. The original overnight report
+(judge-as-proxy, "0.775 structural cap") is kept unchanged after the horizontal
+rule as the honest record of that exploration.</p>
+<p>Two counters ship, both reproducible from a saved config + the raw video:
+a <strong>classical motion</strong> "vanish-into-the-dark" counter (no weights) and a
+<strong>detector-based absorption</strong> counter (counts where a bee's detection chain
+terminates inside the entrance zone). Absorption is the better method — it beats
+motion's temporal F1 on <strong>all four</strong> cameras and, with a transfer detector plus
+per-camera gating (no per-camera fine-tune), brings <strong>every camera into the
+±10% count band</strong> (C1 52/51, C2 73/74, C3 49/48, C4 38/42). See <strong>All-camera
+results</strong> below.</p>
+</blockquote>
+<h2 id="c1-entry-counter-vs-manual-ground-truth-pass-within-10">C1 entry counter vs manual ground truth — <strong>PASS (within ±10%)</strong></h2>
+<h3 id="headline">Headline</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Predicted IN</strong></td>
+<td><strong>52</strong></td>
+</tr>
+<tr>
+<td><strong>Ground-truth IN</strong></td>
+<td><strong>51</strong> (manual, <code>ground_truth_labels.jsonl</code>)</td>
+</tr>
+<tr>
+<td><strong>Ratio</strong></td>
+<td><strong>1.02</strong> → within ±2% (target ±20%, stretch ±10% — <strong>both met</strong>)</td>
+</tr>
+<tr>
+<td>Temporal P / R / F1 (±15 frames)</td>
+<td>0.75 / 0.76 / <strong>0.76</strong></td>
+</tr>
+<tr>
+<td>Model</td>
+<td>direction-agnostic "vanish into the dark notch" (see below)</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>~3 s for the 900-frame clip (CPU)</td>
+</tr>
+</tbody>
+</table>
+<p>Reproduce — run + score in one command:</p>
+<pre><code class="language-bash">uv run python scripts/run_c1_entry.py --config configs/c1_entry.yaml --annotate --score
+</code></pre>
+<h3 id="why-the-previous-report-was-wrong-about-c1">Why the previous report was wrong about C1</h3>
+<p>The overnight run scored every method against a <strong>Claude-as-judge proxy</strong> that
+returned <strong>C1 = 0 IN / 4 OUT</strong>. The whole pipeline was therefore tuned to be
+<em>conservative</em> (the "final" MOG2 emitted 3 IN) to agree with ~0. A human then
+labelled the clip frame-by-frame in the viewer and found <strong>51 real entries</strong> —
+~1.7 bees/sec, which is normal for an active hive. The judge had massively
+under-counted (Opus on 3-second strips can't track individual bees and defaults
+to "no clear crossing"). The "0.775 structural cap" was agreement with a broken
+target, not a real ceiling. Once the target is the manual GT, a sensitively-tuned
+classical pipeline lands the count almost exactly.</p>
+<h3 id="what-entry-actually-means-here-two-domain-corrections">What "entry" actually means here (two domain corrections)</h3>
+<p>Defining the <em>right physical event</em> mattered more than any parameter. Two
+corrections from domain review reshaped the model:</p>
+<ol>
+<li><strong>The entrance is the dark notch holes, not the <code>cameras.yaml</code> line.</strong> That
+   line sits at the box/board seam <em>above</em> the real entrances. Overlaying the 51
+   GT points shows they all land on the <strong>dark notch holes below the line</strong>. A bee
+   crossing the line <em>upward</em> is mostly an <strong>exit</strong> (climbing out of a hole). An
+   early counter that counted upward crossings still hit 52≈51 — but only because
+   in a near-steady-state hive <strong>exits ≈ entries over 30 s</strong>, so it got the right
+   total by measuring the wrong event (its temporal F1 was a weak 0.66).</li>
+<li><strong>Bees enter from every direction</strong> — landing from below, crawling in from the
+   side, descending from the rail. So a <em>directional</em> crossing model is wrong by
+   construction; it bakes in one approach direction and misses the rest.</li>
+</ol>
+<p>The correct, direction-agnostic definition:</p>
+<blockquote>
+<p><strong>Entry</strong> = a track that ends <em>inside</em> the dark entrance zone, having been seen
+<em>outside</em> it — i.e. a bee that arrived at a hole from anywhere and <strong>vanished
+into the dark</strong>. <strong>Exit</strong> = a track <em>born</em> inside the dark (a bee emerging) — excluded.</p>
+</blockquote>
+<p>Switching to this model lifted temporal <strong>F1 from 0.66 → 0.76</strong> at the same count,
+which is the real signal that it now measures entries (right frames), not exits.</p>
+<h3 id="method">Method</h3>
+<pre><code>frame → crop ROI (entrance strip, excludes grass) → grayscale → CLAHE
+      → MOG2 motion → connected-component blobs → Hungarian tracker
+      → VanishEntryCounter (ends-in-dark-zone, born-outside) → IN events
+</code></pre>
+<p>Four decisions did the work, each grounded in the footage:</p>
+<ol>
+<li><strong>Tight ROI at the entrance</strong> (<code>[355, 750, 1055, 950]</code>) — frame-diff and MOG2
+   are otherwise dominated by wind-blown grass and bees flying across the box face.</li>
+<li><strong>CLAHE contrast enhancement</strong> — bees near the dark notches are nearly invisible
+   in raw grayscale; CLAHE makes them detectable.</li>
+<li><strong>Data-driven dark-entrance zone</strong> — the median background's persistently-dark
+   pixels (inside the entrance band, dilated) <em>are</em> the holes. No hand-placed line;
+   45/51 GT points fall inside this zone.</li>
+<li><strong>Direction-agnostic vanish counter</strong> — count tracks that end inside the dark
+   zone having started outside, regardless of approach direction. Exits (born in the
+   dark) are naturally excluded. See
+   <a href="../../src/beecounter/count/vanish_entry.py">src/beecounter/count/vanish_entry.py</a>.
+   The earlier directional counter is kept in
+   <a href="../../src/beecounter/count/directional_entry.py">directional_entry.py</a> for comparison.</li>
+</ol>
+<p>Full tuned parameters: <a href="../../configs/c1_entry.yaml">configs/c1_entry.yaml</a>.</p>
+<h3 id="how-it-was-tuned-reproducible-gt-driven">How it was tuned (reproducible, GT-driven)</h3>
+<p><code>scripts/sweep_c1_entry.py</code> grid-searches against the manual GT, optimizing for
+temporal F1 <strong>subject to the count staying in the ±20% band</strong> — so the count is
+right because events align, not by luck. The progression: directional counter
+F1 0.54 → 0.66 (count ~51), then the corrected <strong>vanish</strong> counter
+F1 → <strong>0.76</strong> (count 52) after sweeping <code>dark_thresh</code>, <code>zone_dilate</code>,
+<code>min_track_obs</code>, <code>dedup</code>.</p>
+<h3 id="honest-error-analysis">Honest error analysis</h3>
+<p>F1 is 0.76 (P=0.75, R=0.76). Recall 0.76 means <strong>three-quarters of the 51 real
+entries are individually detected</strong> at the right time — the count is not a
+coincidence. The residual errors are <strong>structured, not random</strong>:</p>
+<ul>
+<li><strong>False negatives (12)</strong> are dominated by <strong>dense bursts</strong> at the same hole (e.g.
+  GT's 3 entries on frame 7, the burst at 504–519): the detector sees the bees but
+  spatial+temporal de-dup merges near-simultaneous arrivals at one spot. Inherent
+  to de-dup'd counting without per-bee re-ID tracking.</li>
+<li><strong>False positives (13)</strong> are bees that reach a hole and pause/retreat (a track
+  that ends just inside the dilated zone without truly entering), plus occasional
+  tracker fragments whose tail lands in the zone.</li>
+</ul>
+<p>Visual confirmation: <a href="../runs/">results/runs/c1_entry_final/C1/annotated.mp4</a> shows
+the ROI, detections, track centroids and a green flash at each counted entry; the
+dark-zone overlay was checked against the GT points during tuning.</p>
+<h3 id="detection-experiment-yolo-fine-tune-and-why-motion-still-ships">Detection experiment (YOLO fine-tune) — and why motion still ships</h3>
+<p>Motion is a <em>calibrated motion statistic</em> (accurate total, messy internals — small
+load-bearing blobs, unstable track IDs, the counted point near-but-not-on the bee).
+We tested a bee-<em>instance</em> detector to see if it could count more cleanly:</p>
+<ul>
+<li><strong>Off-the-shelf</strong> YOLO11 fine-tuned on a hive-entrance dataset (Sledevic 2024,
+  Mendeley V6, CC BY 4.0 — <a href="DATA_CITATIONS.html">DATA_CITATIONS.md</a>) hit val mAP50
+  0.975 on that data but <strong>barely transferred</strong> to C1 (~1 bee/frame).</li>
+<li><strong>Fine-tuned on 46 hand-labeled C1 frames</strong> (<code>c1_box_labels.json</code>,
+  <code>scripts/finetune_c1.py</code>) it <strong>closed the detection gap</strong>: ~12 bees/frame,
+  <strong>recall 0.94</strong> — cleanly detecting the dark crawlers motion only fragments.</li>
+<li><strong>But the count plateaued.</strong> Tracking small/fast/occluding bees fragments IDs
+  (471 ByteTrack → 357 BoT-SORT); across trackers × counters the count lands
+  F1 0.65–0.73 — <strong>not beating motion's 0.76</strong>. And "cleaning" motion's blobs
+  (bigger <code>min_area</code>/close) deletes the load-bearing vanish sliver and <em>lowers</em> it.</li>
+</ul>
+<p><strong>Verdict:</strong> clean <em>detection</em> (FT detector) and clean <em>counting</em> (motion) are in
+tension; the shared bottleneck is <strong>stable per-bee tracking</strong>. Motion ships as the
+C1 count; the FT detector is kept as a high-recall component. Blow-by-blow:
+<a href="decisions.html">decisions.md</a>.</p>
+<h3 id="scope-and-limitations">Scope and limitations</h3>
+<ul>
+<li><strong>Entries only.</strong> Exits are out of project scope (confirmed 2026-05-31). This C1
+  section is the deepest write-up; C2–C4 now have GT, configs, and scored counts too
+  (see <strong>All-camera results</strong> above) — they are no longer on the judge-proxy numbers.</li>
+<li>Parameters are tuned to <strong>one 30-second clip</strong>. They encode real structure
+  (entrance darkness, bee size, motion) so they should transfer to similar C1
+  footage, but a different clip should be re-scored.</li>
+<li>To push F1 higher without hurting the count you would need to resolve dense
+  simultaneous arrivals at one hole — a small re-ID/embedding tracker, or per-hole
+  occupancy changepoint detection, instead of centroid de-dup.</li>
+</ul>
+<hr />
+<h2 id="all-camera-results-c1c4-vs-manual-gt">All-camera results (C1–C4 vs manual GT)</h2>
+<p>Every camera now has a hand-marked crop (<code>configs/microscope.yaml</code>), an entry-zone
+polygon (<code>configs/entry_zones.yaml</code>), and manual GT entries
+(<code>ground_truth_labels.jsonl</code>). C1 is fully labelled; C2/C3/C4 are
+partially labelled, so each is scored <strong>only inside its labelled window</strong> (frames ≤
+that camera's last GT frame) — the partial-GT protocol. The GT is an approximate
+ballpark, not a precise target (labeller's own note), so the count <code>ratio</code> is the
+primary signal and temporal F1 is secondary.</p>
+<p>Authoritative windowed scoreboard (one command, <code>scripts/scoreboard.py</code>, ±15-frame
+temporal match):</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>Method</th>
+<th>Pred IN</th>
+<th>GT IN</th>
+<th>window ≤f</th>
+<th>ratio</th>
+<th>band</th>
+<th>P</th>
+<th>R</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>motion vanish-into-dark</td>
+<td>52</td>
+<td>51</td>
+<td>880</td>
+<td>1.02</td>
+<td>±10%</td>
+<td>0.75</td>
+<td>0.76</td>
+<td>0.76</td>
+</tr>
+<tr>
+<td>C1</td>
+<td><strong>absorption (FT-det terms)</strong></td>
+<td>52</td>
+<td>51</td>
+<td>880</td>
+<td>1.02</td>
+<td>±10%</td>
+<td>0.77</td>
+<td>0.78</td>
+<td><strong>0.78</strong></td>
+</tr>
+<tr>
+<td>C2</td>
+<td>motion vanish-into-dark</td>
+<td>42</td>
+<td>74</td>
+<td>544</td>
+<td>0.57</td>
+<td>OUT</td>
+<td>0.95</td>
+<td>0.54</td>
+<td>0.69</td>
+</tr>
+<tr>
+<td>C2</td>
+<td><strong>absorption (FT-det terms)</strong></td>
+<td>73</td>
+<td>74</td>
+<td>544</td>
+<td>0.99</td>
+<td><strong>±10%</strong></td>
+<td>0.79</td>
+<td>0.78</td>
+<td><strong>0.79</strong></td>
+</tr>
+<tr>
+<td>C3</td>
+<td>motion vanish-into-dark</td>
+<td>22</td>
+<td>48</td>
+<td>649</td>
+<td>0.46</td>
+<td>OUT</td>
+<td>0.68</td>
+<td>0.31</td>
+<td>0.43</td>
+</tr>
+<tr>
+<td>C3</td>
+<td><strong>absorption (FT-det terms)</strong></td>
+<td>49</td>
+<td>48</td>
+<td>649</td>
+<td>1.02</td>
+<td><strong>±10%</strong></td>
+<td>0.71</td>
+<td>0.73</td>
+<td><strong>0.72</strong></td>
+</tr>
+<tr>
+<td>C4</td>
+<td>motion vanish-into-dark</td>
+<td>7</td>
+<td>42</td>
+<td>166</td>
+<td>0.17</td>
+<td>OUT</td>
+<td>1.00</td>
+<td>0.17</td>
+<td>0.29</td>
+</tr>
+<tr>
+<td>C4</td>
+<td><strong>absorption (FT-det terms)</strong></td>
+<td>38</td>
+<td>42</td>
+<td>166</td>
+<td>0.90</td>
+<td><strong>±10%</strong></td>
+<td>0.97</td>
+<td>0.88</td>
+<td><strong>0.93</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>All four cameras are in the ±10% count band with the absorption counter</strong> — a
+transfer detector (C1 fine-tune, no per-camera labels) plus per-camera gating, no
+per-camera fine-tune. Motion under-counts on every camera but C1.</p>
+<p>Reproduce: <code>uv run --no-sync python scripts/scoreboard.py</code> (or <code>uv run bee run</code>).</p>
+<h3 id="the-two-shipped-counters">The two shipped counters</h3>
+<ol>
+<li><strong>Motion "vanish-into-the-dark"</strong> (<code>configs/c*_entry.yaml</code>, no weights) — the
+   classical C1 method described above, transferred to each camera's ROI. It is a
+   high-precision, low-recall <em>statistic</em>: it needs a bee to visibly descend into a
+   dark notch, so recall falls monotonically as the entrance hides that descent
+   (C1 0.76 → C2 0.54 → C3 0.31 → C4 0.17). On the crowded/grassy cameras it
+   under-counts badly.</li>
+<li><strong>Absorption (detector terminations, trackless)</strong> (<code>configs/c*_absorption.yaml</code>)
+   — runs the C1-fine-tuned YOLO detector (transfer, no per-camera fine-tune) on
+   each crop, builds short <em>local</em> nearest-neighbour chains purely to find where a
+   detection chain <strong>terminates</strong> inside the deep part of the entry zone (a bee that
+   arrived at a hole and was absorbed), de-dupes, and counts those. It never builds a
+   global identity, so track fragmentation — the wall that capped every ByteTrack/
+   BoT-SORT count at F1 0.65–0.73 — is irrelevant.</li>
+</ol>
+<h3 id="why-absorption-beats-motion-everywhere">Why absorption beats motion everywhere</h3>
+<p>Motion's bottleneck was never "structural to the camera" — it was the <em>motion signal</em>.
+A dense or grassy entrance hides the dark-hole descent that the vanish counter keys on,
+but the detector still <em>sees</em> the bee and its local chain still <em>terminates</em> in the
+zone. So absorption improves every camera and reaches the count band on <strong>all four</strong>
+with a <strong>transfer</strong> detector (no per-camera fine-tune). Two per-camera levers, both
+density-driven, closed the last gaps without new labels:</p>
+<ul>
+<li><strong>C2</strong> (sparse, flying bees) needed the gating loosened (recall sweep,
+  <code>configs/c2_absorption.yaml</code>): 54/74 (OUT) → <strong>73/74, r0.99, F1 0.79</strong>.</li>
+<li><strong>C4</strong> (densest/grassiest crowd) needed the local-tracker association radius
+  <em>tightened</em> — at C1's inherited <code>gate_px=70</code> a terminating chain in a dense crowd is
+  "stolen" by a neighbouring bee and never registers, suppressing recall. Dropping to
+  <code>gate_px=50</code> (<code>configs/c4_absorption.yaml</code>) took C4 from 21/42 (r0.50, OUT) to
+  <strong>38/42, r0.90, F1 0.93, P 0.97 R 0.88</strong> — in-band. C1/C2/C3 are <em>less</em> dense and
+  verified best at 70 (tightening over-counts them), so <code>gate_px</code> is a genuine
+  per-camera, density-dependent lever, not a global constant. Blow-by-blow:
+  <a href="decisions.html">decisions.md</a>.</li>
+</ul>
+<p>On C1, two independent counters now agree on the count (motion 52, absorption 53
+standalone / 52 windowed, vs GT 51) via completely unrelated signals (MOG2 motion
+blobs vs detector terminations) — cross-method validation that the count is real, not
+a coincidence. Fusing them was tried and does <strong>not</strong> beat absorption alone (the two
+disagree on <em>which</em> events are real; the ~26-entry consensus core at P=0.90 is the
+validation payoff, not a better count — see <a href="decisions.html">decisions.md</a>).</p>
+<h3 id="validation-are-the-four-in-band-configs-real-or-gt-overfits">Validation — are the four in-band configs real, or GT overfits?</h3>
+<p>The GT is an approximate, partial, manually-labelled ballpark, so six independent
+checks guard against the obvious failure modes — fitting the configs to exact GT
+frames, matching the count by accident at the wrong place, mistaking label noise for
+a real gain, reading a structural ceiling as a tuning bug, and picking an operating
+point that isn't actually the best on its tradeoff curve.</p>
+<ul>
+<li><strong>Plateau, not overfit</strong> (<a href="robustness.html">robustness.md</a>,
+  <code>scripts/robustness_analysis.py</code>). Stepping each shipped config ±1 grid notch per
+  lever (one at a time) leaves every baseline near the <strong>centre</strong> of a plateau:
+  ratios 0.90–1.02 (mid-band), 1-off F1 ranges ≤0.17 wide, in-band-neighbour counts
+  C1 10/12 · C2 11/11 · C3 10/13 · C4 8/11. The only out-of-band neighbours come from
+  aggressive recall-<em>loosening</em> (over-counting from fragmentation) — the shipped
+  values back off one notch from that edge, not picked at a cliff. The <strong>count band is
+  tolerance-independent</strong>: sweeping the temporal tolerance 5→30f leaves the ratio
+  identical and only raises the secondary F1 — the headline doesn't hinge on ±15f.</li>
+<li><strong>Counted entries land at the right place</strong> (<a href="spatial_validation.html">spatial_validation.md</a>,
+  <code>scripts/spatial_validation.py</code>). Using the GT click location (<code>x_norm</code>/<code>y_norm</code>),
+  matched events sit a moderate 89–225 px from their GT point on ~700–900 px crops, and
+  absorption localises markedly better than motion on the dense/grassy cameras (C3 @100px
+  joint F1 0.49 vs 0.29; C4 0.65 vs 0.29) — fresh evidence to prefer absorption beyond
+  the count ratio. Joint space-time F1 is an honest lower bound the temporal scoreboard
+  alone didn't give.</li>
+<li><strong>The density ordering and recall ceiling are quantified, not asserted</strong>
+  (<a href="gt_characterization.html">gt_characterization.md</a>, <code>scripts/gt_characterization.py</code>).
+  Reading the GT alone, same-frame <strong>simultaneity</strong> (the fraction of entries sharing a
+  frame with another) rises monotonically <strong>C1 8% → C2 11% → C3 17% → C4 29%</strong>, with entry
+  rate 1.75 → 4.36 → 2.27 → 7.88 in/s — the first number behind the "C1 &lt; C2 &lt; C3 &lt; C4"
+  density ordering every structural verdict rests on. Because both counters dedup
+  near-coincident events, simultaneous arrivals are a <em>structural</em> recall ceiling no
+  parameter can lift. The median inter-event gap (C1 11.5f, C2 7f, C3 11f, C4 4f) also
+  explains the per-camera <code>dedup_frames</code> found empirically (C2 → 8, C4 → 3).</li>
+<li><strong>The residual errors are structural, not tuning artefacts</strong>
+  (<a href="error_analysis.html">error_analysis.md</a>, <code>scripts/error_analysis.py</code>, built from the
+  committed golden frames — no video/GPU). Splitting each method's FP/FN through the
+  production matcher: missed entries are markedly more temporally crowded than caught ones
+  on the dense cameras (FN/TP density ratio 1.24 on C2, <strong>2.06 on C3</strong> the dense crowd,
+  1.12 on C4) but ~equal on sparse C1 (0.81) — direct evidence the dense-camera recall gap
+  is the <em>uncollapsible</em> near-coincident entries, sharpest exactly where simultaneity peaks.
+  And false positives are predominantly <strong>re-spawns</strong> (most fall within 10f of another
+  prediction — one physical event firing twice), which is why tightening dedup trades the
+  count band for precision instead of cleanly removing noise.</li>
+<li><strong>The F1 noise band is ±~0.10, so sub-0.05 sweep gains are unresolvable</strong>
+  (<a href="metric_uncertainty.html">metric_uncertainty.md</a>, <code>scripts/metric_uncertainty.py</code>).
+  An event-level nonparametric bootstrap (2000×, fixed seed) puts the 95% CI on each F1 at
+  <strong>0.12–0.31 wide</strong> — with only 40–75 labels per camera, 0.78 vs 0.76 is statistically
+  indistinguishable. This is the quantitative basis for every "ship the plateau, no change"
+  decision. The paired motion-vs-absorption ΔF1 then <strong>splits by density</strong>: the CI <em>includes
+  0</em> on the sparse cameras (C1 [-0.10, +0.13]; C2 [-0.00, +0.21]) but <em>excludes 0</em> on the
+  dense ones (C3 [+0.16, +0.45]; C4 [+0.48, +0.81], both prob 1.00). So "absorption beats
+  motion everywhere" is two distinct claims — a <em>count</em> win on C1/C2, a <em>significant F1</em> win
+  on C3/C4 where motion's dark-notch signal structurally fails.</li>
+<li><strong>The shipped operating point is the best one on its own tradeoff curve</strong>
+  (<a href="operating_curve.html">operating_curve.md</a>, <code>scripts/operating_curve.py</code>, built from the
+  committed C1 real-data fixtures — no video/GPU). Sweeping each C1 counter along its single
+  recall lever (motion <code>min_track_obs</code>, absorption <code>min_len</code>) traces the full precision/recall
+  curve. Applying the count-primary constraint first (ratio in ±10%) and then maximising F1
+  selects exactly the shipped value for <strong>both</strong> methods — the count objective and the temporal-F1
+  objective do not conflict on C1. (Motion's raw F1 is ~0.002 higher — inside the noise band — at
+  a stricter, <em>out-of-band</em> point that under-counts; the count-primary rule correctly rejects it.)
+  Across the curve <strong>absorption dominates motion</strong> (higher precision at matched recall, F1 peak
+  0.78 vs 0.76), and the shipped point sits at the knee: loosening over-counts (re-spawns),
+  tightening drops recall — there is nothing better to pick. See <code>fig_operating_curve.png</code>.</li>
+</ul>
+<h3 id="figures">Figures</h3>
+<p>Three paper figures (<a href="figures/">figures/</a>, <code>scripts/generate_figures.py</code>),
+rendered from the same committed data (the golden frames + manual GT — no video/GPU) with the
+point F1s gated against the published scoreboard, so they cannot drift from the numbers above:</p>
+<ul>
+<li><code>fig_counts.png</code> — predicted IN (motion, absorption) vs manual GT per camera, with the ±10%
+  band as grey caps on the GT bar (all four absorption counts land in-band).</li>
+<li><code>fig_f1_ci.png</code> — F1 with bootstrap 95% CIs: visibly overlapping on the sparse cameras,
+  separating on the dense ones (the density split above, drawn).</li>
+<li><code>fig_simultaneity.png</code> — same-frame simultaneity rising C1 8% → C4 29% (the recall ceiling).</li>
+</ul>
+<h3 id="remaining-gap">Remaining gap</h3>
+<p>The count gap is closed on all four cameras <strong>without</strong> per-camera box labels — the
+limiter on C2/C4 was per-camera <em>gating</em>, not the detector. Box labels still exist
+only for C1 (<code>c1_box_labels.json</code>), so a per-camera fine-tune
+(<code>scripts/finetune_c1.py</code>) remains the untried lever if higher <strong>temporal F1</strong> (the
+secondary metric) is wanted: the residual errors are dense simultaneous arrivals at one
+hole that de-dup'd, trackless counting cannot separate without per-bee re-ID — the same
+ceiling described in the C1 error analysis above.</p>
+<hr />
+<h2 id="original-overnight-report-judge-as-proxy-kept-as-the-honest-record">(Original overnight report — judge-as-proxy, kept as the honest record)</h2>
+<p><strong>Status:</strong> PASS bar <strong>NOT MET</strong> (target mean ≥ 0.85, min-clip ≥ 0.70). SHIP bar (≥ 0.92 / ≥ 0.85) not met either. Final mean agreement <strong>0.775</strong> against the Claude-as-judge proxy.</p>
+<p><strong>Wall-clock spent:</strong> ~7 hours of the 10-hour budget. The run did not exhaust the budget; it stalled across <strong>6 distinct iteration approaches that all converged to the same 0.775 mean / 0.55 min-clip</strong>. After the sixth identical result — spanning every link in the detect → track → count → verify chain, including a track-free band-occupancy counter and a per-bee state machine with spatial hysteresis — continuing further was diminishing returns. The toolchain has a structural ceiling that pseudo-label fine-tuning, counter rebuilds, tracker replacement, per-camera method assignment, and state-machine counting all failed to break.</p>
+<p><strong>Structural diagnosis (post iter 5):</strong> The cap is in the <strong>per-frame detection signal itself on dense scenes</strong> (C3 at 21 bees/frame, C4 at 40 bees/frame). The FT YOLO11s detector emits ~80 detections per frame on C4 — <em>more</em> detections than there are bees — but the precision is low enough that no counter (hysteresis, endpoint matching, or band-occupancy time-series with median smoothing) can reliably tell "bee crossed the line" from "bee landed near the line and took off again." The judge agrees with this read: when Phase 2b/iter 2 asked Opus to verify MOG2 events with animated bbox polylines, Opus rejected 193 / 193 as "trajectory does not cross line" — most "crossing-looking" motion at the entrance is actually a bee approach-and-retreat, not a true entry/exit.</p>
+<p>This report is the honest record: what was tried, what worked, what didn't, why, and the concrete recommendations for the next 10 hours.</p>
+<hr />
+<h2 id="executive-summary">Executive summary</h2>
+<h3 id="final-per-video-counts-tuned-c1-mog2">Final per-video counts (tuned C1 MOG2)</h3>
+<table>
+<thead>
+<tr>
+<th>Camera</th>
+<th>Method (in / out)</th>
+<th>Judge (in / out)</th>
+<th>Per-clip agreement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1 (<code>מצלמה1_אוכמניות</code>)</td>
+<td>3 / 2</td>
+<td>0 / 4</td>
+<td><strong>0.80</strong></td>
+</tr>
+<tr>
+<td>C2 (<code>מצלמה2_בהג_ט</code>)</td>
+<td>0 / 0</td>
+<td>0 / 0</td>
+<td><strong>1.00</strong></td>
+</tr>
+<tr>
+<td>C3 (<code>מצלמה3_בדרךלקיווי</code>)</td>
+<td>1 / 0</td>
+<td>4 / 6</td>
+<td><strong>0.55</strong></td>
+</tr>
+<tr>
+<td>C4 (<code>מצלמה4_דובדבן</code>)</td>
+<td>2 / 2</td>
+<td>2 / 5</td>
+<td><strong>0.75</strong></td>
+</tr>
+<tr>
+<td><strong>Aggregate</strong></td>
+<td><strong>6 / 4</strong></td>
+<td><strong>6 / 15</strong></td>
+<td><strong>mean 0.775 · min-clip 0.55 · stdev 0.16</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="status-vs-the-bars">Status vs the bars</h3>
+<table>
+<thead>
+<tr>
+<th>Bar</th>
+<th>Required</th>
+<th>Achieved</th>
+<th>Met?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PASS</td>
+<td>mean ≥ 0.85 AND min-clip ≥ 0.70</td>
+<td>0.775 / 0.55</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>SHIP</td>
+<td>mean ≥ 0.92 AND min-clip ≥ 0.85</td>
+<td>0.775 / 0.55</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<p>C3 (dense crowd at the hive entrance) is the dominant bottleneck. Every iteration that improved one camera regressed another by an equal amount.</p>
+<hr />
+<h2 id="method-chosen-and-rationale">Method chosen and rationale</h2>
+<p><strong>Final method:</strong> classical-CV <strong>MOG2 background subtraction + connected components + Hungarian assignment tracker + <code>LineCrossingDetector</code> with per-camera hysteresis</strong> (the Phase 1 "C1 MOG2" candidate after Phase 2 tuning).</p>
+<p>Per-camera config: <a href="../../configs/c1_mog2_tuned.yaml">configs/c1_mog2_tuned.yaml</a>.</p>
+<h3 id="why-this-and-not-a-foundation-model-detector">Why this and not a foundation-model detector</h3>
+<p>Phase 1 ran 6 candidates in parallel (A1 YOLO11x COCO, A3 RT-DETR-X COCO, B1 GroundingDINO, B2 OWLv2, C1 MOG2, C2 Farneback). The result was a clear split:</p>
+<ul>
+<li><strong>All COCO-pretrained detectors emitted ~0 bee-class detections</strong> (A1, A3). Expected: COCO has no <code>bee</code> class. Confirmed empirically.</li>
+<li><strong>Foundation-model detectors found bees</strong> but the detect→track→cross pipeline <strong>emitted ~0 crossings</strong> anyway (B1 GroundingDINO, B2 OWLv2). The detector worked — <code>B1</code> smoke test found 15+ bees per frame — but the ByteTrack→<code>LineCrossingDetector</code> pipeline fragmented tracks at the high bee density of the entrance, so no track persisted long enough to satisfy the hysteresis line-crossing condition.</li>
+<li><strong>C1 MOG2 was the only candidate emitting real crossing events</strong> (20 events across 4 clips in Phase 1). Mean 0.675.</li>
+<li><strong>C2 Farneback flow integrator</strong> over-counted by 100x (729/464 on C1 vs judge 0/4). Threshold mis-calibrated.</li>
+</ul>
+<p>C1 MOG2 won the bake-off by being the only thing that actually counts. Tuning per camera in Phase 2 lifted it to mean 0.775.</p>
+<p>Full bake-off table: <a href="bakeoff.html">bakeoff.md</a>.</p>
+<h3 id="per-camera-config-explained">Per-camera config explained</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>var_threshold</th>
+<th>min_area</th>
+<th>min_hits</th>
+<th>hysteresis_frames</th>
+<th>band_px</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>24</td>
+<td>30</td>
+<td>10</td>
+<td>10</td>
+<td>18</td>
+<td>Sparse scene + partial grass — loose enough to catch real bees, hyst small enough not to lose them.</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>32</td>
+<td>30</td>
+<td>20</td>
+<td>18</td>
+<td>18</td>
+<td>Cleanest scene, bees mostly flying. Tightest var_threshold + longest hysteresis to refuse sky shimmer. Judge says 0/0 — zero false positives matters.</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>28</td>
+<td>60</td>
+<td>30</td>
+<td>25</td>
+<td>24</td>
+<td>Dense crowd. Tuned conservatively (lots of false-positive blobs in untuned). The compromise: emit fewer events to dodge over-count → ended up under-counting (1/0 vs 4/6).</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>22</td>
+<td>40</td>
+<td>10</td>
+<td>10</td>
+<td>18</td>
+<td>Heavy grass occlusion + 40 bees/frame density. Loosened relative to C3 to recover events; over-counted IN by 0 (got 2/5 method vs 2/5 judge IN, hit OUT half).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="known-failure-modes-root-cause-analysis">Known failure modes (root-cause analysis)</h2>
+<p>The whole overnight run can be summarized as: <strong>detection works, tracking doesn't, counting is fragile, and Opus verification is too conservative.</strong> Each of the 5 iterations tried to fix one link in that chain and failed.</p>
+<h3 id="failure-mode-1-track-id-fragmentation-in-dense-crowds-c3-c4">Failure mode 1 — Track ID fragmentation in dense crowds (C3 / C4)</h3>
+<p>In Phase 1, GroundingDINO emitted 15+ bee detections per frame on C3. ByteTrack should turn those into ~10–20 tracks. In practice, it produced tracks averaging 3–5 frames long because:
+- Bees occlude each other constantly.
+- Detection bounding boxes wobble around densely-packed bees.
+- ByteTrack's IoU/Kalman defaults don't model bee-shaped objects well.</p>
+<p>A track ≤ 5 frames cannot satisfy the <code>LineCrossingDetector(hysteresis_frames=3, band_px=12)</code> requirement of "stable on one side, traverse the band, stable on the other side." Result: <strong>0 confirmed crossings emitted</strong> by GroundingDINO/OWLv2/YOLO11x-fine-tuned/RT-DETR.</p>
+<h3 id="failure-mode-2-mog2-over-and-under-count-oscillation-on-c3">Failure mode 2 — MOG2 over- and under-count oscillation on C3</h3>
+<p>C3 untuned MOG2: emitted 4 IN / 11 OUT vs judge 4/6. The IN side was perfect (4 = 4), but OUT was over by 5.</p>
+<p>Phase 2 tuner tightened C3 settings (<code>min_hits=30, hysteresis=25, band=24</code>) to reduce the over-count. Result: 1 IN / 0 OUT — under-counted by 9. The tuner could not find a middle ground because MOG2 doesn't distinguish a real bee crossing from blob-merging artifacts in the dense crowd.</p>
+<h3 id="failure-mode-3-opus-verification-rejects-nearly-all-mog2-events">Failure mode 3 — Opus verification rejects nearly all MOG2 events</h3>
+<p>Phase 2 sub-step 2b and Phase 5 iter 2: when MOG2 emits an event, ask Opus "is this a real bee crossing?" with a strip of 5 frames around the event.</p>
+<ul>
+<li>Phase 2's original implementation drew a static bbox at the event frame across all 5 strip frames. Opus reasoned "no motion visible" and rejected 8/10 events.</li>
+<li>Phase 5 iter 2 fixed this by interpolating the bbox along the track's centroid and color-coding (cyan → yellow → red) across the strip. Opus's reasoning specifically referenced the polyline now: ✓ the fix worked.</li>
+<li>But Opus then rejected <strong>193 of 193</strong> candidate events on the looser-MOG2 settings. Its reasoning across cameras was uniform: "trajectory does not cross line."</li>
+</ul>
+<p>Interpretation: MOG2's "events" really aren't bee crossings — they're motion noise that even an animated polyline doesn't disguise. Or, Opus is overly conservative at the 1-second strip scale (this was independently confirmed in iter 1 — see below).</p>
+<h3 id="failure-mode-4-opus-refuses-to-attribute-crossings-at-1-second-window-resolution">Failure mode 4 — Opus refuses to attribute crossings at 1-second window resolution</h3>
+<p>Phase 5 iter 1: built an Opus-as-window-counter that asks Opus per 1-second window to count crossings. Across <strong>240 windows × 2 prompt variants = 480 calls</strong>, Opus returned 0 / 0 every time. The judge protocol uses 3-second windows, and within those Opus did attribute crossings (4/6 on C3, etc.). The 1-second framing didn't provide enough temporal context for Opus to commit to a crossing.</p>
+<p>This rules out the "Direct VLM-as-detector" Tier 3 escape hatch at the granularity we'd need to compose into the judge's 3-second scoring windows.</p>
+<h3 id="failure-mode-5-pseudo-label-fine-tuning-produces-low-confidence-detections">Failure mode 5 — Pseudo-label fine-tuning produces low-confidence detections</h3>
+<p>Phase 5 iter 3 fine-tuned YOLO11s on 400 Opus-pseudo-labeled frames (5,574 boxes). Best val mAP50 = 0.068, recall 0.36, precision 0.06. Detector confidence at inference maxed at 0.04 — too low for ByteTrack to assemble crossing-length tracks even with <code>track_high_thresh=0.015</code>.</p>
+<p>Phase 5 iter 4 escalated to YOLO11x — infeasible on MPS (3.5 min/epoch × 60 epochs = 3.5 hours). Fell back to YOLO11m. Same outcome: low mAP, tracks fragment, 0 crossings (or massive over-count with the iter-4 endpoint-counter variant).</p>
+<h3 id="failure-mode-6-endpoint-counter-over-counts-symmetrically">Failure mode 6 — Endpoint counter over-counts symmetrically</h3>
+<p>Phase 5 iter 4 tried replacing hysteresis with <strong>track-endpoint matching</strong> (track first centroid vs last centroid on opposite sides of the line). This is the dual of hysteresis — it turned 0-event under-counts into 147+362-event over-counts on C2 (vs judge 0/0). The endpoint approach treats every fragmented track as a candidate crossing; with 1000s of fragments per video, even a small false-positive rate produces hundreds of phantom crossings.</p>
+<hr />
+<h2 id="iterations-summary-chronological">Iterations summary (chronological)</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Approach</th>
+<th>Mean</th>
+<th>Per-clip</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1 best</td>
+<td>C1 MOG2 untuned</td>
+<td>0.675</td>
+<td>0.70 / 0.90 / 0.45 / 0.65</td>
+<td>Baseline. Over-counts on C3.</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>Per-camera tune of C1 MOG2 + Opus-verify (static bbox)</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>+0.10 from tuning. Verification a wash (8/10 rejected, no net gain).</td>
+</tr>
+<tr>
+<td>Iter 1</td>
+<td>Opus-window-counter at 1-sec resolution + per-camera best</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>Opus refused all 240 windows. Mixed assignment fell back to MOG2.</td>
+</tr>
+<tr>
+<td>Iter 2</td>
+<td>Animated-bbox Opus-verify + looser MOG2 on C3/C4</td>
+<td>0.738</td>
+<td>0.80 / 1.00 / 0.50 / 0.65</td>
+<td>Animated bbox fix worked; Opus then rejected 193/193 events. <strong>Regression.</strong></td>
+</tr>
+<tr>
+<td>Iter 3</td>
+<td>Fine-tune YOLO11s on 400 Opus-pseudo-labeled frames</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>mAP50=0.068; conf maxed at 0.04 too low for tracker. Mixed fell back to MOG2.</td>
+</tr>
+<tr>
+<td>Iter 4</td>
+<td>YOLO11x→YOLO11m on existing labels + endpoint counter</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>YOLO11x infeasible on MPS; endpoint counter over-counts 100x. Mixed fell back to MOG2.</td>
+</tr>
+<tr>
+<td>Iter 5</td>
+<td>Track-free <strong>band-occupancy counter</strong> on FT YOLO11s + MOG2</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>Per-frame band-occupancy time-series approach. min_step=1 over-counts 4-30x; min_step=2 misses real crossings because the same bee appears on both band sides for several frames around the transition. Mixed fell back to MOG2 on C3/C4.</td>
+</tr>
+<tr>
+<td>Iter 6</td>
+<td>Per-bee <strong>state machine + two-line band</strong> (spatial hysteresis)</td>
+<td>0.775</td>
+<td>0.80 / 1.00 / 0.55 / 0.75</td>
+<td>Mathematically distinct from temporal hysteresis but identified the same plausible crossings on the same detector stream. Standalone scored 0.675 (C2 false-positived 6 OUT events on a 0/0 clip). Mixed reverted to MOG2-hysteresis on C2 and C4.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Seven attempts, identical 0.775 / 0.55 plateau.</strong> Counting Phase 2 baseline as iter 0, that's the same number across six counter mechanisms, two detectors, three trackers, and seven distinct verification or per-camera mixing strategies. This is empirical proof of the structural cap: the bottleneck is the per-frame detection signal on C3 (21 bees/frame) and C4 (40 bees/frame), not any specific counter algorithm.</p>
+<p>Detailed per-iter reports: <a href="bakeoff.html">bakeoff.md</a> · <a href="phase2.html">phase2.md</a> · <a href="iter1.html">iter1.md</a> · <a href="iter2.html">iter2.md</a> · <a href="iter3.html">iter3.md</a> · <a href="iter4.html">iter4.md</a> · <a href="iter5.html">iter5.md</a> · <a href="iter6.html">iter6.md</a>.</p>
+<hr />
+<h2 id="honest-caveats-on-the-judge-proxy">Honest caveats on the judge proxy</h2>
+<p>The spec acknowledges the Claude-as-judge proxy is fallible (<code>spec.md</code> §Validation). A few specific reasons to be careful about the 0.775 number:</p>
+<ol>
+<li>The judge totals (C1=0/4, C2=0/0, C3=4/6, C4=2/5) are themselves <em>Opus 4.7 vision counts on 3-second windowed strips</em>. The judge has the same dense-crowd ambiguity humans would have. C2 saying 0/0 despite ~10 bees/frame visible flying is plausible (judge saw flying bees, not crossings), but it's a hard claim with no GT.</li>
+<li>The C2 = 0/0 judge result means any method that doesn't false-positive scores 1.00. Three of four candidates and 5/5 iterations hit C2 = 1.00 — that's the C2 score doing structural work.</li>
+<li>The judge protocol is locked-in (so cache hits stay stable). Re-rolling the judge with a different prompt could move every "ground-truth" number by ±20%. The 0.775 figure should be interpreted as "agreement with this specific cached judge."</li>
+</ol>
+<p><strong>The viewer is the disambiguation tool.</strong> Run <code>uv run bee viewer</code> and use the "Mark failure" button on judge-method disagreements to build a manual signal.</p>
+<hr />
+<h2 id="what-i-would-try-next-given-another-10-hours">What I would try next given another 10 hours</h2>
+<p>Ranked by expected impact:</p>
+<ol>
+<li><strong>Real bee dataset.</strong> The biggest single uncertainty here is whether MPS YOLO11s pseudo-labels are even close to a real bee detector. Spend the first 1 h pulling a public bee dataset (Roboflow Universe has several: <code>bee detection v3</code>, <code>honey-bee-x57n8</code>, etc.), fine-tuning YOLO11x for 100 epochs at imgsz=1280, and re-running. Expected: real mAP50 = 0.6–0.8, conf &gt; 0.3, tracks would actually persist.</li>
+<li><strong>Replace ByteTrack with a re-ID tracker</strong> (StrongSORT, DeepSORT with a small embedding model). Track ID stability across the entrance line is the single biggest pipeline failure on dense scenes. Even with the current detectors, a re-ID tracker would lift confirmed crossings.</li>
+<li><strong>Per-frame band-occupancy time series.</strong> Skip tracking entirely. For each frame, count bees in the inside-band vs outside-band (use the detector's bee count, not tracks). A crossing is a transition in the inside-count time series. This converts the problem from tracking to changepoint detection on small integer sequences — much more robust.</li>
+<li><strong>Manual labeling.</strong> The 4 clips are short (30 sec each). One human-hour gets ground-truth in/out per clip. Re-score every method against the manual GT alongside the judge. This is the only way to know whether the 0.775 plateau is a method ceiling or a judge ceiling.</li>
+<li><strong>Per-camera method assignment, not per-camera tuning.</strong> This run's "winners" all collapsed to MOG2 because the alternatives emitted ~0 events. With a real bee detector (#1) the mixed assignment would actually mix.</li>
+<li><strong>SAM2 mask propagation.</strong> Seed SAM2 with detector boxes on every Kth frame, propagate masks. Mask-centroid tracking is more stable than box-centroid on small/occluded objects.</li>
+<li><strong>Higher input resolution.</strong> The cameras are 1080p. Bees average ~30–50 px wide. A 4K camera (or AI super-resolution upsampling) would give 60–100 px per bee — the detectors would generalize better.</li>
+<li><strong>Two-stage classifier on bee crops.</strong> Train a tiny CNN (frozen ResNet18 head) on Opus-labeled bee crops vs hard-negative grass crops. Filter detector outputs through it. Specifically targets C4 (heavy grass).</li>
+<li><strong>Tighter entrance line geometry.</strong> Two-line "in-band / out-band" pair so a crossing must traverse both lines in order (spatial hysteresis, not just temporal). Reduces hover-double-counts on C3.</li>
+<li><strong>Different judge prompt.</strong> Have Opus return a <em>per-bee crossing list</em> (not just totals) so we can compare method tracks to judge tracks directly. Would let us score precision/recall, not just count agreement.</li>
+</ol>
+<hr />
+<h2 id="how-to-reproduce">How to reproduce</h2>
+<p>The four source MOVs are in <code>data/raw/videos/&lt;camera&gt;/</code> and gitignored. Pseudo-labels (<code>data/yolo_train/</code>) and judge cache (<code>data/judge_cache/</code>) are also gitignored but checked into the local repo state.</p>
+<pre><code class="language-bash"># 1. Install
+uv sync                 # ~5 min on a fresh machine; pulls torch + ultralytics + sahi + supervision + transformers
+
+# 2. Set the API key (or copy from a sibling project)
+cp .env.example .env    # then edit .env to add ANTHROPIC_API_KEY=sk-...
+
+# 3. Phase 0 sanity — re-derive entrance lines (cache hits make this ~free)
+uv run bee phase0 entrance-lines
+
+# 4. Run the final pipeline (tuned MOG2)
+uv run bee run --all
+# → writes results/runs/phase2_&lt;TS&gt;/C1_mog2_tuned/&lt;camera&gt;/{events.jsonl, counts.json, annotated.mp4, score.json}
+
+# 5. Browse the runs interactively
+uv run bee viewer
+# → http://127.0.0.1:8765
+</code></pre>
+<p>Other ways into the pipeline:</p>
+<pre><code class="language-bash"># Re-run any individual Phase 1 candidate
+uv run python scripts/run_b1_grounding_dino.py        # GroundingDINO + ByteTrack (~55 min)
+uv run python scripts/run_b2_owlv2.py                 # OWLv2 + ByteTrack
+uv run python scripts/run_c1_mog2.py                  # MOG2 untuned baseline
+uv run python scripts/run_c2_farneback.py             # Farneback flow tripwire
+
+# Re-tune MOG2 per-camera
+uv run python scripts/tune_c1_mog2.py
+
+# Re-prime the judge cache (will print &quot;HIT&quot; for everything if cache is intact)
+uv run python scripts/baseline_judge.py
+</code></pre>
+<p>Tests + lint:</p>
+<pre><code class="language-bash">uv run pytest -q                                       # 16 tests (geometry, judge protocol, viewer, endpoint counter)
+uv run ruff check src/ scripts/ tests/
+</code></pre>
+<hr />
+<h2 id="file-guide">File guide</h2>
+<ul>
+<li><code>spec.md</code> — problem definition + validation protocol. Read first.</li>
+<li><code>CLAUDE.md</code> — engineering conventions and guardrails.</li>
+<li><a href="bakeoff.html">bakeoff.md</a> — Phase 1 comparison table (6 candidates).</li>
+<li><a href="phase2.html">phase2.md</a> — Phase 2 tuning + Opus-verify hybrid.</li>
+<li><a href="iter1.html">iter1.md</a> — Opus-window-counter experiment.</li>
+<li><a href="iter2.html">iter2.md</a> — animated bbox + looser MOG2.</li>
+<li><a href="iter3.html">iter3.md</a> — YOLO11s fine-tune on Opus pseudo-labels.</li>
+<li><a href="iter4.html">iter4.md</a> — endpoint counter + YOLO11x (fell back to YOLO11m).</li>
+<li><a href="entrance_lines/">entrance_lines/</a> — per-camera entrance-line overlays.</li>
+<li><a href="../../configs/c1_mog2_tuned.yaml">configs/c1_mog2_tuned.yaml</a> — the per-camera params behind the final 0.775 result.</li>
+</ul>
+<hr />
+<h2 id="telegram-log">Telegram log</h2>
+<ul>
+<li><code>Phase 1 bake-off done. No PASS.</code> (~01:00)</li>
+<li><code>Phase 2 done. Mean 0.775, PASS=no.</code> (~01:14)</li>
+<li><code>Phase 5 iter 1 done. Mixed mean 0.775, PASS=no.</code> (~01:38)</li>
+<li><code>Phase 5 iter 2 done. Mixed mean 0.738, PASS=no.</code> (~02:22)</li>
+<li><code>Phase 5 iter 3 done. Mixed mean 0.775, PASS=no.</code> (~03:32)</li>
+<li><code>Phase 5 iter 4 done. Mixed mean 0.775, PASS=no.</code> (~04:08)</li>
+<li><code>Phase 5 iter 5 done. Mixed mean 0.775, PASS=no.</code> (~04:44)</li>
+<li><code>Phase 5 iter 6 done. Mixed mean 0.775, PASS=no.</code> (~05:00)</li>
+<li><code>Bee counter overnight complete. Mean 0.775 (PASS=no, SHIP=no). 7 iterations all stalled at the same number — structural cap empirically confirmed. See final.md.</code> (~05:05)</li>
+</ul></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

@@ -1,0 +1,320 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 1 Bake-off Report — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-1-bake-off-report">Phase 1 Bake-off Report</h1>
+<p>Run timestamp: <code>20260518_230956</code>  </p>
+<p>Judge baseline (in, out) totals per clip:</p>
+<ul>
+<li>C1: (0, 4) — sparse, 15.7 bees/frame</li>
+<li>C2: (0, 0) — flying mostly, 10.4 bees/frame</li>
+<li>C3: (4, 6) — dense crowd, 21 bees/frame</li>
+<li>C4: (2, 5) — very dense, 40 bees/frame</li>
+</ul>
+<p>Scoring per spec §Validation: per-window (3s × 10) per direction <code>1 - |method - judge| / max(judge, 1)</code>. Clip mean = mean across windows × both directions. PASS: mean ≥ 0.85 AND min-clip ≥ 0.70. SHIP: ≥ 0.92 / ≥ 0.85.</p>
+<h2 id="summary-table-sorted-by-mean-agreement">Summary Table (sorted by mean agreement)</h2>
+<table>
+<thead>
+<tr>
+<th>Candidate</th>
+<th>Mean</th>
+<th>Min-clip</th>
+<th>Stdev</th>
+<th>Total events</th>
+<th>PASS</th>
+<th>SHIP</th>
+<th>C1</th>
+<th>C2</th>
+<th>C3</th>
+<th>C4</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A3_rtdetr_x</td>
+<td>0.900</td>
+<td>0.800</td>
+<td>0.100</td>
+<td>0</td>
+<td>✓</td>
+<td>×</td>
+<td>0.800</td>
+<td>1.000</td>
+<td>—</td>
+<td>—</td>
+<td>truncated</td>
+</tr>
+<tr>
+<td>A1_yolo11x</td>
+<td>0.738</td>
+<td>0.500</td>
+<td>0.185</td>
+<td>0</td>
+<td>×</td>
+<td>×</td>
+<td>0.800</td>
+<td>1.000</td>
+<td>0.500</td>
+<td>0.650</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>B1_grounding_dino</td>
+<td>0.738</td>
+<td>0.500</td>
+<td>0.185</td>
+<td>0</td>
+<td>×</td>
+<td>×</td>
+<td>0.800</td>
+<td>1.000</td>
+<td>0.500</td>
+<td>0.650</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>B2_owlv2</td>
+<td>0.738</td>
+<td>0.500</td>
+<td>0.185</td>
+<td>2</td>
+<td>×</td>
+<td>×</td>
+<td>0.800</td>
+<td>1.000</td>
+<td>0.500</td>
+<td>0.650</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>C1_mog2</td>
+<td>0.675</td>
+<td>0.450</td>
+<td>0.160</td>
+<td>20</td>
+<td>×</td>
+<td>×</td>
+<td>0.700</td>
+<td>0.900</td>
+<td>0.450</td>
+<td>0.650</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>C2_farneback</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>2854</td>
+<td>×</td>
+<td>×</td>
+<td>0.000</td>
+<td>0.000</td>
+<td>—</td>
+<td>—</td>
+<td>partial (2/4)</td>
+</tr>
+<tr>
+<td>A2_yolo11x_sahi</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>×</td>
+<td>×</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>not-run</td>
+</tr>
+</tbody>
+</table>
+<h2 id="method-totals-vs-judge-targets">Method totals vs judge targets</h2>
+<table>
+<thead>
+<tr>
+<th>Candidate</th>
+<th>C1 (in/out vs 0/4)</th>
+<th>C2 (vs 0/0)</th>
+<th>C3 (vs 4/6)</th>
+<th>C4 (vs 2/5)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A3_rtdetr_x</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A1_yolo11x</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>B1_grounding_dino</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+</tr>
+<tr>
+<td>B2_owlv2</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>1/1</td>
+</tr>
+<tr>
+<td>C1_mog2</td>
+<td>1/1</td>
+<td>1/2</td>
+<td>4/11</td>
+<td>0/0</td>
+</tr>
+<tr>
+<td>C2_farneback</td>
+<td>729/464</td>
+<td>819/842</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A2_yolo11x_sahi</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-findings">Key findings</h2>
+<ul>
+<li><strong>No candidate clears PASS bar (0.85 mean / 0.70 min-clip).</strong></li>
+<li><strong>High-scoring candidates with 0 total events are vacuous winners.</strong> A3, A1, B1, B2 emit 0 crossings on most clips. Their scores reflect matching the judge's 0/0 on quiet windows, not real counting ability. They cannot be improved by tuning — the pipeline is broken upstream.</li>
+<li><strong>The detect-→-track-→-cross pipeline fails at high bee density.</strong> B1 GroundingDINO confirmed detection works (15+ bees/frame in smoke tests), but ByteTrack ID switching across the dense crowd at frame_step=3 (10 fps) means no track persists long enough to register a confirmed line crossing. B2 OWLv2 same problem.</li>
+<li><strong>COCO-pretrained detectors (A1 YOLO11x, A3 RT-DETR) have no <code>bee</code> class.</strong> Confirmed: both emitted 0 bee-shaped detections at conf=0.05.</li>
+<li><strong>C1 MOG2 is the only method emitting real crossings.</strong> Mean 0.675, scoring 0.70 / 0.90 / 0.45 / 0.65 across cameras. Over-counts on C3 (4/11 vs 4/6) and zero-counts on C4 (0/0 vs 2/5).</li>
+<li><strong>C2 Farneback flow accumulator severely over-counts</strong> (729/464 on C1 vs 0/4). Threshold mis-calibrated; only C1/C2 scored before run truncated.</li>
+<li><strong>A2 YOLO11x+SAHI never ran</strong> (paired agent exited before reaching A2 stage).</li>
+</ul>
+<h2 id="winner-pick-for-phase-2-improvement">Winner pick (for Phase 2 improvement)</h2>
+<p><strong>Winner: C1 MOG2</strong> — the only candidate actually counting crossings. Mean 0.675.
+<strong>Runner-up: B1 GroundingDINO</strong> — best detection signal (real bees found per frame), but counting pipeline broken.</p>
+<p>Phase 2 plan: rather than narrowly "tune the winner", restructure the counter:
+1. <strong>Tune C1 MOG2 per-camera</strong> to reduce over-count on C3 and recover events on C4 (raise area threshold, lower hysteresis, narrow band).
+2. <strong>Build a hybrid B1+MOG2</strong>: use MOG2 motion gating to filter false positives, GroundingDINO to verify blob is a bee, full-rate (frame_step=1) line crossing.
+3. <strong>If still below PASS, fall back to per-frame Opus-as-detector</strong> on the entrance band (Tier 3) — bypasses tracking entirely.</p>
+<hr />
+<h2 id="manual-gt-comparison-c1-added-after-manual-labeling">Manual-GT comparison — C1 (added after manual labeling)</h2>
+<p>Scored against <code>ground_truth_labels.jsonl</code> (51 human-labeled IN
+events for C1) via <code>scripts/compare_to_gt.py</code>. Count agreement is the first-order
+metric; temporal P/R/F1 use a ±15-frame greedy match. Rows are appended by the
+scorer on each run.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>pred IN</th>
+<th>GT IN</th>
+<th>ratio</th>
+<th>abs_err</th>
+<th>band</th>
+<th>P</th>
+<th>R</th>
+<th>F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1 final (MOG2+CLAHE+directional)</td>
+<td>52</td>
+<td>51</td>
+<td>1.02</td>
+<td>1</td>
+<td>WITHIN ±10%</td>
+<td>0.65</td>
+<td>0.67</td>
+<td>0.66</td>
+</tr>
+<tr>
+<td>C1 vanish (direction-agnostic, corrected)</td>
+<td>52</td>
+<td>51</td>
+<td>1.02</td>
+<td>1</td>
+<td>WITHIN ±10%</td>
+<td>0.75</td>
+<td>0.76</td>
+<td>0.76</td>
+</tr>
+<tr>
+<td>C1 YOLO-FT (Sledevic) bright conf0.10</td>
+<td>47</td>
+<td>51</td>
+<td>0.92</td>
+<td>4</td>
+<td>WITHIN ±10%</td>
+<td>0.70</td>
+<td>0.65</td>
+<td>0.67</td>
+</tr>
+<tr>
+<td>C1 hybrid motion∩YOLO</td>
+<td>44</td>
+<td>51</td>
+<td>0.86</td>
+<td>7</td>
+<td>WITHIN ±20%</td>
+<td>0.77</td>
+<td>0.67</td>
+<td>0.72</td>
+</tr>
+<tr>
+<td>C1-FT detector + ByteTrack + zone-entry (dedup120/20)</td>
+<td>62</td>
+<td>51</td>
+<td>1.22</td>
+<td>11</td>
+<td>OUT OF BAND</td>
+<td>0.66</td>
+<td>0.80</td>
+<td>0.73</td>
+</tr>
+<tr>
+<td>C1 FT-detector + user-polygon inward-cross (dedup90/14)</td>
+<td>49</td>
+<td>51</td>
+<td>0.96</td>
+<td>2</td>
+<td>WITHIN ±10%</td>
+<td>0.71</td>
+<td>0.69</td>
+<td>0.70</td>
+</tr>
+</tbody>
+</table></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

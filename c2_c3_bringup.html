@@ -1,0 +1,83 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>C2 / C3 entry-counter bring-up — UNVERIFIED counts — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="c2-c3-entry-counter-bring-up-unverified-counts">C2 / C3 entry-counter bring-up — UNVERIFIED counts</h1>
+<p>Extends the C1 motion entry-counter to cameras C2 and C3, the two cameras that now
+have <strong>both</strong> a saved entrance crop (<code>configs/microscope.yaml</code>) and a hand-drawn entry
+polygon (<code>configs/entry_zones.yaml</code>). C4 is not brought up yet — it has a crop but no
+drawn polygon.</p>
+<h2 id="method-identical-to-shipped-c1">Method (identical to shipped C1)</h2>
+<p>ROI crop → CLAHE → MOG2 motion → Hungarian tracker → <code>VanishEntryCounter</code>. A bee is
+counted IN when a track arrives at the entrance from any direction and disappears into
+it. The entrance region is the <strong>hand-drawn polygon</strong> for that camera
+(<code>use_drawn_zones: true</code>), not C1's auto dark-mask. See <code>src/beecounter/count/vanish_entry.py</code>.</p>
+<p>The motion/tracker/dedup parameters are <strong>inherited verbatim from C1's tuned config</strong>
+as a sensible starting point. They are <strong>not</strong> tuned per camera, because neither C2 nor
+C3 has manual ground-truth labels to tune or score against.</p>
+<h2 id="results-best-effort-unverified-no-ground-truth">Results (best-effort, UNVERIFIED — no ground truth)</h2>
+<table>
+<thead>
+<tr>
+<th>Camera</th>
+<th>Config</th>
+<th>predicted IN</th>
+<th>blobs</th>
+<th>notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C2</td>
+<td><code>configs/c2_entry.yaml</code></td>
+<td><strong>68</strong></td>
+<td>10768</td>
+<td>sparse / sky background; bright-rail lip</td>
+</tr>
+<tr>
+<td>C3</td>
+<td><code>configs/c3_entry.yaml</code></td>
+<td><strong>41</strong></td>
+<td>46543</td>
+<td>dense crowd at entrance (hardest case)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>These counts are not validated.</strong> Without per-camera GT they cannot be confirmed
+within any error band, and the C1-inherited parameters are likely not optimal here.
+Treat the numbers as a pipeline-works smoke test, not a measured count. C3's far
+higher blob count (46k vs 10k) reflects the dense crowd — many overlapping bees that
+the simple centroid tracker will merge or fragment, so its count is the least trustworthy.</p>
+</blockquote>
+<h2 id="reproduce">Reproduce</h2>
+<pre><code class="language-bash">uv run python scripts/run_c1_entry.py --config configs/c2_entry.yaml --annotate
+uv run python scripts/run_c1_entry.py --config configs/c3_entry.yaml --annotate
+</code></pre>
+<p>Outputs land in <code>results/runs/entry_&lt;cam&gt;_&lt;ts&gt;/&lt;cam&gt;/</code> (events.jsonl, counts.json,
+config.yaml, annotated.mp4 — all gitignored).</p>
+<h2 id="to-verify-make-these-real">To verify / make these real</h2>
+<ol>
+<li>Label IN events for C2 and C3 in the viewer (<code>/label/&lt;cam&gt;</code>) →
+   <code>ground_truth_labels.jsonl</code> (currently C1-only, 51 IN).</li>
+<li>Score with <code>scripts/compare_to_gt.py --camera C2 --events &lt;run&gt;/events.jsonl</code>.</li>
+<li>Tune ROI / polygon / MOG2 / dedup per camera against that GT, as was done for C1.</li>
+</ol></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

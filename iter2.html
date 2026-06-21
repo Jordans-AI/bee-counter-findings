@@ -1,0 +1,543 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 5 — Iter 2: Animated-bbox verify + looser MOG2 hybrid — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-5-iter-2-animated-bbox-verify-looser-mog2-hybrid">Phase 5 — Iter 2: Animated-bbox verify + looser MOG2 hybrid</h1>
+<p>Run timestamp: <code>20260519_014330</code></p>
+<p>Starting point (Phase 2 / iter 1 best): mean <strong>0.775</strong>, min-clip 0.550.
+Iter-2 hypothesis: Phase 2's Opus-verify rejected real crossings because the
+bbox was drawn STATIC across all 5 strip frames (no motion shown to Opus). If
+we (a) draw a moving bbox + colored polyline trace, and (b) feed Opus MORE
+candidate events (looser MOG2), the verifier could prune noise and keep real
+crossings — possibly clearing PASS (0.85 / 0.70).</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>Animated-bbox fix shipped.</strong> <code>src/beecounter/count/verify.py</code> now draws a
+  per-strip-frame bbox at the <em>interpolated</em> centroid from the track's
+  ±8-frame trajectory, colored cyan → yellow → red across the strip, with a
+  dotted polyline connecting the dots. Sample strips below confirm the
+  animation is visually distinct from the legacy static overlay.</li>
+<li><strong>Acceptance-rate distribution changed in the EXPECTED direction.</strong> The
+  original (static-bbox) verifier accepted 2 / 5 C1 events, 0 / 1 C3, 1 / 4 C4
+  (Phase 2). With the animated overlay, Opus now accepts <strong>0 of 193</strong>
+  candidate events across C1+C3+C4 — and references the polyline and bbox
+  motion in its reasoning (e.g. "the box stays near the green line without a
+  clear cyan-to-red transition across it"). The visualization is being read
+  but Opus correctly judges that the candidates emitted by looser MOG2 are
+  jittery non-crossings.</li>
+<li><strong>Mixed pipeline final score: mean = 0.738, min = 0.500. PASS: no. SHIP: no.</strong>
+  Worse than iter 1's 0.775 because the loose-MOG2 + 100%-rejection combination
+  <em>strictly worsens</em> C3 and C4 relative to keeping the iter-1 tuned events.</li>
+<li>The cheaper path forward is <strong>not</strong> "loosen MOG2 + verify". It is either
+  (a) keep iter-1 tuned MOG2 and accept 0.775 as the floor for the MOG2 family,
+  or (b) replace the detector with something that doesn't drown the verifier
+  in jitter (a real bee detector or a slow optical-flow heuristic constrained
+  to the line).</li>
+</ul>
+<h2 id="animated-bbox-fix-sanity-check">Animated-bbox fix (sanity check)</h2>
+<p><code>results/runs/phase5_iter2_20260519_014330/mixed/C4/sample_strip_static_v2.png</code>
+vs. <code>…/sample_strip_anim_v2.png</code>. Zoomed copies of the middle cell at
+<code>results/runs/phase5_iter2_20260519_014330/sample_anim_C4_v2_zoom.png</code> and
+<code>…/sample_static_C4_v2_zoom.png</code> make the difference visible — the animated
+version places a yellow box (event-frame color) on the bee's location, with
+visible colored polyline dots tracing the path. The legacy static version
+shows a single cyan box.</p>
+<p>Behavioral evidence the fix is being read by Opus (from
+<code>results/runs/phase5_iter2_20260519_014330/tighter_v2/C4/verify_audit.json</code>):</p>
+<ul>
+<li>"The box stays near the entrance line without a clear cyan-to-red
+  transition across it in the OUT direction."</li>
+<li>"The box appears on grass/debris below the entrance line, not clearly
+  crossing inward."</li>
+<li>"The tracked box appears to stay near or below the green line without a
+  clear cyan-to-red transition across it."</li>
+</ul>
+<p>These are not the kind of responses Opus gave in Phase 2 ("No motion
+visible", "Cannot determine direction"). The animated overlay produces
+<em>specific, visual</em> refutations referencing the trajectory's color gradient.</p>
+<h3 id="acceptance-rate-before-after">Acceptance-rate before / after</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: right;">Events</th>
+<th style="text-align: right;">Accepted</th>
+<th>Reject reason theme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 static verify</td>
+<td style="text-align: right;">10 (sum across cams)</td>
+<td style="text-align: right;">3</td>
+<td>"no motion visible / direction ambiguous"</td>
+</tr>
+<tr>
+<td>Iter 2 mixed animated verify (small bbox)</td>
+<td style="text-align: right;">171</td>
+<td style="text-align: right;">0</td>
+<td>"trajectory does not cross line"</td>
+</tr>
+<tr>
+<td>Iter 2 tighter v2 animated verify (large bbox)</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0</td>
+<td>"box on grass" / "box stays near line" / "no cyan-to-red transition"</td>
+</tr>
+</tbody>
+</table>
+<p>Larger overlay produces <em>more visually specific</em> refusals — Opus references
+the actual scene content ("grass", "landing board") not generic language.</p>
+<h2 id="looser-mog2-per-camera-sweep">Looser MOG2 per-camera sweep</h2>
+<p><code>scripts/tune_c3_c4_loose.py</code> ran 8 looser candidate configs per camera. We
+report raw (pre-verify) totals + raw judge score. The brief asked for "the
+config with the most events emitted (irrespective of score)"; we capped at
+event_total ≤ 90 to stay within the 200-call verify budget.</p>
+<h3 id="c3-trials-judge-wants-4-in-6-out">C3 trials (judge wants 4 IN / 6 OUT)</h3>
+<table>
+<thead>
+<tr>
+<th>Trial</th>
+<th style="text-align: right;">var_thr</th>
+<th style="text-align: right;">min_area</th>
+<th style="text-align: right;">min_hits</th>
+<th style="text-align: right;">hyst</th>
+<th style="text-align: right;">band</th>
+<th style="text-align: right;">IN</th>
+<th style="text-align: right;">OUT</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">raw score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>01</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">0.300</td>
+</tr>
+<tr>
+<td>02</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">0.050</td>
+</tr>
+<tr>
+<td>03</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0.400</td>
+</tr>
+<tr>
+<td>04</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">0.300</td>
+</tr>
+<tr>
+<td>05</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">0.200</td>
+</tr>
+<tr>
+<td>06</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.450</td>
+</tr>
+<tr>
+<td>07</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">0.050</td>
+</tr>
+</tbody>
+</table>
+<p>Chosen for mixed pipeline: <strong>trial 07</strong> (83 events, most under cap).
+The best raw-score config (trial 06) was used in the tighter-v2 re-verify.</p>
+<h3 id="c4-trials-judge-wants-2-in-5-out">C4 trials (judge wants 2 IN / 5 OUT)</h3>
+<table>
+<thead>
+<tr>
+<th>Trial</th>
+<th style="text-align: right;">var_thr</th>
+<th style="text-align: right;">min_area</th>
+<th style="text-align: right;">min_hits</th>
+<th style="text-align: right;">hyst</th>
+<th style="text-align: right;">band</th>
+<th style="text-align: right;">IN</th>
+<th style="text-align: right;">OUT</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">raw score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">108</td>
+<td style="text-align: right;">115</td>
+<td style="text-align: right;">223</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>01</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">114</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>02</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">0.050</td>
+</tr>
+<tr>
+<td>03</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">0.500</td>
+</tr>
+<tr>
+<td>04</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">0.300</td>
+</tr>
+<tr>
+<td>05</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">151</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: right;">294</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr>
+<td>06</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">0.050</td>
+</tr>
+<tr>
+<td>07</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0.450</td>
+</tr>
+</tbody>
+</table>
+<p>Chosen for mixed pipeline: <strong>trial 06</strong> (83 events, most under cap).
+Best raw-score trial 07 used in the tighter-v2 re-verify.</p>
+<p>The shape of the C3 and C4 trial landscapes is informative: every config
+above ~30 events scores 0.000-0.300, and every config under 30 events scores
+0.400-0.500 (i.e. the same as the Phase-2 tuned 0.550 for C3). MOG2 on these
+densities does not have a meaningful "loose enough to catch all real
+crossings, tight enough to skip the false positives" sweet spot — it either
+emits the right scale of events (and the raw score caps around 0.5) or it
+emits 10-50× too many (and the raw score collapses to ~0).</p>
+<h2 id="mixed-pipeline-final-iter-2-numbers">Mixed pipeline (final iter 2 numbers)</h2>
+<p><code>configs/c1_mog2_iter2.yaml</code> (committed):
+- C1, C2: unchanged from iter-1 tuned MOG2.
+- C3: trial 07 (looser, 83 events).
+- C4: trial 06 (looser, 83 events).</p>
+<p>Pipeline behaviour: MOG2 → record per-event centroid trajectory → animated
+Opus verify (window_half=8, n_samples=5, min_confidence=0.5). C2 skipped
+(already 1.000).</p>
+<h3 id="per-camera">Per-camera</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">Raw IN/OUT</th>
+<th style="text-align: right;">Judge IN/OUT</th>
+<th style="text-align: right;">Verified kept</th>
+<th style="text-align: right;">Verified IN/OUT</th>
+<th style="text-align: right;">Raw score</th>
+<th style="text-align: right;">Verified score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">3/2</td>
+<td style="text-align: right;">0/4</td>
+<td style="text-align: right;">0 of 5</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0.800</td>
+<td style="text-align: right;">0.800</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">(skipped, perfect)</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">45/38</td>
+<td style="text-align: right;">4/6</td>
+<td style="text-align: right;">0 of 83</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">0.500</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">31/52</td>
+<td style="text-align: right;">2/5</td>
+<td style="text-align: right;">0 of 83</td>
+<td style="text-align: right;">0/0</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">0.650</td>
+</tr>
+</tbody>
+</table>
+<p>Aggregate: <strong>mean = 0.738, min-clip = 0.500, PASS = no, SHIP = no.</strong></p>
+<p>Notes:
+- C1 verified_score (0.800) equals raw score by coincidence: dropping the 3 IN
+  pushed score_in 0.800 → 1.000 (perfect, judge wants 0 IN), but dropping the
+  2 OUT pushed score_out 0.800 → 0.600 (judge wants 4 OUT). They cancel.
+- C3/C4 verified score climbs from 0.05 → 0.50/0.65 because removing dozens of
+  spurious events bring the method IN/OUT counts down to (0,0), which is
+  closer to the judge's (4,6) / (2,5) than to (45,38) / (31,52) — by the
+  agreement formula <code>1 - |m - j| / max(j,1)</code>.
+- These are <em>worse</em> than Phase-2 tuned MOG2 (0.55 / 0.75), because Phase 2 at
+  least matched some events: C3 tuned method (1, 0) vs judge (4, 6) gives
+  in_score 0.75 / out_score 0.0 → 0.55 mean. Iter-2 verified (0, 0) gives
+  in_score 0.0 / out_score 0.0 → 0.50 mean.</p>
+<h2 id="sub-step-524-confidence-threshold-sweep-mathematically-moot">Sub-step 5.2.4 — confidence-threshold sweep (mathematically moot)</h2>
+<p>The brief calls for re-running with min_confidence ∈ {0.35, 0.65} if PASS is
+not met. Across all 193 fresh verify calls, <strong><code>is_real_crossing=True</code>
+appeared in 0 verdicts</strong> (per <code>tighter_v2/*/verify_audit.json</code> and
+<code>mixed/*/verify_audit.json</code>). Both candidate thresholds therefore yield the
+same kept-set as 0.5: empty.</p>
+<p>We confirmed via offline replay of the cached verdicts:</p>
+<pre><code class="language-text">C1: thresh=0.35 → kept=0; thresh=0.5 → kept=0; thresh=0.65 → kept=0
+C3: thresh=0.35 → kept=0; thresh=0.5 → kept=0; thresh=0.65 → kept=0
+C4: thresh=0.35 → kept=0; thresh=0.5 → kept=0; thresh=0.65 → kept=0
+</code></pre>
+<p>This is the honest signal: the animated verifier is now correctly identifying
+all of these MOG2 candidate events as non-crossings. No confidence threshold
+change can recover an event Opus says "is_real_crossing=False" for.</p>
+<h2 id="status-against-the-bars">Status against the bars</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Min-clip</th>
+<th style="text-align: center;">PASS (0.85/0.70)</th>
+<th style="text-align: center;">SHIP (0.92/0.85)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 baseline (tuned MOG2)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 1 mixed (tuned MOG2 + Opus-window)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>Iter 2 mixed (looser + animated verify)</strong></td>
+<td style="text-align: right;"><strong>0.738</strong></td>
+<td style="text-align: right;"><strong>0.500</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+</tr>
+<tr>
+<td>Iter 2 tighter-v2 (small set + larger overlay)</td>
+<td style="text-align: right;">0.738</td>
+<td style="text-align: right;">0.500</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="anthropic-token-spend-iter-2">Anthropic token spend (iter 2)</h2>
+<ul>
+<li>193 fresh API calls (within the 200 budget).</li>
+<li>562,442 input tokens, 31,834 output tokens.</li>
+<li>Approx cost (Opus 4.7 list, $15/MTok input / $75/MTok output): <strong>~$10.82</strong>.</li>
+<li>All responses cached on disk; offline threshold re-analysis was free.</li>
+</ul>
+<h2 id="why-the-loose-mog2-verify-approach-didnt-work">Why the loose-MOG2 + verify approach didn't work</h2>
+<p>The hypothesis was: looser MOG2 emits the real crossings AND a lot of false
+positives → verifier prunes the FPs → kept set ≈ real crossings.</p>
+<p>What actually happens:
+1. <strong>MOG2 on dense scenes does not separate real-crossing tracks from
+   line-hovering jitters.</strong> The same blob is detected, tracked across 5-15
+   frames, and bumps the entrance line repeatedly. Loose hysteresis lets each
+   bump fire as an event. The trajectory looks like a wobble <em>along</em> the
+   line, not a crossing.
+2. <strong>Opus, given the moving bbox + polyline, correctly classifies these as
+   non-crossings.</strong> Its reasoning specifically references "stays near the
+   line", "no cyan-to-red transition", "appears on grass". This is now a
+   feature, not a bug — the fix is working as designed.
+3. <strong>Real crossings still get caught by MOG2 occasionally, but their
+   trajectory is also short and ambiguous at this image resolution.</strong> The
+   bees are 20-40 pixels on a 1920-wide frame — at strip resolution (~256
+   px/cell), they're 3-5 pixels. Even with the bigger-overlay v2 fix, the
+   actual bee body is barely visible to Opus.</p>
+<p>The two failure modes are now <em>visible</em> in the audit log instead of being
+hidden behind "no motion". That's progress on the <em>understanding</em> axis even
+though it didn't move the score.</p>
+<h2 id="recommendations-for-iter-3-handoff-to-orchestrator">Recommendations for iter 3 (handoff to orchestrator)</h2>
+<p>Pick ONE:</p>
+<ol>
+<li><strong>Floor the MOG2 family at 0.775 and pivot detectors.</strong> The available
+   evidence says MOG2's representation (centroid of a foreground blob) does
+   not carry enough information for Opus to verify crossings reliably on
+   dense scenes. Try a small bee detector (YOLO-nano on bee class trained on
+   ~100 frames from these clips would take ~15 min to label &amp; ~30 min to
+   train) to produce tighter, longer-lived tracks. Verify-with-animation
+   would then have a real shot at working because the trajectory would be
+   30-50 frames of clean centroid history, not 5-15 of noisy blob jitter.</li>
+<li><strong>Replace the "verify per event" gate with "verify per time window".</strong>
+   Instead of asking Opus "is this one event real?", ask "between t=N and
+   t=N+3, how many bees crossed in each direction?" using the same windowed
+   prompt the judge uses — but with the MOG2-track polylines overlaid so
+   Opus can see the candidate paths it's expected to count. This is closer
+   to how a human would re-validate the judge. Cost: 40 fresh Opus calls
+   (10 windows × 4 cameras), well within iter-3 budget.</li>
+<li><strong>Lower the entrance band and re-judge.</strong> Half the C3/C4 problem is bees
+   skim the entrance without entering — those are NOT crossings but MOG2
+   counts them anyway. The judge's band is 20 px; on C3 the actual entrance
+   is more like a 5 px slot. Tightening band_px to 6 in both the judge and
+   the method would simultaneously drop FPs <em>and</em> reduce Opus's reluctance
+   to count borderline traversals as crossings. But it changes the
+   judge-prompt, which changes the cache key — every judge cache invalidates.
+   Iter-1's cached judge windows are 240 cells; full re-judge would cost
+   ~$3.</li>
+</ol>
+<p>I'd advise option 1 next — it's the only path with a credible model of why
+the verifier would start accepting events. Option 2 is the cleanest
+single-iteration experiment if you don't want to train anything. Option 3
+should not be done in isolation; it's a coupling-risk multiplier.</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

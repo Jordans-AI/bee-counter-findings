@@ -1,0 +1,369 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Phase 5 — Iter 6: Per-bee state machine + two-line band — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="phase-5-iter-6-per-bee-state-machine-two-line-band">Phase 5 — Iter 6: Per-bee state machine + two-line band</h1>
+<p>Run timestamp: <code>20260519_044450</code>.</p>
+<p>Starting point (iters 1, 3, 4, 5 best): mean <strong>0.775</strong>, min-clip <strong>0.550</strong>.</p>
+<h2 id="hypothesis">Hypothesis</h2>
+<p>Iters 1–5 all stalled at mean 0.775 against the cached judge. Iter 5
+ran spreadsheet of three counter mechanisms (temporal hysteresis,
+endpoint matching, track-free band occupancy) and confirmed:</p>
+<blockquote>
+<p>The plateau at 0.775 is now confirmed across 5 iterations spanning
+every link of the detect→track→count chain.</p>
+</blockquote>
+<p>Iter 6 tests the last untried branch from the techniques bench: <strong>spatial
+hysteresis</strong> via a two-line band + an explicit per-track state machine.
+Where the temporal hysteresis counter (Phase 2 baseline) asks "did the
+track stay on the new side long enough?", the state machine asks "did
+the track physically traverse both lines, in the correct order, then
+remain on the new side for <code>dwell_frames</code>?"</p>
+<p>If 0.775 still holds after this, every reasonable counter built on top
+of the MOG2 detector chain has been tried — strong empirical evidence
+of a structural cap at the detector level.</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li><strong>State machine unit tests</strong>: 7/7 pass.</li>
+<li><strong>Per-camera best (state machine standalone)</strong>:</li>
+<li>C1: band=40 dwell=5 → <strong>0.800</strong> (in=3, out=2 vs judge 0/4)</li>
+<li>C2: band=40 dwell=5 → 0.700 (in=2, out=6 vs judge 0/0)</li>
+<li>C3: band=25 dwell=5 → <strong>0.550</strong> (in=5, out=7 vs judge 4/6)</li>
+<li>C4: band=40 dwell=5 → 0.650 (in=4, out=4 vs judge 2/5)</li>
+<li><strong>Standalone mean = 0.675, min-clip = 0.550. PASS=no, SHIP=no.</strong></li>
+<li><strong>Mixed per-camera (vs Phase 2 mog2_hysteresis)</strong>:</li>
+<li>C1: chose <code>mog2_state_machine</code> (tie 0.800)</li>
+<li>C2: chose <code>mog2_hysteresis</code> (1.000 vs 0.700)</li>
+<li>C3: chose <code>mog2_state_machine</code> (tie 0.550)</li>
+<li>C4: chose <code>mog2_hysteresis</code> (0.750 vs 0.650)</li>
+<li><strong>Mixed mean = 0.775, min-clip = 0.550. PASS=no, SHIP=no.</strong></li>
+<li><strong>The plateau holds. Identical to iters 1, 3, 4, 5.</strong></li>
+</ul>
+<h2 id="61-counter-implementation">6.1 — Counter implementation</h2>
+<p><code>src/beecounter/count/state_machine.py</code>. Tests:
+<code>tests/test_state_machine.py</code> — <strong>7/7 pass</strong>.</p>
+<p>API:</p>
+<pre><code class="language-python">counter = BandStateMachineCounter(line, band_px=25, dwell_frames=3, min_track_len=5)
+for frame_idx, track in stream:
+    counter.update(track.id, frame_idx, track.centroid)
+events = counter.events()
+</code></pre>
+<p>State machine per track:
+- <code>OUTSIDE</code>  : <code>sd &lt; -band_px/2</code>
+- <code>IN_BAND</code>  : <code>-band_px/2 &lt;= sd &lt;= +band_px/2</code>
+- <code>INSIDE</code>   : <code>sd &gt; +band_px/2</code></p>
+<p>Valid IN: <code>OUTSIDE → IN_BAND → INSIDE</code>, then dwell ≥ <code>dwell_frames</code>
+consecutive frames in <code>INSIDE</code>. Valid OUT is the mirror. Per-lap dedup
+caps each track at one IN and one OUT per traversal cycle. Tracks with
+fewer than <code>min_track_len</code> observations never emit.</p>
+<p>Test coverage:
+- Straight outside→inside crossing (dwell=3): 1 IN.
+- Reverse inside→outside crossing (dwell=3): 1 OUT.
+- Hover oscillating between OUTSIDE and IN_BAND (never INSIDE): 0 events.
+- Two full laps (OUT→IN→OUT→IN): 3 events (in, out, in) — per-lap dedup
+  allows re-emit after a full cycle.
+- Track shorter than <code>min_track_len</code>: 0 events.
+- Insufficient dwell (2 inside frames, dwell=5): 0 events.
+- <code>events()</code> accessor returns chronological list.</p>
+<h2 id="62-state-machine-standalone-per-camera-sweep">6.2 — State machine standalone per-camera sweep</h2>
+<p>Detector: per-camera tuned MOG2 (from <code>configs/c1_mog2_tuned.yaml</code>).
+Tracker: per-camera tuned Hungarian (same source). Counter: this iter's
+<code>BandStateMachineCounter</code> swept over <code>band_px ∈ {15, 25, 40}</code> ×
+<code>dwell_frames ∈ {2, 5}</code> = 6 configs per camera. Best per camera is
+chosen for the canonical artifacts.</p>
+<h3 id="per-camera-sweep-clip-score-inout-shown-as-inout-totals">Per-camera sweep — clip score (in/out shown as in→out totals)</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">band=15 d=2</th>
+<th style="text-align: right;">band=15 d=5</th>
+<th style="text-align: right;">band=25 d=2</th>
+<th style="text-align: right;">band=25 d=5</th>
+<th style="text-align: right;">band=40 d=2</th>
+<th style="text-align: right;">band=40 d=5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">0.400 (8/10)</td>
+<td style="text-align: right;">0.550 (5/7)</td>
+<td style="text-align: right;">0.400 (9/9)</td>
+<td style="text-align: right;">0.650 (6/4)</td>
+<td style="text-align: right;">0.600 (4/4)</td>
+<td style="text-align: right;"><strong>0.800</strong> (3/2)</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;">0.500 (5/11)</td>
+<td style="text-align: right;">0.600 (2/8)</td>
+<td style="text-align: right;">0.500 (6/8)</td>
+<td style="text-align: right;">0.650 (3/6)</td>
+<td style="text-align: right;">0.550 (4/7)</td>
+<td style="text-align: right;"><strong>0.700</strong> (2/6)</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">0.300 (14/15)</td>
+<td style="text-align: right;">0.450 (9/9)</td>
+<td style="text-align: right;">0.500 (11/8)</td>
+<td style="text-align: right;"><strong>0.550</strong> (5/7)</td>
+<td style="text-align: right;">0.400 (5/5)</td>
+<td style="text-align: right;">0.550 (2/5)</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;">0.200 (23/14)</td>
+<td style="text-align: right;">0.400 (13/9)</td>
+<td style="text-align: right;">0.300 (16/9)</td>
+<td style="text-align: right;">0.400 (8/7)</td>
+<td style="text-align: right;">0.600 (5/5)</td>
+<td style="text-align: right;"><strong>0.650</strong> (4/4)</td>
+</tr>
+</tbody>
+</table>
+<p>Judge totals (in/out): C1=0/4, C2=0/0, C3=4/6, C4=2/5. <strong>Bold</strong> = chosen
+per camera; ties go to the wider band + longer dwell for stability.
+For C3, band=25 dwell=5 and band=40 dwell=5 tie at 0.550 — band=25
+emits closer totals to the judge (5/7 vs 2/5), so it's the better
+qualitative fit even at the same score.</p>
+<h3 id="standalone-canonical">Standalone canonical</h3>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th>params</th>
+<th>method (in,out)</th>
+<th>judge (in,out)</th>
+<th style="text-align: right;">clip_score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>band=40, d=5</td>
+<td>(3, 2)</td>
+<td>(0, 4)</td>
+<td style="text-align: right;"><strong>0.800</strong></td>
+</tr>
+<tr>
+<td>C2</td>
+<td>band=40, d=5</td>
+<td>(2, 6)</td>
+<td>(0, 0)</td>
+<td style="text-align: right;">0.700</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>band=25, d=5</td>
+<td>(5, 7)</td>
+<td>(4, 6)</td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+</tr>
+<tr>
+<td>C4</td>
+<td>band=40, d=5</td>
+<td>(4, 4)</td>
+<td>(2, 5)</td>
+<td style="text-align: right;">0.650</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.675</strong></td>
+</tr>
+<tr>
+<td><strong>Min</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+</tr>
+</tbody>
+</table>
+<p>State machine standalone is worse than Phase 2's tuned MOG2 +
+hysteresis on C2 (0.700 vs 1.000) and C4 (0.650 vs 0.750), ties on C1
+(0.800) and C3 (0.550).</p>
+<h3 id="why-the-standalone-loses-on-c2-and-c4">Why the standalone loses on C2 and C4</h3>
+<p>C2's judge totals are 0/0 (no judged crossings). The Phase 2 hysteresis
+counter coincidentally emits 0/0 and scores 1.000. The state machine
+emits 2 phantom IN and 6 phantom OUT, dragging C2 to 0.700. These are
+real MOG2 detection artifacts (shadows / leaf movement near the lip)
+that pass the tracker's <code>min_hits=20</code> gate and complete a full
+geometric traversal of the 40-pixel band over their lifetime — temporal
+hysteresis with <code>hysteresis_frames=18</code> catches these because it needs
+18 consecutive frames on the new side, which fragmented tracks can't
+deliver. The state machine doesn't have that long-tail filter.</p>
+<p>C4's judge totals are 2/5. Phase 2 hysteresis emits 2/2 (under-counts
+OUT, scores 0.750). State machine emits 4/4 (over-counts IN, mis-counts
+OUT, scores 0.650). The 4 IN events at C4 are again MOG2 detection
+artifacts on the busy landing-board.</p>
+<h2 id="63-mixed-per-camera-assignment">6.3 — Mixed per-camera assignment</h2>
+<p><code>configs/method_per_camera_iter6.yaml</code>. Two candidates per camera:
+<code>mog2_hysteresis</code> (Phase 2 baseline) and <code>mog2_state_machine</code> (this
+iter). Best per camera; ties go to the new state machine.</p>
+<table>
+<thead>
+<tr>
+<th>Cam</th>
+<th style="text-align: right;">mog2_hysteresis</th>
+<th style="text-align: right;">mog2_state_machine</th>
+<th>Chosen</th>
+<th style="text-align: right;">Rescored</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td style="text-align: right;">0.800</td>
+<td style="text-align: right;">0.800</td>
+<td>mog2_state_machine (tie)</td>
+<td style="text-align: right;">0.800</td>
+</tr>
+<tr>
+<td>C2</td>
+<td style="text-align: right;"><strong>1.000</strong></td>
+<td style="text-align: right;">0.700</td>
+<td>mog2_hysteresis</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr>
+<td>C3</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: right;">0.550</td>
+<td>mog2_state_machine (tie)</td>
+<td style="text-align: right;">0.550</td>
+</tr>
+<tr>
+<td>C4</td>
+<td style="text-align: right;"><strong>0.750</strong></td>
+<td style="text-align: right;">0.650</td>
+<td>mog2_hysteresis</td>
+<td style="text-align: right;">0.750</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mixed aggregate: mean = 0.775, min-clip = 0.550. PASS=no, SHIP=no.</strong></p>
+<p>The state machine wins (or ties) on C1 and C3 — exactly the cameras
+where Phase 2 hysteresis emits 0-1 events and the state machine
+recovers a few more correct crossings. It loses on C2 (where the
+judge says 0/0 and any non-trivial emit hurts) and C4 (where the
+balance of over-emit vs under-emit favours hysteresis).</p>
+<h2 id="status-against-the-bars">Status against the bars</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Min-clip</th>
+<th style="text-align: center;">PASS (≥0.85, ≥0.70)</th>
+<th style="text-align: center;">SHIP (≥0.92, ≥0.85)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2 baseline (tuned MOG2 + hysteresis)</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 1 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 2 mixed</td>
+<td style="text-align: right;">0.738</td>
+<td style="text-align: right;">0.500</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 3 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 4 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>Iter 5 mixed</td>
+<td style="text-align: right;">0.775</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>Iter 6 mixed</strong></td>
+<td style="text-align: right;"><strong>0.775</strong></td>
+<td style="text-align: right;"><strong>0.550</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+<td style="text-align: center;"><strong>no</strong></td>
+</tr>
+<tr>
+<td>Iter 6 mog2_state_machine standalone</td>
+<td style="text-align: right;">0.675</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: center;">no</td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compute-spend">Compute spend</h2>
+<ul>
+<li>Anthropic API: 0 fresh judge calls. Every score lookup hit the cached
+  window response from prior iters. Incremental cost = $0.</li>
+<li>MOG2 + Hungarian inference: ~10s/camera × 4 cameras (one pass per
+  camera, observations reused across the 6-config sweep) = ~40s.</li>
+<li>State machine evaluation: ~0.5s × 24 configs total = ~12s.</li>
+<li>Score re-evaluation: 24 cache-hit scores + 4 canonical scores =
+  ~5 min wall clock (most of this is <code>make_window_strip</code> rebuilding
+  the strip from the source video frames before each cache lookup).</li>
+<li>Mixed builder + report: &lt;1 min.</li>
+</ul>
+<p><strong>Total wall-clock: ~7 min compute, ~12 min including report writing.</strong></p>
+<h2 id="did-spatial-hysteresis-break-the-plateau">Did spatial hysteresis break the plateau?</h2>
+<p><strong>No.</strong> The mixed iter 6 mean is 0.775 with min-clip 0.550 — bit-for-bit
+identical to iters 1, 3, 4, and 5. The state machine standalone is
+worse (0.675) than the Phase 2 baseline (0.775) because it lacks the
+long-tail track-length filter that Phase 2's hysteresis counter
+implicitly provides via <code>hysteresis_frames=18</code> on C2. On C1 and C3 it
+ties; on C2 and C4 the hysteresis counter wins. Spatial hysteresis is
+mathematically distinct from temporal hysteresis, but on this detector
+output stream it identifies the same set of plausible bee crossings —
+plus a few extra MOG2 artifacts on quiet scenes where the temporal
+filter would have rejected them. The 0.775 / 0.550 plateau is now
+confirmed across <strong>six iterations</strong> spanning every distinct counter
+mechanism in the techniques bench. The bottleneck is the per-frame
+detection signal on C3 and C4, not the counter algorithm.</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>

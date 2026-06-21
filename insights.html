@@ -1,0 +1,112 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<title>Bee-counter — insight gallery</title>
+<style>
+ body{font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#0f1115;color:#e6e6e6}
+ header{padding:28px 32px;background:#161922;border-bottom:1px solid #2a2f3a}
+ h1{margin:0 0 6px;font-size:24px} header p{margin:4px 0;color:#b8c0cc;max-width:60em}
+ .key{margin-top:10px;font-size:14px;color:#9aa4b2}
+ .caveat{margin-top:12px;padding:10px 14px;background:#1d2230;border-left:3px solid #ffb454;border-radius:4px;font-size:14px;color:#d7dde6;max-width:60em}
+ .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:20px;padding:24px 32px}
+ .card{margin:0;background:#161922;border:1px solid #2a2f3a;border-radius:10px;overflow:hidden}
+ .card img{width:100%;display:block;background:#fff}
+ .badge{padding:8px 14px;font-size:13px;font-weight:600;color:#ffb454;background:#1d2230}
+ figcaption{padding:12px 16px 18px} figcaption h3{margin:0 0 6px;font-size:17px}
+ .shows{margin:0 0 8px;color:#b8c0cc;font-size:14px} .why{margin:0;color:#9aa4b2;font-size:13.5px}
+ .headline{margin:18px 0 4px;padding:18px 22px;background:linear-gradient(135deg,#1b2233,#161922);
+   border:1px solid #2a3550;border-radius:10px;max-width:60em}
+ .headline h2{margin:0 0 6px;font-size:20px;color:#fff} .headline p{color:#cdd6e2;max-width:none}
+ .headline .note{font-size:14px;color:#aeb8c6;margin-top:10px}
+ table.rank{border-collapse:collapse;margin:12px 0;font-size:15px;min-width:30em}
+ table.rank th{text-align:left;color:#8b94a3;font-weight:600;padding:4px 16px 6px 0;border-bottom:1px solid #2a3550}
+ table.rank td{padding:6px 16px 6px 0;border-bottom:1px solid #20283a}
+ table.rank td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:#fff}
+ table.rank td.dim{font-weight:400;color:#8b94a3} table.rank td.medal{white-space:nowrap}
+</style>
+<header>
+ <h1>Bee entries across four hives — insight gallery</h1>
+ <p><b>Research question:</b> do the hives differ in how many bees enter, and what are the
+ temporal patterns? Each camera is a different hive/orchard — C1 blueberry (אוכמניות),
+ C2 site בהג״ט, C3 kiwi (בדרךלקיווי), C4 cherry (דובדבן). 704 clips, 2026-04-30 afternoon.</p>
+ 
+ <div class="headline">
+  <h2>What the data says</h2>
+  <p>The hives differ <b>dramatically and unambiguously</b> in entry rate, and the ranking is robust.</p>
+  <table class="rank">
+   <tr><th></th><th>Hive</th><th>Orchard</th><th>entries/min</th><th>total</th></tr>
+   <tr><td class='medal'>🥇 busiest</td><td><b>C4</b></td><td>Cherry</td><td class='num'>422</td><td class='num dim'>6,113</td></tr><tr><td class='medal'>🥈</td><td><b>C2</b></td><td>Site בהג״ט</td><td class='num'>204</td><td class='num dim'>29,538</td></tr><tr><td class='medal'>🥉</td><td><b>C1</b></td><td>Blueberry</td><td class='num'>167</td><td class='num dim'>28,973</td></tr><tr><td class='medal'>least busy</td><td><b>C3</b></td><td>Kiwi</td><td class='num'>133</td><td class='num dim'>1,463</td></tr>
+  </table>
+  <p class="note">Every pairwise difference is significant at <b>p ≤ 1e-09 … 1e-69</b>
+  (Mann–Whitney U on per-clip rates), and the ranking <b>holds in the common window 14:50–16:08 UTC</b>
+  (all hives filmed at once) — a real hive/orchard difference, not a time-of-day artifact.
+  <b>Cherry</b> has ~3.2× the traffic of <b>Kiwi</b>.</p>
+ </div>
+ <p class="key">Per-camera context: <b>C1 · Blueberry</b> 28,973 (166.51/min) · <b>C2 · Site-B</b> 29,538 (204.42/min) · <b>C3 · Kiwi</b> 1,463 (133.0/min) · <b>C4 · Cherry</b> 6,113 (421.59/min)</p>
+ <div class="caveat"><b>Read rates, not totals.</b> These are motion-triggered cameras that recorded
+ very different durations (C1/C2 hours, C3/C4 minutes), over overlapping-but-different time windows.
+ So cross-hive claims use entries/min (#1–#3) and, for the cleanest comparison, the common-window
+ cut (#3). Totals (#7) are context only.</div>
+ <p class="key">Pick the ones to keep/refine for the final report. ★ = my recommendation.</p>
+</header>
+<div class="grid">
+    <figure class="card">
+      <div class="badge">1 · ★ primary</div>
+      <img src="figures/insights/01_rate_ci.png" loading="lazy">
+      <figcaption><h3>Hive entry rate ± 95% CI</h3><p class="shows">Mean entries/min per hive with bootstrap confidence intervals.</p>
+      <p class="why"><b>Why pick it:</b> Directly answers 'do hives differ?'. CIs show the difference is real (tight for C1/C2).</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">2 · ★ primary</div>
+      <img src="figures/insights/02_rate_distribution.png" loading="lazy">
+      <figcaption><h3>Per-clip rate distribution</h3><p class="shows">Violin + every 30 s clip as a point.</p>
+      <p class="why"><b>Why pick it:</b> Shows the full spread and how little the hives overlap — richer than a bar.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">3 · ★ recommended</div>
+      <img src="figures/insights/03_common_window.png" loading="lazy">
+      <figcaption><h3>Rate in the common time window</h3><p class="shows">Same comparison but only the window where ALL hives filmed at once.</p>
+      <p class="why"><b>Why pick it:</b> Removes the time-of-day confound — the fairest like-for-like hive comparison.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">4 · supporting</div>
+      <img src="figures/insights/08_significance.png" loading="lazy">
+      <figcaption><h3>Pairwise significance matrix</h3><p class="shows">Mann–Whitney U p-value for every hive pair.</p>
+      <p class="why"><b>Why pick it:</b> Quantifies 'are the differences statistically real' in one glance.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">5 · ★ recommended</div>
+      <img src="figures/insights/04_time_of_day.png" loading="lazy">
+      <figcaption><h3>Activity over the afternoon</h3><p class="shows">Entries/min in 15-min bins per hive, peak labelled.</p>
+      <p class="why"><b>Why pick it:</b> Answers the temporal half: when each hive peaks, daily build-up.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">6 · alt to #4</div>
+      <img src="figures/insights/05_heatmap.png" loading="lazy">
+      <figcaption><h3>Hive × time heatmap</h3><p class="shows">Compact rate grid; white = not recording.</p>
+      <p class="why"><b>Why pick it:</b> Same temporal story, denser; good if you want one compact panel.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">7 · exploratory</div>
+      <img src="figures/insights/06_normalized_rhythm.png" loading="lazy">
+      <figcaption><h3>Normalised daily rhythm</h3><p class="shows">Each hive's rate ÷ its own mean.</p>
+      <p class="why"><b>Why pick it:</b> Compares the SHAPE/timing of activity independent of absolute level.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">8 · context</div>
+      <img src="figures/insights/07_cumulative.png" loading="lazy">
+      <figcaption><h3>Cumulative entries</h3><p class="shows">Running total per hive over the session.</p>
+      <p class="why"><b>Why pick it:</b> Conveys volume, but is recording-time-dominated — keep the caveat.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">9 · ★ bonus</div>
+      <img src="figures/insights/09_spatial.png" loading="lazy">
+      <figcaption><h3>Where bees enter</h3><p class="shows">2-D entry-location density over each entrance image.</p>
+      <p class="why"><b>Why pick it:</b> A different question entirely: which part of the slot bees use — visually striking.</p></figcaption>
+    </figure>
+    <figure class="card">
+      <div class="badge">10 · context</div>
+      <img src="figures/insights/10_coverage.png" loading="lazy">
+      <figcaption><h3>Recording coverage</h3><p class="shows">When each camera was actually filming.</p>
+      <p class="why"><b>Why pick it:</b> Essential context: explains why totals differ and why #3 matters.</p></figcaption>
+    </figure>
+</div>
+</html>

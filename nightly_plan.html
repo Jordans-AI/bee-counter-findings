@@ -1,0 +1,115 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Nightly autonomous-run plan — bee counter — bee-counter</title><style>
+:root{--ink:#1a1f29;--mut:#5b6573;--line:#e4e7ec;--accent:#b45309;--link:#1d4ed8;--bg:#fafafa}
+*{box-sizing:border-box}
+body{font:17px/1.65 -apple-system,Segoe UI,Roboto,Helvetica,sans-serif;color:var(--ink);background:var(--bg);margin:0}
+.topnav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;z-index:5}
+.topnav .brand{font-weight:700;margin-right:6px;text-decoration:none;color:var(--ink)}
+.topnav a{color:var(--link);text-decoration:none;font-size:15px}
+.topnav a:hover{text-decoration:underline}
+main.report{max-width:880px;margin:0 auto;padding:36px 24px 80px}
+.report h1{font-size:30px;letter-spacing:-.01em;margin:.2em 0 .4em}
+.report h2{font-size:21px;margin:1.6em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:6px}
+.report h3{font-size:17px;margin:1.3em 0 .3em}
+.report img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+.report a{color:var(--link)}
+.report table{border-collapse:collapse;width:100%;margin:12px 0;font-size:15px}
+.report th{text-align:left;color:var(--mut);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.03em;padding:6px 12px 8px 0;border-bottom:2px solid var(--line)}
+.report td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.report code{font:13.5px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0f1f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.report pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13.5px}
+.report pre code{background:none;border:none;color:inherit;padding:0}
+.report blockquote{margin:12px 0;padding:6px 16px;border-left:4px solid var(--accent);background:#fff;color:var(--mut)}
+footer.site{max-width:880px;margin:0 auto;padding:18px 24px 48px;color:var(--mut);font-size:13.5px;border-top:1px solid var(--line)}
+</style></head><body><div class="topnav"><a class="brand" href="index.html">🐝 bee-counter</a><a href="index.html">Home</a><a href="findings.html">Findings</a><a href="insights.html">Gallery</a><a href="architecture.html">Architecture</a><a href="dataset_report.html">Full report</a><a href="final.html">Final</a></div><main class="report"><h1 id="nightly-autonomous-run-plan-bee-counter">Nightly autonomous-run plan — bee counter</h1>
+<p>Plan for unattended overnight Claude sessions to improve the counters, bring up
+C2–C4, and tidy the repo — with <strong>measurable</strong> goals and hard guardrails. Draft for
+review; nothing autonomous launches until the prerequisites + mechanism are confirmed.</p>
+<h2 id="guiding-principle">Guiding principle</h2>
+<p>Every nightly task must have a <strong>number that goes up (or a binary that flips green)</strong>
+and a <strong>hard stop</strong>. No open-ended "make it better." A session picks the top backlog
+item, does it, scores it, commits if it's an improvement, logs the result, stops.</p>
+<h2 id="prerequisites-must-exist-before-a-camera-can-be-tuned-measurably">Prerequisites (must exist before a camera can be tuned measurably)</h2>
+<p>Measurability needs ground truth. C1 has it (51 manual IN labels). For each other
+camera you want worked on overnight, provide — via the viewer — :
+1. <strong>Crop</strong> (<code>/microscope/&lt;cam&gt;</code> → edit crop) → <code>configs/microscope.yaml</code>.
+2. <strong>Entry-zone polygon</strong> (<code>/microscope/&lt;cam&gt;</code> → draw, <strong>click save</strong>) →
+   <code>configs/entry_zones.yaml</code>.  ← <em>C1's is currently NOT saved; redraw + save.</em>
+3. <strong>GT entry labels</strong> (<code>/label/&lt;cam&gt;</code> → mark each IN) → <code>ground_truth_labels.jsonl</code>.
+   Without GT, the night can only <em>produce</em> counts, not <em>verify/tune</em> them.</p>
+<h2 id="measurable-goals">Measurable goals</h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1 count (shipped)</td>
+<td>predicted IN / GT 51</td>
+<td>within ±10% — <strong>met (52)</strong></td>
+</tr>
+<tr>
+<td>C1 per-event quality</td>
+<td>temporal F1 (±15f)</td>
+<td>≥ 0.80 (now 0.76) — stretch</td>
+</tr>
+<tr>
+<td>C2–C4 count (per cam)</td>
+<td>predicted IN / GT</td>
+<td>within ±20% (needs GT)</td>
+</tr>
+<tr>
+<td>Repo health</td>
+<td><code>pytest</code> + <code>ruff</code></td>
+<td>green every session</td>
+</tr>
+<tr>
+<td>Reproducibility</td>
+<td>one command per camera regenerates count + score</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="task-backlog-prioritized-each-metric-done-when-stop-after">Task backlog (prioritized; each: metric · done-when · stop-after)</h2>
+<ol>
+<li><strong>C1 — your "any bee that enters the marked polygon" counter.</strong> Use the saved
+   entry-zone polygon + FT detector + zone-entry counter. Metric: F1 / ratio vs 51.
+   Done-when: F1 &gt; 0.76 or documented why not. Stop-after: 3 tuning rounds.</li>
+<li><strong>C1 — per-hole occupancy (no tracking).</strong> Per dark hole, detect "bee present →
+   absorbed" changepoints on the FT detector (sidesteps track fragmentation).
+   Metric: F1/ratio. Done-when: beats motion or ruled out. Stop-after: 1 build + 3 tunes.</li>
+<li><strong>C2–C4 bring-up</strong> (per camera with prereqs): run the motion pipeline, score vs
+   GT, tune ROI/zone/MOG2. Metric: ratio within ±20%. Stop-after: 1 sweep/camera.</li>
+<li><strong>Per-camera detector fine-tune</strong> (if box labels provided): <code>finetune_c1.py</code>
+   generalized per camera. Metric: recall + count. Stop-after: 1 train + 1 eval.</li>
+<li><strong>Repo organization</strong>: README + architecture doc; group scripts; prune/retire
+   dead-ends into a clear archive; ensure every script has a usage docstring.
+   Done-when: README exists, ruff+pytest green, no orphan scripts.</li>
+</ol>
+<h2 id="per-session-protocol-autonomous-claude">Per-session protocol (autonomous Claude)</h2>
+<ol>
+<li>Read <code>decisions.md</code> + this plan + <code>git log</code> to see state.</li>
+<li>Pick the highest-priority backlog item whose prerequisites are met.</li>
+<li>Implement in a branch; <strong>run <code>uv run pytest -q</code> and <code>uv run ruff check .</code></strong>.</li>
+<li>Score against GT with <code>compare_to_gt.py</code>; append a bakeoff row.</li>
+<li>If improved &amp; green: commit (conventional message). If not: write the negative
+   result to <code>decisions.md</code> (so the next session doesn't repeat it) and move on.</li>
+<li>Append a dated entry to <code>nightly_log.md</code>; Telegram a 1-line summary.</li>
+</ol>
+<h2 id="guardrails-non-negotiable">Guardrails (non-negotiable)</h2>
+<ul>
+<li>Never regress: a commit requires <code>pytest</code> + <code>ruff</code> green and no GT-score drop on C1.</li>
+<li>Bounded loops only (max iterations / wall-clock deadline per task).</li>
+<li>After 3 failed attempts at one approach → log to <code>decisions.md</code>, switch task.</li>
+<li>Never delete <code>data/</code> or <code>*labels*.jsonl</code>. Never commit weights/data
+  (gitignored). Token budget per session (set at launch).</li>
+<li>Work camera-by-camera; verify after each before starting the next.</li>
+</ul>
+<h2 id="launch-mechanism-to-confirm">Launch mechanism (to confirm)</h2>
+<p>Options (pick one): (a) a <code>LaunchAgent</code>/cron running <code>claude -p "&lt;session prompt&gt;"</code>
+hourly that executes the protocol; (b) <code>/schedule</code> cloud routine; (c) a single
+<code>megatask</code> plan. Recommend (a) with a small wrapper that injects the protocol + a
+per-run token cap, logging to <code>nightly_log.md</code>.</p></main><footer class="site">Static mirror of the bee-counter reports · <a href="index.html">all reports</a> · the live debug viewer runs locally (<code>uv run bee viewer</code>).</footer></body></html>
