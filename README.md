@@ -12,4 +12,4 @@ The interactive debug viewer (video scrubbing, frame labeling) runs locally from
 main project repo — this site is the shareable read-only slice.
 
 > Generated from the project repo by `scripts/build_static_site.py` — do not hand-edit.
-> Engineering: Jordan-AI (Shaked Yarden & Shaylee). Research: Yehuda & team.
+> Engineering: Jordan-AI. Research: Yehuda & team.
